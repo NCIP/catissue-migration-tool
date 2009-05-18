@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mapping>
+	 <class name="edu.wustl.migrator.metadata.MigrationClass">
+		<field name="className" type="string">
+			<bind-xml name="className" node="attribute"/>
+		</field>
+		<field name="relationShipType" type="string">
+			<bind-xml name="relationShipType" node="attribute"/>
+		</field>
+		<field name="isToMigrate" type="boolean">
+			<bind-xml name="isToMigrate" node="attribute"/>
+		</field>
+		<field name="isToSetNull" type="string">
+			<bind-xml name="isToSetNull" node="attribute"/>
+		</field>
+		<field name="cardinality" type="string">
+			<bind-xml name="cardinality" node="attribute"/>
+		</field>
+		<field name="roleName" type="string">
+			<bind-xml name="roleName" node="attribute"/>
+		</field>
+		<field name="sql" type="string">
+			<bind-xml name="sql" node="attribute"/>
+		</field>
+		<field name="containmentAssociationCollection" type="edu.wustl.migrator.metadata.MigrationClass" collection="collection" />
+		<field name="referenceAssociationCollection" type="edu.wustl.migrator.metadata.MigrationClass" collection="collection" />
+	</class>
+	
+	<class name="edu.wustl.migrator.metadata.MigrationMetadata">
+	 <field name="MigrationClass" type="edu.wustl.migrator.metadata.MigrationClass" collection="collection" />
+	 </class>
+</mapping>
