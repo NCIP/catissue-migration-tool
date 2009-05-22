@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import edu.wustl.migrator.util.MigrationException;
+import edu.wustl.migrator.util.MigrationUtility;
+
 
 public class MigrationClass{
 	
@@ -13,6 +16,7 @@ public class MigrationClass{
 	String cardinality;
 	String roleName;
 	String sql;
+	Class klass;
 	
 	public String getIsToSetNull()
 	{
@@ -137,14 +141,110 @@ public class MigrationClass{
 	public String getCardinality() {
 		return cardinality;
 	}
-	public void setCardinality(String cardinality) {
+	public void setCardinality(String cardinality) 
+	{
 		this.cardinality = cardinality;
 	}
-	public String getRoleName() {
+	public String getRoleName() 
+	{
 		return roleName;
 	}
-	public void setRoleName(String roleName) {
+	public void setRoleName(String roleName) 
+	{
 		this.roleName = roleName;
+	}
+	
+	public Class getClassObject() throws MigrationException
+	{
+		
+		try
+		{
+			if(klass==null)
+			{
+				klass = Class.forName(className);
+			}	
+		}
+		catch (ClassNotFoundException e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}  
+		return  klass;
+	}
+	
+	public Object getNewInstance() throws MigrationException
+	{
+		Object returnObject = null;
+		try
+		{
+			returnObject = getClass().newInstance();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}  
+		return  returnObject;
+	}
+	
+	public Object invokeGetterMethod(String roleName,Class[]parameterTypes,Object objectOnWhichMethodToInvoke, Object...args) throws MigrationException
+	{
+		Object returnObject = null;
+		try
+		{
+			String functionName = MigrationUtility.getGetterFunctionName(roleName); 
+			returnObject = getClass().getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}
+		return returnObject;
+	}
+
+	public void invokeSetterMethod(String roleName, Class[]parameterTypes,Object objectOnWhichMethodToInvoke, Object...args) throws MigrationException
+	{
+		Object returnObject = null;
+		try
+		{
+			String functionName = MigrationUtility.getSetterFunctionName(roleName); 
+			getClass().getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}
+	}
+	
+	public Long invokeGetIdMethod(Object objectOnWhichMethodToInvoke) throws MigrationException
+	{
+		Long id  = null;
+		try
+		{
+			id = (Long)getClass().getMethod("getId", null).invoke(objectOnWhichMethodToInvoke, null);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}
+		return id;
+	}
+
+	public void invokeSetIdMethod(Object objectOnWhichMethodToInvoke, Long id) throws MigrationException
+	{
+		try
+		{
+			
+			getClass().getMethod("setId", Long.class).invoke(objectOnWhichMethodToInvoke, id);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException(e.getMessage(),e);
+		}
 	}
 }
 

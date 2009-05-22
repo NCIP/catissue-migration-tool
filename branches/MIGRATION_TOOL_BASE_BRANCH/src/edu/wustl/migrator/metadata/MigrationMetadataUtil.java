@@ -42,43 +42,6 @@ public class MigrationMetadataUtil
 		}
 		return migrate;
 	}
-	/**
-	 * the function takes the migration class object and returns the set of ids 
-	 * using the sql provided
-	 * @param migrationObj
-	 * @return
-	 */
-	public List<Long> migratingDataIDs(MigrationClass migrationObj)
-	{
-		Connection conn = null;
-		DAO dao = new DAO();
-		conn = dao.establishConnection();
-		String sqlQuery = migrationObj.getSql();
-		List<Long> objectList = new ArrayList<Long>();
 
-		ResultSet rs = null;
-
-		try
-		{
-			Statement stmt = conn.createStatement();
-			rs = stmt.executeQuery(sqlQuery);
-			int i = 1;
-			for (; rs.next(); i++)
-			{
-				objectList.add(rs.getLong(1));
-			}
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			dao.destroyConnection(conn);
-		}
-
-		return objectList;
-	}
-	
 	
 }

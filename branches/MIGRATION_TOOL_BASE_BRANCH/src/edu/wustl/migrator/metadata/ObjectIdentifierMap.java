@@ -4,13 +4,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
-public class IdMap
+public class ObjectIdentifierMap
 {
 	String className; 
 	Long oldId;
 	Long newId;
 
-	public IdMap(String className)
+	public ObjectIdentifierMap(String className)
 	{
 		this.className = className;
 	}
