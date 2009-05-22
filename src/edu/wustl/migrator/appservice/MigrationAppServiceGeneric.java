@@ -10,9 +10,17 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
+import edu.wustl.migrator.util.MigrationException;
 
-public class MigrationAppServiceGeneric implements MigrationAppService
+
+public abstract class MigrationAppServiceGeneric extends MigrationAppService
 {
+	public MigrationAppServiceGeneric(boolean isAuthenticationRequired, String userName,
+			String password) throws MigrationException
+	{
+		super(isAuthenticationRequired, userName, password);
+		// TODO Auto-generated constructor stub
+	}
 	private Session session;
 
 	public void deleteObject(Object obj)
@@ -21,7 +29,7 @@ public class MigrationAppServiceGeneric implements MigrationAppService
 
 	}
 
-	public void insertObject(Object obj)
+	public Object insertObject(Object obj)
 	{
 		try
 		{
@@ -57,7 +65,7 @@ public class MigrationAppServiceGeneric implements MigrationAppService
 		{
 			session.close();
 		}
-
+		return null;
 	}
 
 	public void updateObject(Object obj)

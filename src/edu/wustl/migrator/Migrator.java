@@ -1,15 +1,13 @@
 
 package edu.wustl.migrator;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.wustl.catissuecore.domain.Specimen;
-import edu.wustl.migrator.appservice.AppServiceImp;
-import edu.wustl.migrator.appservice.MigrationAppServiceImpl;
-import edu.wustl.migrator.metadata.IdMap;
+import edu.wustl.migrator.appservice.CaCoreMigrationAppServiceImpl;
+import edu.wustl.migrator.appservice.MigrationAppService;
+import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
@@ -21,7 +19,9 @@ public class Migrator
 	{
 		try
 		{
-			AppServiceImp.initializeAppService();
+			SandBoxDao.init();
+			
+			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,"admin@admin.com","Login123");
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
 			MigrationMetadata metadata = unMarshaller.unmarshall();
 
@@ -33,15 +33,11 @@ public class Migrator
 				while (it.hasNext())
 				{
 					MigrationClass migration = it.next();
+					MigrationProcessor migrationProcessor = new MigrationProcessor(migration);
 
-					List<Long> ids = unMarshaller.migratingDataIDs(migration);
+					List<Object> list = migrationProcessor.fetchObjects();
 
-					Processor p = new Processor(migration);
-					//p.fetchObjectIdentifier();
-					List<Object> list = p.fetchObjects();
 					System.out.println("list == " + list.size());
-					//list of idMap to be inserted
-					List<IdMap> listOfIdMap = new ArrayList<IdMap>();
 
 					if (list != null && !list.isEmpty())
 					{
@@ -49,7 +45,7 @@ public class Migrator
 						while (iterator.hasNext())
 						{
 							Object obj = iterator.next();
-							new MigrationAppServiceImpl().insertObject(obj);
+							migrationAppService.insert(obj);						
 						}
 					}
 
