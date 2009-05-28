@@ -21,7 +21,7 @@
     	<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
         <!--  <property name="hibernate.cache.provider_class">net.sf.hibernate.cache.EhCacheProvider</property>-->
         <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
-	    <property name="connection.url">jdbc:mysql://localhost:3306/copy_catissue_pcatissue3</property>
+	    <property name="connection.url">jdbc:mysql://localhost:3306/pcatissuecore_db_by_sachin</property>
 	    <property name="connection.username">root</property>
 	    <property name="connection.password">root</property>   
 	    <property name="hibernate.jdbc.batch_size">0</property>   
@@ -31,6 +31,7 @@
 		<mapping resource="edu/wustl/catissuecore/hbm/ConsentTierResponse.hbm.xml"/>
 		<mapping resource="edu/wustl/catissuecore/hbm/ConsentTierStatus.hbm.xml"/>
 		<!--Consent Tracking Suite-->
+		<mapping resource="edu/wustl/migrator/hbm/ObjectIdentifierMap.hbm.xml"/>
 		
 		<!-- caTIES Suite-->
     	<mapping resource="edu/wustl/catissuecore/hbm/Concept.hbm.xml"/>
