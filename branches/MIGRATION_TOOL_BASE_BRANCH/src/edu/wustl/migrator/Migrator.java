@@ -11,6 +11,9 @@ import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
+import gov.nih.nci.system.applicationservice.ApplicationException;
+import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
+import gov.nih.nci.system.comm.client.ClientSession;
 
 public class Migrator
 {
@@ -20,8 +23,11 @@ public class Migrator
 		try
 		{
 			SandBoxDao.init();
+			SandBoxDao.initializeIdMap();
+
+			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
+					"admin@admin.com", "login123");
 			
-			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,"admin@admin.com","Login123");
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
 			MigrationMetadata metadata = unMarshaller.unmarshall();
 
@@ -45,7 +51,7 @@ public class Migrator
 						while (iterator.hasNext())
 						{
 							Object obj = iterator.next();
-							migrationAppService.insert(obj);						
+							migrationAppService.insert(obj, migration);
 						}
 					}
 
@@ -56,6 +62,10 @@ public class Migrator
 		catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			SandBoxDao.closeSession();
 		}
 	}
 

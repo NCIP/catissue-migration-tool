@@ -5,23 +5,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
-import edu.wustl.catissuecore.domain.Specimen;
-import edu.wustl.migrator.dao.HibernateSessionHandler;
 import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
+import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
-import edu.wustl.migrator.util.MigrationUtility;
 
 public class MigrationProcessor
 {
 
 	MigrationClass migrationClass = null;
+	ObjectIdentifierMap objectMap;
 
 	public MigrationClass getMigration()
 	{
@@ -77,6 +76,8 @@ public class MigrationProcessor
 			NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException
 	{
+		Map<Object, Object> sandBoxObjs = new HashMap<Object, Object>();
+		
 		List<Object> listForInsertion = new ArrayList<Object>();
 		try
 		{
@@ -91,12 +92,14 @@ public class MigrationProcessor
 			else
 			{
 				String idsSet = "(";
-				Iterator<Long> idItert = ids.iterator();
+				Iterator idItert = ids.iterator();
+				//System.out.println("idItert"+idItert);
 				int noOfIds = ids.size();
 				int counter = 1;
 				while (idItert.hasNext())
 				{
-					Long id = idItert.next();
+					Object idValue = idItert.next();
+					Long id = Long.valueOf(idValue.toString());
 					if (counter == noOfIds)
 					{
 						idsSet += id;
@@ -114,19 +117,22 @@ public class MigrationProcessor
 
 			if (objectList != null && !objectList.isEmpty())
 			{
-				Collections.sort(objectList, new SortObject());
-				Iterator<Object> iterator = objectList.iterator();
+				//Collections.sort(objectList, new SortObject());
+				Iterator iterator = objectList.iterator();
 				while (iterator.hasNext())
 				{
 					//object of the type = "main"
 					Object object = iterator.next();
-					Specimen s = (Specimen) object;
-					if (!s.getLineage().equalsIgnoreCase("New"))
-					{
-						processObject(object, migrationClass);
+					// maintaining a map for the original, unedited objects
+					//Object key = getKey(object);
+					//sandBoxObjs.put(key, object);
+					
+					
+					objectMap = new ObjectIdentifierMap(migrationClass.getClassName());	
+					processObject(object, migrationClass);
 
-						listForInsertion.add(object);
-					}
+					listForInsertion.add(object);
+
 				}
 			}
 
@@ -135,17 +141,19 @@ public class MigrationProcessor
 		{
 			e.printStackTrace();
 		}
-		finally
+		/*finally
 		{
 			//dao.destroyConnection(con);
 			HibernateSessionHandler.closeSession();
-		}
+		}*/
 		return listForInsertion;
 	}
 
 	/**
 	 * @param className
 	 * @param mainObj
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException
 	 * @throws NoSuchMethodException
 	 * @throws IllegalAccessException
@@ -153,9 +161,10 @@ public class MigrationProcessor
 	 * @throws InstantiationException 
 	 */
 	private void processObject(Object mainObj, MigrationClass migrationClass)
-			throws MigrationException
+			throws MigrationException, InstantiationException, IllegalAccessException
 	{
-
+		objectMap.setOldId(migrationClass.invokeGetIdMethod(mainObj));
+		
 		if (migrationClass.getReferenceAssociationCollection() != null
 				&& !migrationClass.getReferenceAssociationCollection().isEmpty())
 		{
@@ -178,6 +187,8 @@ public class MigrationProcessor
 	 * @param mainObj
 	 * @param mainObjectClass
 	 * @param containments
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 * @throws NoSuchMethodException
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
@@ -185,7 +196,7 @@ public class MigrationProcessor
 	 * @throws InstantiationException 
 	 */
 	private void processContainments(Object mainObj, MigrationClass mainMigrationClass,
-			Collection<MigrationClass> containmentMigrationClassList) throws MigrationException
+			Collection<MigrationClass> containmentMigrationClassList) throws MigrationException, InstantiationException, IllegalAccessException
 	{
 
 		Iterator<MigrationClass> containmentItert = containmentMigrationClassList.iterator();
@@ -204,9 +215,9 @@ public class MigrationProcessor
 				//getContainment.invoke(mainObj, null);
 
 				//added for participant race
-				Collection<Object> newContainmentObjectCollection = new HashSet<Object>();
+				Collection<Object> newContainmentObjectCollection = new LinkedHashSet<Object>();
 
-				if (containmentObjectCollection != null && !containmentObjectCollection.isEmpty())
+				if (containmentObjectCollection != null)
 				{
 					if (isToSetNull.equalsIgnoreCase("Yes"))
 					{
@@ -215,10 +226,12 @@ public class MigrationProcessor
 					else
 					{
 						Iterator collIter = containmentObjectCollection.iterator();
+						
 						while (collIter.hasNext())
 						{
 							Object containmentObject = collIter.next();
 							processObject(containmentObject, containmentMigrationClass);
+							//commenting setting the id null code
 							containmentMigrationClass.invokeSetIdMethod(containmentObject, null);
 							newContainmentObjectCollection.add(containmentObject);
 						}
@@ -237,7 +250,7 @@ public class MigrationProcessor
 			{
 				Object containmentObject = mainMigrationClass.invokeGetterMethod(
 						containmentMigrationClass.getRoleName(), null, mainObj, null);
-
+				
 				if (containmentObject != null)
 				{
 					if (isToSetNull.equalsIgnoreCase("Yes"))
@@ -247,11 +260,11 @@ public class MigrationProcessor
 					else
 					{
 						processObject(containmentObject, containmentMigrationClass);
+						//commenting setting the id null code
 						containmentMigrationClass.invokeSetIdMethod(containmentObject, null);
 					}
 					String roleName = containmentMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentMigrationClass.getClass()}, mainObj, containmentObject);
-
+					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject.getClass()}, mainObj, containmentObject);
 				}
 			}
 		}
@@ -289,7 +302,7 @@ public class MigrationProcessor
 				Collection associationObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
 						associationMigrationClass.getRoleName(), null, mainObj, null);
 				//getterForAssociation.invoke(mainObj, null);
-				if (associationObjectCollection != null && !associationObjectCollection.isEmpty())
+				if (associationObjectCollection != null)
 				{
 					if (isToSetNull.equalsIgnoreCase("Yes"))
 					{
@@ -301,7 +314,7 @@ public class MigrationProcessor
 						while (collectionIterator.hasNext())
 						{
 							Object associatedObject = collectionIterator.next();
-							processObject(associatedObject, associationMigrationClass);
+							//processObject(associatedObject, associationMigrationClass);
 							//get id must of the persistent object
 							//Method getId = persitentObj.getClass().getMethod("getId", null);
 							//Object id = getId.invoke(persitentObj, null);
@@ -314,11 +327,6 @@ public class MigrationProcessor
 							//associatedClass.newInstance();
 							associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
 							
-							// to remove this if loop
-							if (productionId == null)
-							{
-								productionId = Long.valueOf(sandBoxId.toString());
-							}
 							// end of to remove
 							newAssociationCollection.add(newAssociatedObject);
 						}
@@ -333,7 +341,7 @@ public class MigrationProcessor
 			{
 				Object associatedObject = mainMigrationClass.invokeGetterMethod(
 						associationMigrationClass.getRoleName(), null, mainObj, null);
-				processObject(associatedObject, associationMigrationClass);
+				//processObject(associatedObject, associationMigrationClass);
 					//getterForAssociation.invoke(mainObj, null);
 				Object newAssociatedObject = null;
 
@@ -347,19 +355,12 @@ public class MigrationProcessor
 						newAssociatedObject = associationMigrationClass.getNewInstance();
 						//setting the production id to the new object
 						associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
-						
-						// to remove this if loop
-						if (productionId == null)
-						{
-							productionId = Long.valueOf(sandBoxId.toString());
-						}
-						// end of to remove
-
-						String roleName = associationMigrationClass.getRoleName();
-						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associationMigrationClass.getClass()},mainObj, newAssociatedObject);
 					}
+						String roleName = associationMigrationClass.getRoleName();
+						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{newAssociatedObject.getClass()},mainObj, newAssociatedObject);
 				}
 			}
 		}
 	}
+	
 }
