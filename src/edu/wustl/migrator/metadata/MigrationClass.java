@@ -177,7 +177,7 @@ public class MigrationClass{
 		Object returnObject = null;
 		try
 		{
-			returnObject = getClass().newInstance();
+			returnObject = Class.forName(className).newInstance();
 		}
 		catch (Exception e)
 		{
@@ -193,7 +193,7 @@ public class MigrationClass{
 		try
 		{
 			String functionName = MigrationUtility.getGetterFunctionName(roleName); 
-			returnObject = getClass().getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
+			returnObject = Class.forName(className).getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
 		}
 		catch (Exception e)
 		{
@@ -209,7 +209,7 @@ public class MigrationClass{
 		try
 		{
 			String functionName = MigrationUtility.getSetterFunctionName(roleName); 
-			getClass().getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
+			Class.forName(className).getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
 		}
 		catch (Exception e)
 		{
@@ -223,7 +223,7 @@ public class MigrationClass{
 		Long id  = null;
 		try
 		{
-			id = (Long)getClass().getMethod("getId", null).invoke(objectOnWhichMethodToInvoke, null);
+			id = (Long)Class.forName(className).getMethod("getId", null).invoke(objectOnWhichMethodToInvoke, null);
 		}
 		catch (Exception e)
 		{
@@ -237,8 +237,7 @@ public class MigrationClass{
 	{
 		try
 		{
-			
-			getClass().getMethod("setId", Long.class).invoke(objectOnWhichMethodToInvoke, id);
+			Class.forName(className).getMethod("setId", Long.class).invoke(objectOnWhichMethodToInvoke, id);
 		}
 		catch (Exception e)
 		{
