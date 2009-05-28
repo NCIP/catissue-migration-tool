@@ -13,7 +13,7 @@ public class DAO
 	public Connection establishConnection() 
 	{
 		Connection conn=null;
-		String driver = "com.mysql.jdbc.Driver" , jdbcURL = "jdbc:mysql://localhost:3306/copy_catissue_pcatissue3" , username = "root" , password = "root";
+		String driver = "com.mysql.jdbc.Driver" , jdbcURL = "jdbc:mysql://localhost:3306/pcatissuecore_db_by_sachin" , username = "root" , password = "root";
 		
 		try 
 		{

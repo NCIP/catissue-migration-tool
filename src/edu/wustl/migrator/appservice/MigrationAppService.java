@@ -1,6 +1,7 @@
 package edu.wustl.migrator.appservice;
 
 import edu.wustl.migrator.MigrationObjectStatusHandler;
+import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
 
@@ -24,22 +25,26 @@ public abstract class  MigrationAppService
 
 	abstract public void authenticate(String userName,String password) throws MigrationException;
 	
-	public void insert(Object obj) throws MigrationException
+	public void insert(Object obj,MigrationClass migration) throws MigrationException
 	{
+		ObjectIdentifierMap idMap = new ObjectIdentifierMap(obj.getClass().getName());
 		try
 		{
-			ObjectIdentifierMap idMap = new ObjectIdentifierMap(obj.getClass().getName());
+			
 			idMap.setOldId(obj);
+			
 			Object newObj = insertObject(obj);
-			idMap.setNewId(newObj);
+			//idMap.setNewObj(newObj);
+			//idMap.setNewId(newObj);
 			//insertMapEntries(idMap);
-			MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(idMap);
+			MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(idMap,migration);
 		}	
 		catch(Exception appExp)
 		{
 			MigrationObjectStatusHandler.getInstance().handleFailedMigrationObject(obj,appExp.getMessage(),appExp);
-			appExp.printStackTrace();
+			//appExp.printStackTrace();
 		}
+		
 	}
 	
 	abstract protected Object insertObject(Object obj) throws MigrationException ;
