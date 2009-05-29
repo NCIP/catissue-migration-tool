@@ -29,7 +29,7 @@ public class ObjectIdentifierMap
 	//Object newObj;
 	Map<String,LinkedHashSet<ObjectIdentifierMap>> containmentObjectIdentifierMap = new LinkedHashMap<String, LinkedHashSet<ObjectIdentifierMap>>();
 	
-	public void createOldContainmentObjectIdentifierMap(String roleName,Long oldId,String classname)
+	public ObjectIdentifierMap createOldContainmentObjectIdentifierMap(String roleName,Long oldId,String classname)
 	{
 		ObjectIdentifierMap containmentObjectidentifierMap = new ObjectIdentifierMap(classname); 
 		containmentObjectidentifierMap.setOldId(oldId);
@@ -44,6 +44,7 @@ public class ObjectIdentifierMap
 		{
 			containmentObjectIdentifierMap.get(roleName).add(containmentObjectidentifierMap);
 		}
+		return containmentObjectidentifierMap;
 	}
 	public void upadteNewIdOfContainmentObjectIdentifierMap(String roleName,Long newId,int counter)
 	{
@@ -61,6 +62,8 @@ public class ObjectIdentifierMap
 			
 		}
 	}
+	
+	
 /*	public Object getNewObj()
 	{
 		return newObj;

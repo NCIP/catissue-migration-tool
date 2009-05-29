@@ -25,14 +25,12 @@ public abstract class  MigrationAppService
 
 	abstract public void authenticate(String userName,String password) throws MigrationException;
 	
-	public void insert(Object obj,MigrationClass migration) throws MigrationException
+	public void insert(Object obj,MigrationClass migration,ObjectIdentifierMap objectIdentifierMap) throws MigrationException
 	{
-		ObjectIdentifierMap idMap = new ObjectIdentifierMap(obj.getClass().getName());
+		
 		try
 		{
-			
-			idMap.setOldId(obj);
-			
+					
 			Object newObj = insertObject(obj);
 			//idMap.setNewObj(newObj);
 			//idMap.setNewId(newObj);
