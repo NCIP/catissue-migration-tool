@@ -41,42 +41,46 @@ public class SandBoxDao
 	{
 		return session;
 	}*/
-//	public static void initializeIdMap()
-//	{
-//		String className =null;
-//		Transaction trasaction = session.beginTransaction();
-//		for(int i = 0 ; i < 5 ; i++)
-//		{
-//			if(i==0)
-//			{
-//				className =  "edu.wustl.catissuecore.domain.Department";
-//			}
-//			if(i==1)
-//			{
-//				className =  "edu.wustl.catissuecore.domain.Institution";
-//			}
-//			if(i==2)
-//			{
-//				className =  "edu.wustl.catissuecore.domain.CancerResearchGroup";
-//			}
-//			if(i==3)
-//			{
-//				className =  "edu.wustl.catissuecore.domain.Site";
-//			}
-//			if(i==4)
-//			{
-//				className =  "edu.wustl.catissuecore.domain.User";
-//			}
-//		
-//		ObjectIdentifierMap idMap = new ObjectIdentifierMap(className);
-//		idMap.setOldId(new Long(1));
-//		idMap.setNewId(new Long(1));
-//		
-//		session.save(idMap);
-//		}
-//		trasaction.commit();
-//		
-//	}
+	public static Session getCurrentSession()
+	{
+		return session;
+	}
+	public static void initializeIdMap()
+	{
+		String className =null;
+		Transaction trasaction = session.beginTransaction();
+		for(int i = 0 ; i < 5 ; i++)
+		{
+			if(i==0)
+			{
+				className =  "edu.wustl.catissuecore.domain.Department";
+			}
+			if(i==1)
+			{
+				className =  "edu.wustl.catissuecore.domain.Institution";
+			}
+			if(i==2)
+			{
+				className =  "edu.wustl.catissuecore.domain.CancerResearchGroup";
+			}
+			if(i==3)
+			{
+				className =  "edu.wustl.catissuecore.domain.Site";
+			}
+			if(i==4)
+			{
+				className =  "edu.wustl.catissuecore.domain.User";
+			}
+		
+		ObjectIdentifierMap idMap = new ObjectIdentifierMap(className);
+		idMap.setOldId(new Long(1));
+		idMap.setNewId(new Long(1));
+		
+		session.save(idMap);
+		}
+		trasaction.commit();
+		
+	}
 	public static void closeSession()
 	{
 		session.close();
@@ -121,15 +125,10 @@ public class SandBoxDao
 		}
 		return productionId;
 	}
-	public static void insertMapEntries(String className, Long oldId, Long newId)
+	public static void insertMapEntries(ObjectIdentifierMap idMap)
 	{
-		ObjectIdentifierMap idMap = new ObjectIdentifierMap(className);
-		idMap.setOldId(oldId);
-		idMap.setNewId(newId);
 		SandBoxDao.saveObject(idMap);
-		/*String sqlQuery = "insert into catissue_migration_mapping (object_classname, old_Id, new_Id) values ('"
-				+ className + "'," + oldId + "," + newId + ")";
-		SandBoxDao.executeSQLQuery(sqlQuery);*/
+		
 	}
 	public static Object retrieve(Object obj) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
 	{
