@@ -1,9 +1,12 @@
 package edu.wustl.migrator;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
@@ -34,110 +37,91 @@ public class MigrationObjectStatusHandler
 		throwable.printStackTrace();
 	}
 	
-	public void handleSuccessfullyMigratedObject(ObjectIdentifierMap idMap, MigrationClass migration)
-	{/*
-		Object oldObj = idMap.getOldObj();
-		Object newObj = idMap.getNewObj();
-		Long mainObjId = null;
-		Long mainObjNewId = null;
-		String mainObjClassName = oldObj.getClass().getName();
-		try
+	public void handleSuccessfullyMigratedObject(Object mainObject, MigrationClass mainMigrationClass, ObjectIdentifierMap objectIdentifierMap) throws MigrationException
+	{
+
+		Collection<MigrationClass> containmentCollection = mainMigrationClass
+				.getContainmentAssociationCollection();
+		processContainmentObjectIdentifierMap(mainObject, mainMigrationClass, objectIdentifierMap,
+				containmentCollection);
+
+	}
+
+	/**
+	 * @param mainObject
+	 * @param mainMigrationClass
+	 * @param objectIdentifierMap
+	 * @param containmentCollection
+	 * @throws MigrationException
+	 */
+	private void processContainmentObjectIdentifierMap(Object mainObject,
+			MigrationClass mainMigrationClass, ObjectIdentifierMap objectIdentifierMap,
+			Collection<MigrationClass> containmentCollection) throws MigrationException
+	{
+		if (containmentCollection != null)
 		{
-			Object id = migration.invokeGetterMethod("id", null, oldObj, null);
-			if (id != null)
+			Map<String, LinkedHashSet<ObjectIdentifierMap>> containmentObjectIdentifierMap = objectIdentifierMap
+					.getContainmentObjectIdentifierMap();
+			Iterator<MigrationClass> containmentMigrationClassIter = containmentCollection
+					.iterator();
+			while (containmentMigrationClassIter.hasNext())
 			{
-				mainObjId = Long.valueOf(id.toString());
-			}
-			
-			Object newId = migration.invokeGetterMethod("id", null, newObj, null);
-			if (newId != null)
-			{
-				mainObjNewId = Long.valueOf(newId.toString());
-			}
-			SandBoxDao.insertMapEntries(mainObjClassName, mainObjId, mainObjNewId);
-			Collection<MigrationClass> containmentCollection = migration.getContainmentAssociationCollection();
-			if(containmentCollection != null)
-			{
-				Iterator<MigrationClass> containmentItr = containmentCollection.iterator();
-				if(containmentItr.hasNext())
+				MigrationClass containmentMigrationClassObj = containmentMigrationClassIter.next();
+				String containmentRollName = containmentMigrationClassObj.getRoleName();
+				String containmentClassName = containmentMigrationClassObj.getClassName();
+				if (containmentObjectIdentifierMap.containsKey(containmentRollName))
 				{
-					MigrationClass containment = containmentItr.next();
-					String containmentObjName = containment.getClassName();
-					Long oldId = null;
-					Object conId = null;
-					Long newConId = null;
-					Object conIdNew = null;
-					Object conObjOld = migration.invokeGetterMethod(containment.getRoleName(), null, oldObj, null);
-					Object conObjNew = migration.invokeGetterMethod(containment.getRoleName(), null, newObj, null);
-					if(conObjOld != null && conObjNew != null)
+					LinkedHashSet<ObjectIdentifierMap> containmentObjectIdentifierSet = (LinkedHashSet<ObjectIdentifierMap>) containmentObjectIdentifierMap
+							.get(containmentRollName);
+
+					Object containmentObj = mainMigrationClass.invokeGetterMethod(
+							containmentRollName, null, mainObject, null);
+					if (containmentObj != null)
 					{
-						if(conObjOld instanceof Collection)
+						if (containmentObj instanceof Collection)
 						{
-							Iterator it = ((Collection)conObjOld).iterator();
-							Iterator itNew = ((Collection)conObjNew).iterator();
-							while(it.hasNext())
+
+							List sortedList = new ArrayList((Collection) containmentObj);
+							Collections.sort(sortedList, new SortObject());
+							Collection containmentObjectCollection = new LinkedHashSet(sortedList);
+							if (containmentObjectIdentifierSet.size() == containmentObjectCollection
+									.size())
 							{
-								Object obj = it.next();
-								Object objNew = itNew.next();
-								if(obj != null)
+								Iterator containmentObjIter = containmentObjectCollection
+										.iterator();
+								Iterator<ObjectIdentifierMap> containmentObjectIdentifierSetIter = containmentObjectIdentifierSet
+										.iterator();
+								while (containmentObjIter.hasNext())
 								{
-									conId =  containment.invokeGetterMethod("id", null, obj, null);
-									
-									if (conId != null)
-									{
-										oldId = Long.valueOf(conId.toString());
-									}
-								}
-								if(objNew != null)
-								{
-									conIdNew =  containment.invokeGetterMethod("id", null, objNew, null);;
-									
-									if (conIdNew != null)
-									{
-										newConId = Long.valueOf(conIdNew.toString());
-									}
-								}
-								if(oldId != null && newConId != null)
-									SandBoxDao.insertMapEntries(containmentObjName, oldId, newConId);
+									ObjectIdentifierMap objectIdentifier = containmentObjectIdentifierSetIter
+											.next();
+									Object containment = containmentObjIter.next();
+									Long newId = containmentMigrationClassObj
+											.invokeGetIdMethod(containment);
+									objectIdentifier.setNewId(newId);
+									SandBoxDao.insertMapEntries(objectIdentifier);
+									Collection<MigrationClass> containmentInContainment =  containmentMigrationClassObj.getContainmentAssociationCollection();
+									processContainmentObjectIdentifierMap(containment, containmentMigrationClassObj, objectIdentifier, containmentInContainment);
 								
+								}
 							}
 						}
 						else
 						{
-							conId =  containment.invokeGetterMethod("id", null, conObjOld, null);;
-							
-							if (conId != null)
-							{
-								oldId = Long.valueOf(conId.toString());
-							}
-							
-							
-								conIdNew =  containment.invokeGetterMethod("id", null, conObjNew, null);;
-							
-							if (conIdNew != null)
-							{
-								newConId = Long.valueOf(conIdNew.toString());
-							}
-							if(oldId != null && newConId != null)
-								SandBoxDao.insertMapEntries(containmentObjName, oldId, newConId);
+							ObjectIdentifierMap objectIdentifier = containmentObjectIdentifierSet
+									.iterator().next();
+							Long newId = containmentMigrationClassObj
+									.invokeGetIdMethod(containmentObj);
+							objectIdentifier.setNewId(newId);
+							SandBoxDao.insertMapEntries(objectIdentifier);
+							Collection<MigrationClass> containmentInContainment =  containmentMigrationClassObj.getContainmentAssociationCollection();
+							processContainmentObjectIdentifierMap(containmentObj, containmentMigrationClassObj, objectIdentifier, containmentInContainment);
 						}
 						
 					}
-					
-
 				}
 			}
 		}
-		
-		
-		catch (MigrationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//CaCoreMigrationAppServiceImpl.insertMapEntries(idMap);
-		
-	*/}
+	}
 	
 }

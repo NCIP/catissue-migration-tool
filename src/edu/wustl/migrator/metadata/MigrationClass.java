@@ -1,8 +1,8 @@
 package edu.wustl.migrator.metadata;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import edu.wustl.migrator.util.MigrationException;
 import edu.wustl.migrator.util.MigrationUtility;

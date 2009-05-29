@@ -23,7 +23,7 @@ public class Migrator
 		try
 		{
 			SandBoxDao.init();
-			//SandBoxDao.initializeIdMap();
+			SandBoxDao.initializeIdMap();
 
 			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
 					"admin@admin.com", "login123");
@@ -39,11 +39,11 @@ public class Migrator
 				while (it.hasNext())
 				{
 					MigrationClass migration = it.next();
-					MigrationProcessor migrationProcessor = new MigrationProcessor(migration,migrationAppService);
+					MigrationProcessor migrationProcessor = new MigrationProcessor(migration, migrationAppService);
 
-					List<Object> list = migrationProcessor.fetchObjects();
+					migrationProcessor.fetchObjects();
 
-					System.out.println("list == " + list.size());
+					/*System.out.println("list == " + list.size());
 
 					if (list != null && !list.isEmpty())
 					{
@@ -53,7 +53,7 @@ public class Migrator
 							Object obj = iterator.next();
 							migrationAppService.insert(obj, migration);
 						}
-					}
+					}*/
 
 				}
 			}

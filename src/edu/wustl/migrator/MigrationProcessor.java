@@ -48,10 +48,10 @@ public class MigrationProcessor
 		this.ids = ids;
 	}
 
-	public MigrationProcessor(MigrationClass migration)
+	public MigrationProcessor(MigrationClass migration, MigrationAppService migrationAppService)
 	{
 		this.migrationClass = migration;
-		this.ids = ids;
+		this.migrationAppService = migrationAppService;
 	}
 
 	/**
@@ -76,22 +76,23 @@ public class MigrationProcessor
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public List<Object> fetchObjects() throws ClassNotFoundException, SecurityException,
+	public void fetchObjects() throws ClassNotFoundException, SecurityException,
 			NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException
 	{
 		Map<Object, Object> sandBoxObjs = new HashMap<Object, Object>();
 		
-		List<Object> listForInsertion = new ArrayList<Object>();
+		//List<Object> listForInsertion = new ArrayList<Object>();
 		try
 		{
+			System.out.println("sadas");
 			fetchObjectIdentifier();
 			String className = migrationClass.getClassName();
-			StringBuffer query = new StringBuffer();
+			String query = null;
 			List<Object> objectList = null;
 			for(int i=0;i<ids.size();i++)
 			{
-				query.append("from " + migrationClass.getClassName() + " where id = " + ids.get(i));
+				query = "from " + migrationClass.getClassName() + " where id = " + ids.get(i);
 				objectList = SandBoxDao.executeHQLQuery(query.toString());
 				if (objectList != null && !objectList.isEmpty())
 				{
@@ -103,7 +104,7 @@ public class MigrationProcessor
 					
 					migrationAppService.insert(object, migrationClass,objectMap);
 					
-					listForInsertion.add(object);
+					//listForInsertion.add(object);
 				}
 
 			}
@@ -116,12 +117,6 @@ public class MigrationProcessor
 		{
 			e.printStackTrace();
 		}
-		/*finally
-		{
-			//dao.destroyConnection(con);
-			HibernateSessionHandler.closeSession();
-		}*/
-		return listForInsertion;
 	}
 
 	/**
@@ -187,8 +182,6 @@ public class MigrationProcessor
 			{
 				Collection containmentObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
 						containmentMigrationClass.getRoleName(), null, mainObj, null);
-				//getContainment.invoke(mainObj, null);
-				
 				List sortedList = new ArrayList(containmentObjectCollection); 
 				Collections.sort(sortedList, new SortObject());
 				containmentObjectCollection = new LinkedHashSet(sortedList);
@@ -212,9 +205,9 @@ public class MigrationProcessor
 							Object containmentObject = collIter.next();
 							Long sandBoxId = containmentMigrationClass.invokeGetIdMethod(containmentObject);
 							ObjectIdentifierMap containIdentifierMap = mainObjectIdentifierMap.createOldContainmentObjectIdentifierMap(containmentMigrationClass.getRoleName(), sandBoxId, containmentMigrationClass.getClassName());
-							
 							processObject(containmentObject, containmentMigrationClass,containIdentifierMap);
-							//commenting setting the id null code
+							//detaching the object from the session
+							//SandBoxDao.getCurrentSession().evict(containmentObject);
 							containmentMigrationClass.invokeSetIdMethod(containmentObject, null);
 							newContainmentObjectCollection.add(containmentObject);
 						}
@@ -226,14 +219,12 @@ public class MigrationProcessor
 //							Collection.class);
 					String roleName = containmentMigrationClass.getRoleName();
 					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},mainObj, newContainmentObjectCollection);
-//					setContainment.invoke(mainObj, newContainmentObjectCollection);
 				}
 			}
 			else if (cardinality != null && cardinality.equals("1") && cardinality != "")
 			{
 				Object containmentObject = mainMigrationClass.invokeGetterMethod(
 						containmentMigrationClass.getRoleName(), null, mainObj, null);
-				
 				if (containmentObject != null)
 				{
 					if (isToSetNull.equalsIgnoreCase("Yes"))
@@ -245,10 +236,11 @@ public class MigrationProcessor
 						Long sandBoxId = containmentMigrationClass.invokeGetIdMethod(containmentObject);
 						ObjectIdentifierMap containIdentifierMap = mainObjectIdentifierMap.createOldContainmentObjectIdentifierMap(containmentMigrationClass.getRoleName(), sandBoxId, containmentMigrationClass.getClassName());
 						processObject(containmentObject, containmentMigrationClass,containIdentifierMap);
-						//commenting setting the id null code
 						containmentMigrationClass.invokeSetIdMethod(containmentObject, null);
 					}
 					String roleName = containmentMigrationClass.getRoleName();
+					//detaching the object from the session
+					//SandBoxDao.getCurrentSession().evict(containmentObject);
 					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject.getClass()}, mainObj, containmentObject);
 				}
 			}
