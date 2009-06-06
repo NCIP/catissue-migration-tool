@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Migration Tool" default="deploy_db_mysql">
+	<property name="mysql.driver.string" value="org.gjt.mm.mysql.Driver" />
+	<property name="database.host" value="localhost" />
+	<property name="database.port" value="3306" />
+	<property name="database.username" value="root" />
+	<property name="database.password" value="root" />
+		
+<target name="deploy_db_mysql">
+	<sql driver="${mysql.driver.string}"
+		url="jdbc:mysql://${database.host}:${database.port}/${database.name}"
+		userid="${database.username}" password="${database.password}">
+		<transaction src="./createTable.sql" />
+		<transaction>commit;</transaction>
+	</sql>
+</target>
+</project>

@@ -1,5 +1,6 @@
 package edu.wustl.migrator.metadata;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +18,24 @@ public class MigrationClass{
 	String roleName;
 	String sql;
 	Class klass;
+	Collection<MigrationClass> referenceAssociationCollection = new ArrayList<MigrationClass>();
+	Collection<MigrationClass> containmentAssociationCollection = new ArrayList<MigrationClass>();
+	Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
 	
+	
+	public Collection<Attribute> getAttributeCollection()
+	{
+		return attributeCollection;
+	}
+
+
+	
+	public void setAttributeCollection(Collection<Attribute> attributeCollection)
+	{
+		this.attributeCollection = attributeCollection;
+	}
+
+
 	public String getIsToSetNull()
 	{
 		return isToSetNull;
@@ -41,8 +59,6 @@ public class MigrationClass{
 		this.sql = sql;
 	}
 
-	Collection<MigrationClass> referenceAssociationCollection = new ArrayList<MigrationClass>();
-	
 	public Collection<MigrationClass> getReferenceAssociationCollection()
 	{
 		return referenceAssociationCollection;
@@ -70,32 +86,8 @@ public class MigrationClass{
 	{
 		this.containmentAssociationCollection = containmentAssociationCollection;
 	}
-	Collection<MigrationClass> containmentAssociationCollection = new ArrayList<MigrationClass>();
 	
 
-	/*public String toString()
-	{
-		String privatedata = className +"\n";
-		privatedata += relationShipType +"\n";
-		privatedata += isToMigrate +"\n";
-		privatedata += cardinality +"\n";
-		privatedata += roleName +"\n";
-		
-		Iterator<MigrationClass> referenceList = referenceAssociationCollection.iterator();
-		while(referenceList.hasNext())
-		{
-			System.out.println(privatedata);
-		}
-		
-		Iterator<MigrationClass> containmentList = containmentAssociationCollection.iterator();
-		while(containmentList.hasNext())
-		{
-			System.out.println(privatedata);
-		}
-		
-		return "";
-	}*/
-	
 	
 	public String getClassName()
 	{
@@ -206,10 +198,34 @@ public class MigrationClass{
 	public void invokeSetterMethod(String roleName, Class[]parameterTypes,Object objectOnWhichMethodToInvoke, Object...args) throws MigrationException
 	{
 		Object returnObject = null;
+		String functionName = MigrationUtility.getSetterFunctionName(roleName); 
 		try
 		{
-			String functionName = MigrationUtility.getSetterFunctionName(roleName); 
 			Class.forName(className).getMethod(functionName, parameterTypes).invoke(objectOnWhichMethodToInvoke, args);
+		}
+		catch(NoSuchMethodException e)
+		{
+			try
+			{
+				Class.forName(className).getMethod(functionName, parameterTypes[0].getSuperclass()).invoke(objectOnWhichMethodToInvoke, args);
+			}
+			catch (NoSuchMethodException e1)
+			{
+				try
+				{
+				Class.forName(className).getMethod(functionName, parameterTypes[0].getSuperclass().getSuperclass()).invoke(objectOnWhichMethodToInvoke, args);
+				}
+				catch(Exception e2)
+				{
+					e2.printStackTrace();
+				}
+				
+			}
+			catch(Exception e4)
+			{
+				e4.printStackTrace();
+			}
+			
 		}
 		catch (Exception e)
 		{

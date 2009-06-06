@@ -1,5 +1,7 @@
 package edu.wustl.migrator.appservice;
 
+import java.lang.reflect.InvocationTargetException;
+
 import edu.wustl.migrator.MigrationObjectStatusHandler;
 import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
@@ -31,20 +33,41 @@ public abstract class  MigrationAppService
 		
 		try
 		{
-			ObjectIdentifierMap  objectIdentifier = new ObjectIdentifierMap(migration.getClassName());
-			objectIdentifier.setOldId(migration.invokeGetIdMethod(obj));
 			Object newObj = insertObject(obj);
-			objectIdentifier.setNewId(migration.invokeGetIdMethod(newObj));
-			SandBoxDao.insertMapEntries(objectIdentifier);
-			//processObjectIdentifierMap();
-			//idMap.setNewObj(newObj);
-			//idMap.setNewId(newObj);
-			//insertMapEntries(idMap);
+			objectIdentifierMap.setNewId((Long)migration.invokeGetIdMethod(newObj));
 			MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(newObj, migration, objectIdentifierMap);
 		}	
 		catch(Exception appExp)
 		{
-			MigrationObjectStatusHandler.getInstance().handleFailedMigrationObject(obj,appExp.getMessage(),appExp);
+			try
+			{
+				MigrationObjectStatusHandler.getInstance().handleFailedMigrationObject(obj,appExp.getMessage(),appExp);
+			}
+			catch (IllegalArgumentException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (SecurityException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (InvocationTargetException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (NoSuchMethodException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//appExp.printStackTrace();
 		}
 		

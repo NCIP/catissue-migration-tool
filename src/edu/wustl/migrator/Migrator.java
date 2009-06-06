@@ -1,9 +1,12 @@
 
 package edu.wustl.migrator;
 
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
+
+import sun.security.util.ObjectIdentifier;
 
 import edu.wustl.migrator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.migrator.appservice.MigrationAppService;
@@ -11,23 +14,24 @@ import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
-import gov.nih.nci.system.applicationservice.ApplicationException;
-import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
-import gov.nih.nci.system.comm.client.ClientSession;
+import edu.wustl.migrator.metadata.ObjectIdentifierMap;
+import edu.wustl.migrator.util.MigrationUtility;
 
 public class Migrator
 {
 
 	public static void main(String arg[])
 	{
+
+		Long startTime = MigrationUtility.getTime();
 		try
 		{
 			SandBoxDao.init();
+			
 			SandBoxDao.initializeIdMap();
-
 			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
 					"admin@admin.com", "login123");
-			
+
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
 			MigrationMetadata metadata = unMarshaller.unmarshall();
 
@@ -39,22 +43,10 @@ public class Migrator
 				while (it.hasNext())
 				{
 					MigrationClass migration = it.next();
-					MigrationProcessor migrationProcessor = new MigrationProcessor(migration, migrationAppService);
+					MigrationProcessor migrationProcessor = new MigrationProcessor(migration,
+							migrationAppService);
 
 					migrationProcessor.fetchObjects();
-
-					/*System.out.println("list == " + list.size());
-
-					if (list != null && !list.isEmpty())
-					{
-						Iterator<Object> iterator = list.iterator();
-						while (iterator.hasNext())
-						{
-							Object obj = iterator.next();
-							migrationAppService.insert(obj, migration);
-						}
-					}*/
-
 				}
 			}
 
@@ -65,7 +57,15 @@ public class Migrator
 		}
 		finally
 		{
-			SandBoxDao.closeSession();
+			//SandBoxDao.closeSession();
+			SandBoxDao.closeInsertionSession();
+			Long endTime = MigrationUtility.getTime();
+			Long totalTime = endTime - startTime ;
+			System.out.println("time taken = " + totalTime + "seconds");
+			if(totalTime > 60)
+			{
+				System.out.println("time taken = " + totalTime/60 + "mins");
+			}
 		}
 	}
 

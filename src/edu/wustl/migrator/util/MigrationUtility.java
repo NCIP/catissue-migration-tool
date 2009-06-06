@@ -28,5 +28,9 @@ public class MigrationUtility
 		}
 		return functionName;
 	}
+	public static Long getTime()
+	{
+		return System.currentTimeMillis()/1000;
+	}
 
 }
