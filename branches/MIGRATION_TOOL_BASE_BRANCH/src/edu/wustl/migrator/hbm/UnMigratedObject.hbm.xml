@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="edu.wustl.migrator.util.UnMigratedObject"
+        table="CATISSUE_MIGRATION_EXCEPTION"
+        lazy="false"
+    >
+       <id
+            name="id"
+            column="IDENTIFIER"
+            type="long"
+            length="30"
+            unsaved-value="null"
+        >
+            <generator class="native">
+                <param name="sequence">CATISSUE_MIGRATION_EX_SEQ</param>
+            </generator>
+        </id>
+        <property
+            name="className"
+            type="string"
+            update="true"
+            insert="true"
+            column="classname"
+            length="255"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="sandBoxId"
+            type="long"
+            update="true"
+            insert="true"
+            column="sandBoxId"
+            length="30"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="message"
+            type="string"
+            update="true"
+            insert="true"
+            column="message"
+            length="500"
+            not-null="false"
+            unique="false"
+        />
+
+       
+
+    </class>
+
+</hibernate-mapping>
+

@@ -1,5 +1,6 @@
 package edu.wustl.migrator;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
+import edu.wustl.migrator.util.UnMigratedObject;
 
 
 
@@ -32,19 +34,24 @@ public class MigrationObjectStatusHandler
 		return failurehandler;
 	}
 	
-	public void handleFailedMigrationObject(Object failedObject,String message,Throwable throwable)
+	public void handleFailedMigrationObject(Object failedObject,String message,Throwable throwable) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
 	{
-		throwable.printStackTrace();
+		UnMigratedObject error = new UnMigratedObject();
+		error.setClassName(failedObject.getClass().getName());
+		error.setSandBoxId((Long)failedObject.getClass().getMethod("getId", null).invoke(failedObject, null));
+		error.setMessage(throwable.getMessage());
+		SandBoxDao.saveObject(error);
+		//throwable.printStackTrace();
 	}
 	
 	public void handleSuccessfullyMigratedObject(Object mainObject, MigrationClass mainMigrationClass, ObjectIdentifierMap objectIdentifierMap) throws MigrationException
 	{
-
+		//inserts the map entry for the main object
+		SandBoxDao.insertMapEntries(objectIdentifierMap);
 		Collection<MigrationClass> containmentCollection = mainMigrationClass
 				.getContainmentAssociationCollection();
 		processContainmentObjectIdentifierMap(mainObject, mainMigrationClass, objectIdentifierMap,
 				containmentCollection);
-
 	}
 
 	/**

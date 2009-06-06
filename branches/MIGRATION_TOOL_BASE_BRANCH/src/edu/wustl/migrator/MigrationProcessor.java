@@ -1,6 +1,7 @@
 
 package edu.wustl.migrator;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -9,11 +10,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import edu.wustl.migrator.appservice.MigrationAppService;
 import edu.wustl.migrator.dao.SandBoxDao;
+import edu.wustl.migrator.metadata.Attribute;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
@@ -36,7 +39,7 @@ public class MigrationProcessor
 		this.migrationAppService=migrationAppService;
 	}
 
-	List<Long> ids = new ArrayList<Long>();
+	List<Long> ids = new LinkedList<Long>();
 
 	public List<Long> getIds()
 	{
@@ -85,6 +88,10 @@ public class MigrationProcessor
 		//List<Object> listForInsertion = new ArrayList<Object>();
 		try
 		{
+			if(SandBoxDao.getCurrentSession() == null)
+			{
+				SandBoxDao.getNewSession();
+			}
 			System.out.println("sadas");
 			fetchObjectIdentifier();
 			String className = migrationClass.getClassName();
@@ -101,9 +108,9 @@ public class MigrationProcessor
 					objectMap.setOldId(migrationClass.invokeGetIdMethod(object));
 					
 					processObject(object, migrationClass,objectMap);
-					
+					System.out.println(object);
 					migrationAppService.insert(object, migrationClass,objectMap);
-					
+				
 					//listForInsertion.add(object);
 				}
 
@@ -116,6 +123,10 @@ public class MigrationProcessor
 		catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+		finally
+		{
+			SandBoxDao.closeSession();
 		}
 	}
 
@@ -150,6 +161,13 @@ public class MigrationProcessor
 			Collection<MigrationClass> containmentMigrationClassList = migrationClass
 					.getContainmentAssociationCollection();
 			processContainments(mainObj, migrationClass, containmentMigrationClassList,objectMap);
+		}
+		if (migrationClass.getAttributeCollection() != null
+				&& !migrationClass.getAttributeCollection().isEmpty())
+		{
+			Collection<Attribute> attributes = migrationClass
+					.getAttributeCollection();
+			processAttributes(mainObj, migrationClass, attributes);
 		}
 	}
 
@@ -336,9 +354,54 @@ public class MigrationProcessor
 						associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
 					}
 						String roleName = associationMigrationClass.getRoleName();
-						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{newAssociatedObject.getClass()},mainObj, newAssociatedObject);
+						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject.getClass()},mainObj, newAssociatedObject);
 				}
 			}
+		}
+	}
+	/**
+	 * 
+	 * @param mainObj
+	 * @param mainMigrationClass
+	 * @param attributes
+	 * @throws MigrationException
+	 */
+	private void processAttributes(Object mainObj, MigrationClass mainMigrationClass,
+			Collection<Attribute> attributes) throws MigrationException
+	{
+		Iterator<Attribute> attributeItertor = attributes.iterator();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			String isToSetNull = attribute.getIsToSetNull();
+
+			Object attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
+					null, mainObj, null);
+			
+				if (!"Yes".equalsIgnoreCase(isToSetNull))
+				{
+					try
+					{
+						Class dataTypeClass = Class.forName(attribute.getDataType());
+						Constructor constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+						Object setObject = constructor.newInstance(attribute.getValueToSet()); 
+							//dataTypeClass.cast(attribute.getValueToSet());
+						//Method convertoPrimitive = setObject.getClass().getMethod("booleanValue", null);
+						//Object o =convertoPrimitive.invoke(setObject, null);
+						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
+					}
+					catch (Exception e)
+					{
+						Boolean b = new Boolean("false");
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{attributeObject
+						.getClass()}, mainObj, null);
+				}
+			
 		}
 	}
 	

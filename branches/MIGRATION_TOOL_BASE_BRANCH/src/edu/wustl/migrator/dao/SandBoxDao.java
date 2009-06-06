@@ -18,6 +18,7 @@ import edu.wustl.migrator.util.MigrationException;
 public class SandBoxDao
 {
 	private static Session session = null;
+	private static Session insertionSession = null;
 	private static SessionFactory sessionFactory = null;
 	
 	public static void init() throws MigrationException
@@ -27,8 +28,8 @@ public class SandBoxDao
 		sessionFactory = new Configuration().configure(
 				"hibernateForStagingDb.cfg.xml").buildSessionFactory();
 		session = sessionFactory.openSession();
+		insertionSession = sessionFactory.openSession();
 		session.setFlushMode(FlushMode.NEVER);
-		
 		}
 		catch(Exception e)
 		{			
@@ -36,11 +37,11 @@ public class SandBoxDao
 			throw new MigrationException(e.getMessage(),e);
 		}
 	}
-
-/*	public static Session getCurrentSession()
+	public static void getNewSession()
 	{
-		return session;
-	}*/
+		session = sessionFactory.openSession();
+		session.setFlushMode(FlushMode.NEVER);
+	}
 	public static Session getCurrentSession()
 	{
 		return session;
@@ -76,7 +77,7 @@ public class SandBoxDao
 		idMap.setOldId(new Long(1));
 		idMap.setNewId(new Long(1));
 		
-		session.save(idMap);
+		insertionSession.save(idMap);
 		}
 		trasaction.commit();
 		
@@ -84,6 +85,11 @@ public class SandBoxDao
 	public static void closeSession()
 	{
 		session.close();
+		session = null;
+	}
+	public static void closeInsertionSession()
+	{
+		insertionSession.close();
 	}
 	
 	public static List<?>  executeSQLQuery(String sql)
@@ -95,10 +101,12 @@ public class SandBoxDao
 	}
 	public static void saveObject(Object obj)
 	{
-		Transaction transaction = session.getTransaction();
+		Transaction transaction = insertionSession.getTransaction();
 		transaction.begin();
-		session.save(obj);
+		insertionSession.save(obj);
+		//insertionSession.flush();
 		transaction.commit();
+		
 	}
 	
 	public static void executeSQLUpdate(String sql)
@@ -118,7 +126,7 @@ public class SandBoxDao
 		Long productionId = null;
 		String sqlQuery = "select new_id from catissue_migration_mapping where object_className='"
 				+ className + "' and old_id=" + sandBoxId;
-		List result = SandBoxDao.executeSQLQuery(sqlQuery);
+		List result = executeSQLQuery(sqlQuery);
 		if (result != null && !result.isEmpty())
 		{
 			productionId = Long.valueOf(result.get(0).toString());
@@ -127,7 +135,14 @@ public class SandBoxDao
 	}
 	public static void insertMapEntries(ObjectIdentifierMap idMap)
 	{
-		SandBoxDao.saveObject(idMap);
+		if(idMap.getOldId() != null && idMap.getNewId() != null)
+		{
+			saveObject(idMap);
+		}
+		else
+		{
+			System.out.println("Map not inserted for: "+idMap.getClassName()+" old id: "+idMap.getOldId() +" new id: "+idMap.getNewId());
+		}
 		
 	}
 	public static Object retrieve(Object obj) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
@@ -167,22 +182,5 @@ public class SandBoxDao
 		}
 		return sandBoxObj;
 	}
-	public static Session getNewSession()
-	{
-		Session newSession = null;
-		try
-		{
-		sessionFactory = new Configuration().configure(
-				"hibernateForStagingDb.cfg.xml").buildSessionFactory();
-		newSession = sessionFactory.openSession();
-		newSession.setFlushMode(FlushMode.NEVER);
-		
-		}
-		catch(Exception e)
-		{			
-			e.printStackTrace();
-			//throw new MigrationException(e.getMessage(),e);
-		}
-		return newSession;
-	}
+	
 }
