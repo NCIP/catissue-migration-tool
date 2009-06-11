@@ -6,7 +6,7 @@
 <hibernate-mapping>
     <class
         name="edu.wustl.migrator.util.UnMigratedObject"
-        table="CATISSUE_MIGRATION_EXCEPTION"
+        table="MIGRATION_EXCEPTION"
         lazy="false"
     >
        <id
@@ -47,6 +47,16 @@
             insert="true"
             column="message"
             length="500"
+            not-null="false"
+            unique="false"
+        />
+        <property
+            name="stackTrace"
+            type="string"
+            update="true"
+            insert="true"
+            column="stackTrace"
+            length="5000"
             not-null="false"
             unique="false"
         />

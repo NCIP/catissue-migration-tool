@@ -7,7 +7,20 @@ public class UnMigratedObject
 	String className;
 	Long sandBoxId;
 	String message;
+	String stackTrace;
 	
+	
+	public String getStackTrace()
+	{
+		return stackTrace;
+	}
+
+	
+	public void setStackTrace(String stackTrace)
+	{
+		this.stackTrace = stackTrace;
+	}
+
 	public Long getId()
 	{
 		return id;

@@ -150,7 +150,7 @@ public class ObjectIdentifierMap
 		}
 		
 		this.oldId = oldId;
-		//String query = "insert into table catissue_migration_mapping values ('"+className+"',"+oldId+","+null+")";
+		//String query = "insert into table migration_mapping values ('"+className+"',"+oldId+","+null+")";
 	}
 	public void setNewId(Object obj) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException
 	{

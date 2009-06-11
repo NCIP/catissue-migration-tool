@@ -7,7 +7,7 @@
 
     <class
         name="edu.wustl.migrator.metadata.ObjectIdentifierMap"
-        table="CATISSUE_MIGRATION_MAPPING"
+        table="MIGRATION_MAPPING"
         lazy="false"
     >
     <id

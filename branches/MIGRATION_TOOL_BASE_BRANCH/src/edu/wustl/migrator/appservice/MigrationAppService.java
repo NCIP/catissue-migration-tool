@@ -41,7 +41,7 @@ public abstract class  MigrationAppService
 		{
 			try
 			{
-				MigrationObjectStatusHandler.getInstance().handleFailedMigrationObject(obj,appExp.getMessage(),appExp);
+				MigrationObjectStatusHandler.getInstance().handleFailedMigrationObject(obj,migration,appExp.getMessage(),appExp);
 			}
 			catch (IllegalArgumentException e)
 			{

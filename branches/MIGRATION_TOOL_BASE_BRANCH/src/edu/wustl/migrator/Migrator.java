@@ -15,20 +15,32 @@ import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
+import edu.wustl.migrator.util.MigrationProperties;
 import edu.wustl.migrator.util.MigrationUtility;
 
 public class Migrator
 {
-
+    public static String unMigratedObjectFlag = "";
 	public static void main(String arg[])
 	{
-
+		if(arg != null && arg.length > 0)
+		{
+			unMigratedObjectFlag = arg[0];
+		}
 		Long startTime = MigrationUtility.getTime();
 		try
 		{
 			SandBoxDao.init();
+			/*ObjectIdentifierMap o1 = new ObjectIdentifierMap("edu.wustl.catissuecore.domain.StorageType");
+			o1.setOldId(new Long(1));
+			o1.setNewId(new Long(1));
+			SandBoxDao.saveObject(o1);
+			ObjectIdentifierMap o2 = new ObjectIdentifierMap("edu.wustl.catissuecore.domain.StorageType");
+			o2.setOldId(new Long(3));
+			o2.setNewId(new Long(3));
+			SandBoxDao.saveObject(o2);
+			SandBoxDao.initializeIdMap();*/
 			
-			SandBoxDao.initializeIdMap();
 			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
 					"admin@admin.com", "login123");
 

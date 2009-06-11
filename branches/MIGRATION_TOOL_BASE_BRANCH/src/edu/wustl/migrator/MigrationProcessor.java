@@ -3,7 +3,6 @@ package edu.wustl.migrator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.wustl.migrator.appservice.MigrationAppService;
 import edu.wustl.migrator.dao.SandBoxDao;
@@ -20,6 +20,9 @@ import edu.wustl.migrator.metadata.Attribute;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
+import edu.wustl.migrator.util.MigrationUtility;
+import edu.wustl.migrator.util.SortIds;
+import edu.wustl.migrator.util.UnMigratedObject;
 
 public class MigrationProcessor
 {
@@ -63,9 +66,42 @@ public class MigrationProcessor
 	 */
 	public void fetchObjectIdentifier()
 	{
+		List list = null;
 		ids.clear();
-		List list = SandBoxDao.executeSQLQuery(migrationClass.getSql());
-		ids.addAll(list);
+		String unMigratedObjectFlag = Migrator.unMigratedObjectFlag;
+//MigrationProperties.getValue(MigrationConstants.unmigratedObjectflag);
+		if(unMigratedObjectFlag != null && unMigratedObjectFlag != "")
+		{
+			String whereColumn[] = new String[1];
+			whereColumn[0] = new String("className");
+			String whereValue[] = new String[1];
+			whereValue[0] = new String("'"+migrationClass.getClassName()+"'");
+			String returnCoulmn[] = new String[1];
+			returnCoulmn[0] = new String("sandBoxId");
+		list = SandBoxDao.retrieve(UnMigratedObject.class.getName(), whereColumn, whereValue, returnCoulmn);
+		}
+		else
+		{
+		list = SandBoxDao.executeSQLQuery(migrationClass.getSql());
+		}
+		if(list != null && !list.isEmpty())
+		{
+			Object obj = list.get(0);
+			if(obj instanceof Long)
+			{
+				ids.addAll(list);
+			}
+			else
+			{
+				Iterator i = list.iterator();
+				while(i.hasNext())
+				{
+					Long id = Long.valueOf(i.next().toString());
+					ids.add(id);
+				}
+			}
+		}
+		//ids.addAll(list);
 	}
 
 	/**
@@ -92,26 +128,41 @@ public class MigrationProcessor
 			{
 				SandBoxDao.getNewSession();
 			}
-			System.out.println("sadas");
 			fetchObjectIdentifier();
 			String className = migrationClass.getClassName();
 			String query = null;
 			List<Object> objectList = null;
-			for(int i=0;i<ids.size();i++)
+			/*for(int i=0;i<ids.size();i++)
+			{*/
+			if(ids != null && !ids.isEmpty())
 			{
-				query = "from " + migrationClass.getClassName() + " where id = " + ids.get(i);
-				objectList = SandBoxDao.executeHQLQuery(query.toString());
-				if (objectList != null && !objectList.isEmpty())
+				Collections.sort(ids, new SortIds());
+				Iterator idIterator = ids.iterator();
+				Long t1 = MigrationUtility.getTime();
+				while (idIterator.hasNext())
 				{
-					Object object = objectList.get(0);
-					objectMap = new ObjectIdentifierMap(migrationClass.getClassName());	
-					objectMap.setOldId(migrationClass.invokeGetIdMethod(object));
+					query = "from " + migrationClass.getClassName() + " where id = " + idIterator.next().toString();
+					objectList = SandBoxDao.executeHQLQuery(query.toString());
 					
-					processObject(object, migrationClass,objectMap);
-					System.out.println(object);
-					migrationAppService.insert(object, migrationClass,objectMap);
-				
-					//listForInsertion.add(object);
+					if (objectList != null && !objectList.isEmpty())
+					{
+						Object object = objectList.get(0);
+						objectMap = new ObjectIdentifierMap(migrationClass.getClassName());
+						objectMap.setOldId(migrationClass.invokeGetIdMethod(object));
+
+						processObject(object, migrationClass, objectMap);
+						System.out.println(object);
+						//migrationAppService.insert(object, migrationClass, objectMap);
+						//listForInsertion.add(object);
+					}
+					
+				}
+				Long t2 = MigrationUtility.getTime();
+				Long totalTime = t2 - t1 ;
+				System.out.println("time taken for migration of "+migrationClass.getClassName()+" = " + totalTime + "seconds");
+				if(totalTime > 60)
+				{
+					System.out.println("time taken for migration of "+migrationClass.getClassName()+" = " + totalTime/60 + "mins");
 				}
 
 			}
@@ -167,7 +218,7 @@ public class MigrationProcessor
 		{
 			Collection<Attribute> attributes = migrationClass
 					.getAttributeCollection();
-			processAttributes(mainObj, migrationClass, attributes);
+			processAttributes(mainObj, migrationClass, attributes, null);
 		}
 	}
 
@@ -297,7 +348,6 @@ public class MigrationProcessor
 				Collection associationObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
 						associationMigrationClass.getRoleName(), null, mainObj, null);
 				
-				
 				//getterForAssociation.invoke(mainObj, null);
 				if (associationObjectCollection != null)
 				{
@@ -311,20 +361,16 @@ public class MigrationProcessor
 						while (collectionIterator.hasNext())
 						{
 							Object associatedObject = collectionIterator.next();
-							//processObject(associatedObject, associationMigrationClass);
-							//get id must of the persistent object
-							//Method getId = persitentObj.getClass().getMethod("getId", null);
-							//Object id = getId.invoke(persitentObj, null);
 							Long sandBoxId = associationMigrationClass.invokeGetIdMethod(associatedObject);
 							Long productionId = SandBoxDao.getProductionId(sandBoxId, associationMigrationClass.getClassName());
-							
 							// setid must be of the new object class
 							Object newAssociatedObject = associationMigrationClass.getNewInstance(); 
-							
-							//associatedClass.newInstance();
 							associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
 							
-							// end of to remove
+							Collection<Attribute> attributes = associationMigrationClass.getAttributeCollection();
+							//added for setting the old values to the object
+							processAttributes(newAssociatedObject, associationMigrationClass, attributes, associatedObject);
+							
 							newAssociationCollection.add(newAssociatedObject);
 						}
 
@@ -352,6 +398,9 @@ public class MigrationProcessor
 						newAssociatedObject = associationMigrationClass.getNewInstance();
 						//setting the production id to the new object
 						associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
+						Collection<Attribute> attributes = associationMigrationClass.getAttributeCollection();
+						//added for setting the old values to the object
+						processAttributes(newAssociatedObject, associationMigrationClass, attributes, associatedObject);
 					}
 						String roleName = associationMigrationClass.getRoleName();
 						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject.getClass()},mainObj, newAssociatedObject);
@@ -367,7 +416,7 @@ public class MigrationProcessor
 	 * @throws MigrationException
 	 */
 	private void processAttributes(Object mainObj, MigrationClass mainMigrationClass,
-			Collection<Attribute> attributes) throws MigrationException
+			Collection<Attribute> attributes, Object oldObject) throws MigrationException
 	{
 		Iterator<Attribute> attributeItertor = attributes.iterator();
 		while (attributeItertor.hasNext())
@@ -383,16 +432,24 @@ public class MigrationProcessor
 					try
 					{
 						Class dataTypeClass = Class.forName(attribute.getDataType());
-						Constructor constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
-						Object setObject = constructor.newInstance(attribute.getValueToSet()); 
-							//dataTypeClass.cast(attribute.getValueToSet());
-						//Method convertoPrimitive = setObject.getClass().getMethod("booleanValue", null);
-						//Object o =convertoPrimitive.invoke(setObject, null);
+						Object value = attribute.getValueToSet();
+						Object setObject =  null;
+						Constructor constructor = null;
+						if(value != null && value.toString() != "")
+						{
+							constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+							setObject = constructor.newInstance(value); 
+						}
+						else
+						{
+							//constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+							setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, oldObject, null);
+						}
 						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
 					}
 					catch (Exception e)
 					{
-						Boolean b = new Boolean("false");
+						
 						e.printStackTrace();
 					}
 				}

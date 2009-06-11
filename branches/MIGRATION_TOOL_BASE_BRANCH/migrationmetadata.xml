@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MigrationMetadata>
-        <MigrationClass className="edu.wustl.catissuecore.domain.Institution"
+  <MigrationClass className="edu.wustl.catissuecore.domain.Institution"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
 		cardinality="" roleName="" sql="select identifier from CATISSUE_INSTITUTION">
 	</MigrationClass>  
@@ -208,11 +208,11 @@
 			className="edu.wustl.catissuecore.domain.CollectionProtocol"
 			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
 			cardinality="1" roleName="collectionProtocol" />
-	</MigrationClass>     
+	</MigrationClass>    
 	
 	<MigrationClass className="edu.wustl.catissuecore.domain.SpecimenCollectionGroup"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_SPECIMEN_COLL_GROUP">
+		cardinality="" roleName="" sql="select identifier from catissue_specimen_coll_group where identifier &lt; 80">
 		<attributeCollection name="isToInsertAnticipatorySpecimens" valueToSet="false" isToSetNull="" dataType="java.lang.Boolean"/>
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.ConsentTierStatus"
@@ -247,10 +247,10 @@
 			className="edu.wustl.catissuecore.domain.Specimen"
 			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
 			cardinality="*" roleName="specimenCollection" />
-	</MigrationClass> 
-	<MigrationClass className="edu.wustl.catissuecore.domain.Specimen"
+	</MigrationClass>  
+	 <MigrationClass className="edu.wustl.catissuecore.domain.Specimen"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_SPECIMEN">
+		cardinality="" roleName="" sql="select identifier from catissue_specimen where specimen_collection_group_id in (select identifier from catissue_specimen_coll_group where identifier &lt; 80)">
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.ConsentTierStatus"
 			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
@@ -267,7 +267,8 @@
 			<referenceAssociationCollection
 			className="edu.wustl.catissuecore.domain.Specimen" relationShipType="association"
 			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="parentSpecimen" />
+			roleName="parentSpecimen">
+			</referenceAssociationCollection>
 		<referenceAssociationCollection
 			className="edu.wustl.catissuecore.domain.Biohazard" relationShipType="association"
 			isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="biohazardCollection" />
@@ -282,7 +283,12 @@
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.SpecimenEventParameters"
 			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="specimenEventCollection" />
+			cardinality="*" roleName="specimenEventCollection">
+			<referenceAssociationCollection
+			className="edu.wustl.catissuecore.domain.User"
+			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
+			cardinality="1" roleName="user" />
+			</containmentAssociationCollection>
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.SpecimenCharacteristics"
 			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
@@ -300,5 +306,5 @@
 			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
 			cardinality="1" roleName="storageContainer" />
 			</containmentAssociationCollection>
-	</MigrationClass>
+	</MigrationClass> 
 </MigrationMetadata>

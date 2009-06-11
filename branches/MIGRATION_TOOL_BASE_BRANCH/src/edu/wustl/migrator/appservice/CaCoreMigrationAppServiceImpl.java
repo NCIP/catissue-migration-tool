@@ -22,6 +22,17 @@ public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 {
 
 	ApplicationService appService;
+	
+	public ApplicationService getAppService()
+	{
+		return appService;
+	}
+	
+	public void setAppService(ApplicationService appService)
+	{
+		this.appService = appService;
+	}
+
 	ClientSession clientSession;
 	
 	public CaCoreMigrationAppServiceImpl(boolean isAuthenticationRequired,String userName,String password) throws MigrationException
