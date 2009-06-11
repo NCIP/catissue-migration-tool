@@ -1,5 +1,7 @@
 package edu.wustl.migrator;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,14 +36,31 @@ public class MigrationObjectStatusHandler
 		return failurehandler;
 	}
 	
-	public void handleFailedMigrationObject(Object failedObject,String message,Throwable throwable) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
+	public void handleFailedMigrationObject(Object failedObject,MigrationClass migration,String message,Throwable throwable) throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
 	{
 		UnMigratedObject error = new UnMigratedObject();
-		error.setClassName(failedObject.getClass().getName());
+		error.setClassName(migration.getClassName());
 		error.setSandBoxId((Long)failedObject.getClass().getMethod("getId", null).invoke(failedObject, null));
 		error.setMessage(throwable.getMessage());
+		String stackTrace = null;
+
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            throwable.printStackTrace(pw);
+            pw.close();
+            sw.close();
+            stackTrace = sw.getBuffer().toString();
+        } catch(Exception ex) {
+        	ex.printStackTrace();
+        }
+        if(stackTrace.length()<4000)
+        {
+        	error.setStackTrace(stackTrace);
+        }else{
+		error.setStackTrace(stackTrace.substring(0, 3999));
+        }
 		SandBoxDao.saveObject(error);
-		//throwable.printStackTrace();
 	}
 	
 	public void handleSuccessfullyMigratedObject(Object mainObject, MigrationClass mainMigrationClass, ObjectIdentifierMap objectIdentifierMap) throws MigrationException
@@ -52,6 +71,21 @@ public class MigrationObjectStatusHandler
 				.getContainmentAssociationCollection();
 		processContainmentObjectIdentifierMap(mainObject, mainMigrationClass, objectIdentifierMap,
 				containmentCollection);
+		String unMigratedObjectFlag = Migrator.unMigratedObjectFlag;
+		if(unMigratedObjectFlag != null && unMigratedObjectFlag != "")
+		{
+			String whereColumn[] = new String[2];
+			whereColumn[0] = new String("className");
+			whereColumn[1] = new String("sandBoxId");
+			String whereValue[] = new String[2];
+			whereValue[0] = new String("'"+mainMigrationClass.getClassName()+"'");
+			whereValue[1] = new String(objectIdentifierMap.getOldId().toString());
+			List list = SandBoxDao.retrieve(UnMigratedObject.class.getName(), whereColumn, whereValue, null);
+			if(list != null && !list.isEmpty())
+			{
+				SandBoxDao.delete(list.get(0));
+			}
+		}
 	}
 
 	/**

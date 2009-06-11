@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Migration Tool" default="deploy_db_mysql">
+	
+	
 	<property name="mysql.driver.string" value="org.gjt.mm.mysql.Driver" />
-	<property name="database.host" value="localhost" />
-	<property name="database.port" value="3306" />
-	<property name="database.username" value="root" />
-	<property name="database.password" value="root" />
-		
+		<property name="database.host" value="localhost" />
+		<property name="database.port" value="3306" />
+		<property name="database.username" value="root" />
+		<property name="database.password" value="root" />
+		<property name="temp.dir" value="." />
+		<property name="conf.dir" value="${temp.dir}/conf" />
+		<property file="migration.properties" />
+	
 <target name="deploy_db_mysql">
 	<sql driver="${mysql.driver.string}"
 		url="jdbc:mysql://${database.host}:${database.port}/${database.name}"
@@ -14,4 +19,21 @@
 		<transaction>commit;</transaction>
 	</sql>
 </target>
+	<path id="temp.classpath">
+			<fileset dir="${temp.dir}/lib">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${temp.dir}/app_lib">
+				<include name="*.jar" />
+			</fileset>
+		 	<pathelement path="${conf.dir}"/>	
+	</path>
+	<target name="migrate_tool_for_unmigrated_object">
+			<java classname="edu.wustl.migrator.Migrator"  fork="true" maxmemory="512m">
+				<classpath location="${temp.dir}/bin" />
+				<classpath refid="temp.classpath" />
+				
+				<arg value="${migrate.unmigrated.objects}"/>
+			</java>
+		</target>
 </project>

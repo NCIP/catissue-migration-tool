@@ -19,6 +19,16 @@ public class SandBoxDao
 {
 	private static Session session = null;
 	private static Session insertionSession = null;
+	
+	public static Session getInsertionSession()
+	{
+		return insertionSession;
+	}
+	
+	public static void setInsertionSession(Session insertionSession)
+	{
+		SandBoxDao.insertionSession = insertionSession;
+	}
 	private static SessionFactory sessionFactory = null;
 	
 	public static void init() throws MigrationException
@@ -49,7 +59,7 @@ public class SandBoxDao
 	public static void initializeIdMap()
 	{
 		String className =null;
-		Transaction trasaction = session.beginTransaction();
+		Transaction trasaction = insertionSession.beginTransaction();
 		for(int i = 0 ; i < 5 ; i++)
 		{
 			if(i==0)
@@ -116,7 +126,16 @@ public class SandBoxDao
 	
 	public static List executeHQLQuery(String hql)
 	{
-		List returnObjectList = session.createQuery(hql).list();
+		List returnObjectList = null;
+		try
+		{
+			returnObjectList = session.createQuery(hql).list();
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 		return returnObjectList;
 	}
 	
@@ -124,7 +143,7 @@ public class SandBoxDao
 	public static Long getProductionId(Long sandBoxId, String className)
 	{
 		Long productionId = null;
-		String sqlQuery = "select new_id from catissue_migration_mapping where object_className='"
+		String sqlQuery = "select new_id from migration_mapping where object_className='"
 				+ className + "' and old_id=" + sandBoxId;
 		List result = executeSQLQuery(sqlQuery);
 		if (result != null && !result.isEmpty())
@@ -138,6 +157,7 @@ public class SandBoxDao
 		if(idMap.getOldId() != null && idMap.getNewId() != null)
 		{
 			saveObject(idMap);
+			System.out.println("Map inserted for: "+idMap.getClassName()+" old id: "+idMap.getOldId() +" new id: "+idMap.getNewId());
 		}
 		else
 		{
@@ -181,6 +201,58 @@ public class SandBoxDao
 			
 		}
 		return sandBoxObj;
+	}
+	public static List retrieve(String className, String[] whereColumn, String[] whereValue,String[] returnColumn)
+	{
+		List result = null;
+		if (className != null)
+		{
+			StringBuffer query = new StringBuffer();
+			if(returnColumn != null)
+			{
+				query.append("select ");
+				for(int i = 0 ; i < returnColumn.length ; i++)
+				{
+					if(i < returnColumn.length - 1)
+					{
+					query.append(returnColumn[i]+",");
+					}
+					else
+					{
+					query.append(returnColumn[i]);	
+					}
+				}
+			}
+			query.append(" from "+ className);
+			if(whereColumn != null && whereValue != null && whereColumn.length == whereValue.length)
+			{
+				query.append(" where ");
+				for(int i = 0 ; i < whereColumn.length ; i++)
+				{
+					if(i < whereColumn.length - 1)
+					{
+					query.append(whereColumn[i]+"="+whereValue[i]+" and ");
+					}
+					else
+					{
+						query.append(whereColumn[i]+"="+whereValue[i]);
+					}
+				}
+			}
+			System.out.println(query.toString());
+			result = executeHQLQuery(query.toString());
+			
+		}
+		return result;
+	}
+	public static void delete(Object obj)
+	{
+		Transaction transaction = insertionSession.getTransaction();
+		transaction.begin();
+		insertionSession.delete(obj);
+		//insertionSession.flush();
+		transaction.commit();
+		
 	}
 	
 }
