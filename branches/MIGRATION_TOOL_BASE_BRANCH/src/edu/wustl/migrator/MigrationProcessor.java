@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -42,14 +43,14 @@ public class MigrationProcessor
 		this.migrationAppService=migrationAppService;
 	}
 
-	List<Long> ids = new LinkedList<Long>();
+	Set<Long> ids = new LinkedHashSet<Long>();
 
-	public List<Long> getIds()
+	public Set<Long> getIds()
 	{
 		return ids;
 	}
 
-	public void setIds(List<Long> ids)
+	public void setIds(Set<Long> ids)
 	{
 		this.ids = ids;
 	}
@@ -136,12 +137,15 @@ public class MigrationProcessor
 			{*/
 			if(ids != null && !ids.isEmpty())
 			{
-				Collections.sort(ids, new SortIds());
-				Iterator idIterator = ids.iterator();
+				List l = new LinkedList();
+				l.addAll(ids);
+				Collections.sort(l, new SortIds());
+				Iterator idIterator = l.iterator();
 				Long t1 = MigrationUtility.getTime();
 				while (idIterator.hasNext())
 				{
 					query = "from " + migrationClass.getClassName() + " where id = " + idIterator.next().toString();
+					System.out.println("query"+query);
 					objectList = SandBoxDao.executeHQLQuery(query.toString());
 					
 					if (objectList != null && !objectList.isEmpty())
@@ -152,7 +156,7 @@ public class MigrationProcessor
 
 						processObject(object, migrationClass, objectMap);
 						System.out.println(object);
-						//migrationAppService.insert(object, migrationClass, objectMap);
+						migrationAppService.insert(object, migrationClass, objectMap);
 						//listForInsertion.add(object);
 					}
 					
@@ -363,6 +367,16 @@ public class MigrationProcessor
 							Object associatedObject = collectionIterator.next();
 							Long sandBoxId = associationMigrationClass.invokeGetIdMethod(associatedObject);
 							Long productionId = SandBoxDao.getProductionId(sandBoxId, associationMigrationClass.getClassName());
+							
+							
+							//temp to remove
+							if(productionId == null)
+							{
+								productionId = sandBoxId;
+							}
+							//end of to remove	
+								
+								
 							// setid must be of the new object class
 							Object newAssociatedObject = associationMigrationClass.getNewInstance(); 
 							associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);
@@ -395,6 +409,14 @@ public class MigrationProcessor
 						//setting the production id to the same object
 						Long sandBoxId = associationMigrationClass.invokeGetIdMethod(associatedObject);
 						Long productionId = SandBoxDao.getProductionId(sandBoxId, associationMigrationClass.getClassName());
+						
+						//temp to remove
+						if(productionId == null)
+						{
+							productionId = sandBoxId;
+						}
+						//end of to remove	
+						
 						newAssociatedObject = associationMigrationClass.getNewInstance();
 						//setting the production id to the new object
 						associationMigrationClass.invokeSetIdMethod(newAssociatedObject, productionId);

@@ -17,7 +17,7 @@
             unsaved-value="null"
         >
             <generator class="native">
-                <param name="sequence">CATISSUE_MIGRATION_EX_SEQ</param>
+                <param name="sequence">MIGRATION_EX_SEQ</param>
             </generator>
         </id>
         <property
