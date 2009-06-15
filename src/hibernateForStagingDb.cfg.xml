@@ -19,9 +19,9 @@
     	<property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>	
     	<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
         <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
-	    <property name="connection.url">jdbc:oracle:thin:@10.88.176.1:1521:orcl</property>
-	    <property name="connection.username">sunil</property>
-	    <property name="connection.password">sunil</property>   
+	    <property name="connection.url">jdbc:oracle:thin:@10.88.199.39:1521:orcl</property>
+	    <property name="connection.username">sagarstaging</property>
+	    <property name="connection.password">sagarstaging</property>   
 	    <property name="hibernate.jdbc.batch_size">0</property>
     	<!--Consent Tracking Suite-->
 		<mapping resource="edu/wustl/catissuecore/hbm/ConsentTier.hbm.xml"/>

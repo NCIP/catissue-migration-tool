@@ -17,6 +17,7 @@ import edu.wustl.migrator.metadata.MigrationMetadataUtil;
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationProperties;
 import edu.wustl.migrator.util.MigrationUtility;
+import edu.wustl.migrator.util.PreparedStatementUtil;
 
 public class Migrator
 {
@@ -27,6 +28,7 @@ public class Migrator
 		{
 			unMigratedObjectFlag = arg[0];
 		}
+		//unMigratedObjectFlag = "yes";
 		Long startTime = MigrationUtility.getTime();
 		try
 		{
@@ -42,7 +44,7 @@ public class Migrator
 			SandBoxDao.initializeIdMap();*/
 			
 			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
-					"admin@admin.com", "login123");
+					"admin@admin.com", "Mig_catis@04");
 
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
 			MigrationMetadata metadata = unMarshaller.unmarshall();
@@ -69,7 +71,8 @@ public class Migrator
 		}
 		finally
 		{
-			//SandBoxDao.closeSession();
+			
+			PreparedStatementUtil.closePreparedStatements();
 			SandBoxDao.closeInsertionSession();
 			Long endTime = MigrationUtility.getTime();
 			Long totalTime = endTime - startTime ;

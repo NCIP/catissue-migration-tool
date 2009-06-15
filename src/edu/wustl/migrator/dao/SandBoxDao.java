@@ -1,11 +1,12 @@
 package edu.wustl.migrator.dao;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.hibernate.FlushMode;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -13,13 +14,25 @@ import org.hibernate.cfg.Configuration;
 
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
 import edu.wustl.migrator.util.MigrationException;
+import edu.wustl.migrator.util.PreparedStatementUtil;
 
 
 public class SandBoxDao
 {
 	private static Session session = null;
 	private static Session insertionSession = null;
+	private static Connection conn = null;
 	
+	
+	public static Connection getConnection()
+	{
+		if(session != null)
+		{
+			conn = session.connection();
+		}
+		return conn;
+	}
+
 	public static Session getInsertionSession()
 	{
 		return insertionSession;
@@ -129,6 +142,7 @@ public class SandBoxDao
 		List returnObjectList = null;
 		try
 		{
+			System.out.println("hql = "+hql);
 			returnObjectList = session.createQuery(hql).list();
 
 		}
@@ -143,12 +157,47 @@ public class SandBoxDao
 	public static Long getProductionId(Long sandBoxId, String className)
 	{
 		Long productionId = null;
-		String sqlQuery = "select new_id from migration_mapping where object_className='"
+		/*String sqlQuery = "select new_id from migration_mapping where object_className='"
 				+ className + "' and old_id=" + sandBoxId;
 		List result = executeSQLQuery(sqlQuery);
 		if (result != null && !result.isEmpty())
 		{
 			productionId = Long.valueOf(result.get(0).toString());
+		}
+		return productionId;*/
+
+		String sqlQuery = "select new_id from migration_mapping where object_className=? and old_id = ?";
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try
+		{
+			ps = PreparedStatementUtil.getPreparedStatement(sqlQuery);
+			ps.setString(1, className);
+			ps.setLong(2, sandBoxId);
+			rs = ps.executeQuery();
+			if (rs != null)
+			{
+				if (rs.next())
+				{
+					productionId = rs.getLong(1);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				rs.close();
+				//ps.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 		return productionId;
 	}
@@ -165,7 +214,7 @@ public class SandBoxDao
 		}
 		
 	}
-	public static Object retrieve(Object obj) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
+	/*public static Object retrieve(Object obj) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException
 	{
 		Object sandBoxObj = null;
 		if(obj != null)
@@ -201,7 +250,7 @@ public class SandBoxDao
 			
 		}
 		return sandBoxObj;
-	}
+	}*/
 	public static List retrieve(String className, String[] whereColumn, String[] whereValue,String[] returnColumn)
 	{
 		List result = null;
