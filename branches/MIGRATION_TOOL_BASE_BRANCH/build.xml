@@ -1,39 +1,171 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Migration Tool" default="deploy_db_mysql">
+<!--Ant Script to setup configuration files for test cases-->
+
+<project name="pcaTissue_Migration_Tool_v2.0" default="compile" >
+
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+		<classpath>
+			<pathelement location="./lib/ant-contrib.jar" />
+		</classpath>
+	</taskdef>
+
+	<property file="./migrationInstall.properties"/>
 	
+    <property name="production.database.type" value="${production.database.type}" />
+	<property name="sandbox.database.type" value="${sandbox.database.type}" />
+	<property name="production.database.username" value="${production.database.username}" />
+	<property name="staging.database.username"  value="${sandbox.database.username}" />
+	<property name="production.database.password" value="${production.database.password}" />
+	<property name="staging.database.password"  value="${sandbox.database.password}" />
+	<property name="production.database.host" value="${production.database.host}"/>
+	<property name="sandbox.database.host" value="${sandbox.database.host}"/>
+	<property name="production.database.port" value="${production.database.port}"/>
+	<property name="sandbox.database.port" value="${sandbox.database.port}"/>
+		
+    <property name="mysql.dialect.string" value="org.hibernate.dialect.MySQLDialect" />
+	<property name="oracle.dialect.string" value="org.hibernate.dialect.Oracle9Dialect" />
 	
-	<property name="mysql.driver.string" value="org.gjt.mm.mysql.Driver" />
-		<property name="database.host" value="localhost" />
-		<property name="database.port" value="3306" />
-		<property name="database.username" value="root" />
-		<property name="database.password" value="root" />
-		<property name="temp.dir" value="." />
-		<property name="conf.dir" value="${temp.dir}/conf" />
-		<property file="migration.properties" />
+    <property name="production.database.driver" value="${production.database.driver}" />
+	<property name="sandbox.database.driver" value="${sandbox.database.driver}" />
 	
-<target name="deploy_db_mysql">
-	<sql driver="${mysql.driver.string}"
-		url="jdbc:mysql://${database.host}:${database.port}/${database.name}"
-		userid="${database.username}" password="${database.password}">
-		<transaction src="./createTable.sql" />
-		<transaction>commit;</transaction>
-	</sql>
-</target>
-	<path id="temp.classpath">
-			<fileset dir="${temp.dir}/lib">
-				<include name="*.jar" />
-			</fileset>
-			<fileset dir="${temp.dir}/app_lib">
-				<include name="*.jar" />
-			</fileset>
-		 	<pathelement path="${conf.dir}"/>	
+	<property name="production.database.oracle.url" value="jdbc:oracle:thin:@${production.database.host}:${production.database.port}:${production.database.name}" />
+	<property name="production.database.mysql.url" value="jdbc:mysql://${production.database.host}:${production.database.port}/${production.database.name}" />
+	<property name="sandbox.database.oracle.url" value="jdbc:oracle:thin:@${sandbox.database.host}:${sandbox.database.port}:${sandbox.database.name}" />
+	<property name="sandbox.database.mysql.url" value="jdbc:mysql://${sandbox.database.host}:${sandbox.database.port}/${sandbox.database.name}" />
+	<property name="csm.database.oracle.url" value="jdbc:oracle:thin:@${csm.database.host}:${csm.database.port}:${csm.database.name}" />
+	<property name="csm.database.mysql.url" value="jdbc:mysql://${csm.database.host}:${csm.database.port}/${csm.database.name}" />
+	
+	<property name="idp.enabled" value="${idp.enabled}"/>
+	<property name="csm.database.type" value="${csm.database.type}" />
+	<property name="csm.database.host" value="${csm.database.host}" />
+	<property name="csm.database.port" value="${csm.database.port}" />
+	<property name="csm.database.name" value="${csm.database.name}" />
+	<property name="csm.database.username" value="${csm.database.username}" />
+	<property name="csm.database.password" value="${csm.database.password}" />
+	
+    <property name="hibernate-cfg.path.string" value="${basedir}\app_lib\conf\catissuecore.hibernate.cfg.xml" />
+    <property name="ApplicationSecurityConfig.file.path" value="${basedir}\app_lib\conf\ApplicationSecurityConfig.xml" />
+    <property name="hibernate-cfg.file.path" value="${basedir}\app_lib\conf\catissuecore.hibernate.cfg.xml" />
+	<property name="login-conf.file.path" value="${basedir}\app_lib\conf\login.conf" />
+	<property name="hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernate.cfg.xml" />
+	<property name="dynamicextensions.hibernate.cfg.xml" value="${basedir}\app_lib\conf\DynamicExtensionsHibernate.cfg.xml" />
+	<property name="staging.hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernateForStagingDb.cfg.xml" />
+	
+	<property name="conf.dir" value="${basedir}/conf" />
+	
+	<path id="cp">
+		<fileset dir="${basedir}/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${basedir}/app_lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement path="${conf.dir}"/>
+		<pathelement path="${basedir}/src"/>
 	</path>
-	<target name="migrate_tool_for_unmigrated_object">
-			<java classname="edu.wustl.migrator.Migrator"  fork="true" maxmemory="512m">
-				<classpath location="${temp.dir}/bin" />
-				<classpath refid="temp.classpath" />
-				
-				<arg value="${migrate.unmigrated.objects}"/>
-			</java>
-		</target>
+	
+    <target name="init">    	
+    	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
+		<if>
+			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
+			<then>
+				<replace dir="${basedir}/src">
+					<include name="hibernateForStagingDb.cfg.xml" />
+		    		<replacefilter token="@@dialect@@" value="${oracle.dialect.string}" />
+		    		<replacefilter token="@@databasedriver@@" value="oracle.jdbc.driver.OracleDriver" />
+		    		<replacefilter token="@@databaseurl@@" value="${sandbox.database.oracle.url}" />
+		    		<replacefilter token="@@databaseusername@@" value="${sandbox.database.username}" />
+		   			<replacefilter token="@@databasepassword@@" value="${sandbox.database.password}" />
+				</replace>
+			</then>
+		<elseif>
+			<equals arg1="${sandbox.database.type}" arg2="mysql"/>
+			<then>
+				<replace dir="${basedir}/src">
+					<include name="hibernateForStagingDb.cfg.xml" />
+					<replacefilter token="@@dialect@@" value="${mysql.dialect.string}" />
+		    		<replacefilter token="@@databasedriver@@" value="org.gjt.mm.mysql.Driver" />
+					<replacefilter token="@@databaseurl@@" value="${sandbox.database.mysql.url}" />
+					<replacefilter token="@@databaseusername@@" value="${sandbox.database.username}" />
+					<replacefilter token="@@databasepassword@@" value="${sandbox.database.password}" />
+				</replace>
+			</then>
+		</elseif>
+		</if>    	 
+    </target>
+	
+	
+	<target name="compile">
+		<echo message="Compling classes................" />
+        <javac destdir="${basedir}/bin" includes="**/*.*" includeAntRuntime="false">
+    		<src path="${basedir}/src"/>
+            <classpath>
+       			<fileset dir="${basedir}/lib">
+        			<include name="**/*.jar"/>
+        	  	</fileset>
+				<fileset dir="${basedir}/app_lib">
+            		<include name="**/*.jar"/>
+            	</fileset>
+            </classpath>
+        </javac>
+    </target>
+	
+	<target name="run_migration_tool" depends="init,compile">
+		<echo message="Migration started....................." />
+		<java classname="edu.wustl.migrator.Migrator" fork="true" maxmemory="1024m">
+			<classpath>
+				<pathelement location="${basedir}/bin"/>
+			</classpath>
+			<classpath refid="cp"/>
+		</java>
+	</target>
+	
+	<target name="run_migration_tool_for_unmigrated_objects" depends="init,compile">
+		<echo message="Migration started....................." />
+		<java classname="edu.wustl.migrator.Migrator" fork="false">
+			<jvmarg value="-Xms128m"/>
+			<jvmarg value="-Xmx1024m"/>
+			<classpath>
+				<pathelement location="${basedir}/bin"/>
+			</classpath>
+			<classpath refid="cp"/>
+			<arg value="yes"/>
+		</java>
+	</target>
+	
+	<target name="create_tables_for_migration">
+		<if>
+			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
+			<then>
+				<sql driver="oracle.jdbc.driver.OracleDriver"
+					url="${sandbox.database.oracle.url}"
+					userid="${sandbox.database.username}" password="${sandbox.database.password}">
+					<transaction src="${basedir}/SQL/Oracle/CREATE_MIGRATION_MAPPING_TABLES_FOR_ORACLE.sql" />
+					<transaction>commit;</transaction>
+					<classpath>
+						<fileset dir="${basedir}/lib">
+		        			<include name="**/*.jar"/>
+		        	  	</fileset>
+					</classpath>
+				</sql>
+			</then>
+		<elseif>
+			<equals arg1="${sandbox.database.type}" arg2="mysql"/>
+			<then>
+				<sql driver="org.gjt.mm.mysql.Driver"
+					url="${sandbox.database.mysql.url}"
+					userid="${sandbox.database.username}" password="${sandbox.database.password}">
+					<transaction src="${basedir}/SQL/Oracle/CREATE_MIGRATION_MAPPING_TABLES_FOR_MYSQL.sql" />
+					<transaction>commit;</transaction>
+					<classpath>
+						<fileset dir="${basedir}/lib">
+		        			<include name="**/*.jar"/>
+		        	  	</fileset>
+					</classpath>
+				</sql>
+			</then>
+		</elseif>
+		</if> 
+	</target>
+	
 </project>
