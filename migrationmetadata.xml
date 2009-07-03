@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MigrationMetadata>
-  <MigrationClass className="edu.wustl.catissuecore.domain.Institution"
+
+	<!-- 
+  	<MigrationClass className="edu.wustl.catissuecore.domain.Institution"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
 		cardinality="" roleName="" sql="select identifier from CATISSUE_INSTITUTION">
 	</MigrationClass>  
@@ -126,10 +128,10 @@
 			isToMigrate="Yes" isToSetNull="No" cardinality="*"
 			roleName="holdsStorageTypeCollection" />
 	</MigrationClass>
-	
+	-->
 	<MigrationClass className="edu.wustl.catissuecore.domain.StorageContainer"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_STORAGE_CONTAINER">
+		cardinality="" roleName="" sql="select identifier from CATISSUE_STORAGE_CONTAINER where identifier &gt;= 708562 and identifier &lt;= 708863">
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.ContainerPosition"
 			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
@@ -162,10 +164,10 @@
 			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
 			cardinality="1" roleName="storageType" />
 	</MigrationClass>   
-		
+	<!--	
 	<MigrationClass className="edu.wustl.catissuecore.domain.Participant"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_PARTICIPANT">
+		cardinality="" roleName="" sql="select identifier from CATISSUE_PARTICIPANT where identifier &gt;=713758 and identifier &lt;= 713780">
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.Race" relationShipType="association"
 			isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="raceCollection">
@@ -183,6 +185,8 @@
 			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
 			cardinality="*" roleName="collectionProtocolRegistrationCollection" />
 	</MigrationClass>
+	
+	 
 	<MigrationClass
 		className="edu.wustl.catissuecore.domain.CollectionProtocolRegistration"
 		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
@@ -305,6 +309,9 @@
 			className="edu.wustl.catissuecore.domain.StorageContainer"
 			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
 			cardinality="1" roleName="storageContainer" />
+			<attributeCollection name="name" valueToSet="" isToSetNull="" dataType="java.lang.String"/>
+			</referenceAssociationCollection>
 			</containmentAssociationCollection>
 	</MigrationClass> 
+	 -->
 </MigrationMetadata>

@@ -1,11 +1,15 @@
 package edu.wustl.migrator.util;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.hibernate.Session;
 
@@ -113,4 +117,27 @@ public class MigrationUtility
 		}
 	}
 
+	/**
+	 * @param query 
+	 * 			String , query whose result is to be evaluate
+	 * @return result set 
+	 */
+	public static Properties getMigrationInstallProperties()
+	{
+		Properties props = new Properties();
+		try
+		{
+			FileInputStream propFile = new FileInputStream(MigrationConstants.MIGRATION_INSTALL_PROPERTIES_FILE);
+			props.load(propFile);
+		}
+		catch (FileNotFoundException fnfException) 
+		{
+			fnfException.printStackTrace();
+		}
+		catch (IOException ioException) 
+		{
+			ioException.printStackTrace();
+		}
+		return props;
+	}
 }

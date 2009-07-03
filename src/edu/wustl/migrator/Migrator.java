@@ -1,12 +1,11 @@
 
 package edu.wustl.migrator;
 
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
+import java.util.Properties;
 
-import sun.security.util.ObjectIdentifier;
+import org.apache.log4j.Logger;
 
 import edu.wustl.migrator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.migrator.appservice.MigrationAppService;
@@ -14,14 +13,17 @@ import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
-import edu.wustl.migrator.metadata.ObjectIdentifierMap;
-import edu.wustl.migrator.util.MigrationProperties;
+import edu.wustl.migrator.util.MigrationConstants;
 import edu.wustl.migrator.util.MigrationUtility;
 import edu.wustl.migrator.util.PreparedStatementUtil;
 
 public class Migrator
 {
+	Logger logger = Logger.getLogger(Migrator.class);
+	
     public static String unMigratedObjectFlag = "";
+    private static Properties migrationInstallProperties = null;
+    
 	public static void main(String arg[])
 	{
 		if(arg != null && arg.length > 0)
@@ -30,6 +32,7 @@ public class Migrator
 		}
 		//unMigratedObjectFlag = "yes";
 		Long startTime = MigrationUtility.getTime();
+		migrationInstallProperties = MigrationUtility.getMigrationInstallProperties();
 		try
 		{
 			SandBoxDao.init();
@@ -43,8 +46,12 @@ public class Migrator
 			SandBoxDao.saveObject(o2);
 			SandBoxDao.initializeIdMap();*/
 			
+			/*MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
+					"admin@admin.com", "Mig_catis@04");*/
+			
 			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
-					"admin@admin.com", "Mig_catis@04");
+						migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME),
+						migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD));
 
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
 			MigrationMetadata metadata = unMarshaller.unmarshall();

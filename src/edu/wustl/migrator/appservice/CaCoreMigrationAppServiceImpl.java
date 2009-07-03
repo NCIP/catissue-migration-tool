@@ -42,7 +42,9 @@ public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 	public void initialize(String userName,String password) throws MigrationException
 	{
 		//appService = ApplicationServiceProvider.getApplicationService();
-		appService = ApplicationServiceProvider.getRemoteInstance("http://localhost:8080/catissuecore/http/remoteService");
+		System.setProperty("javax.net.ssl.trustStore",
+			"D:/jboss-4.2.2.GA/server/default/conf/chap8.keystore");
+		appService = ApplicationServiceProvider.getRemoteInstance("https://ps2078:8443/catissuecore/http/remoteService");
 		authenticate(userName,password);
 	}
 	
