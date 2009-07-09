@@ -43,15 +43,9 @@
 	<property name="csm.database.username" value="${csm.database.username}" />
 	<property name="csm.database.password" value="${csm.database.password}" />
 	
-    <property name="hibernate-cfg.path.string" value="${basedir}\app_lib\conf\catissuecore.hibernate.cfg.xml" />
-    <property name="ApplicationSecurityConfig.file.path" value="${basedir}\app_lib\conf\ApplicationSecurityConfig.xml" />
-    <property name="hibernate-cfg.file.path" value="${basedir}\app_lib\conf\catissuecore.hibernate.cfg.xml" />
-	<property name="login-conf.file.path" value="${basedir}\app_lib\conf\login.conf" />
-	<property name="hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernate.cfg.xml" />
-	<property name="dynamicextensions.hibernate.cfg.xml" value="${basedir}\app_lib\conf\DynamicExtensionsHibernate.cfg.xml" />
-	<property name="staging.hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernateForStagingDb.cfg.xml" />
+    <property name="staging.hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernateForStagingDb.cfg.xml" />
 	
-	<property name="conf.dir" value="conf" />
+	<property name="conf.dir" value="${basedir}\conf" />
 	
 	<path id="cp">
 		<fileset dir="${basedir}/lib">
@@ -64,7 +58,7 @@
 		<pathelement path="${basedir}/src"/>
 	</path>
 	
-    <target name="init">    	
+    <target name="init">
     	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
 		<if>
 			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
@@ -93,11 +87,18 @@
 		</elseif>
 		</if>    	 
     </target>
-	
-	
-	<target name="compile">
+
+	<target name="clean">
+		<delete includeemptydirs="true">
+			<fileset dir="${basedir}/bin">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="compile" depends="clean">
 		<echo message="Compling classes................" />
-        <javac destdir="${basedir}/bin" includes="**/*.*" includeAntRuntime="false">
+		<javac destdir="${basedir}/bin" includes="**/*.*" includeAntRuntime="false">
     		<src path="${basedir}/src"/>
             <classpath>
        			<fileset dir="${basedir}/lib">
