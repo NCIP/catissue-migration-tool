@@ -1,18 +1,11 @@
 
 package edu.wustl.migrator.appservice;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.List;
+import java.util.Properties;
 
-import edu.wustl.catissuecore.domain.Container;
-import edu.wustl.catissuecore.domain.Institution;
-import edu.wustl.migrator.MigrationObjectStatusHandler;
-import edu.wustl.migrator.dao.DAO;
-import edu.wustl.migrator.dao.SandBoxDao;
-import edu.wustl.migrator.metadata.ObjectIdentifierMap;
+import edu.wustl.migrator.util.MigrationConstants;
 import edu.wustl.migrator.util.MigrationException;
+import edu.wustl.migrator.util.MigrationUtility;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
@@ -34,20 +27,19 @@ public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 	}
 
 	ClientSession clientSession;
-	
+
 	public CaCoreMigrationAppServiceImpl(boolean isAuthenticationRequired,String userName,String password) throws MigrationException
 	{
 		super(isAuthenticationRequired, userName, password);
 	}
 	public void initialize(String userName,String password) throws MigrationException
 	{
-		//appService = ApplicationServiceProvider.getApplicationService();
+		appService = ApplicationServiceProvider.getApplicationService();
+		Properties migrationProperties = MigrationUtility.getMigrationInstallProperties();
 		System.setProperty("javax.net.ssl.trustStore",
-			"D:/jboss-4.2.2.GA/server/default/conf/chap8.keystore");
-		appService = ApplicationServiceProvider.getRemoteInstance("https://ps2078:8443/catissuecore/http/remoteService");
+			migrationProperties.getProperty(MigrationConstants.JBOSS_HOME) + "/server/default/conf/chap8.keystore");
 		authenticate(userName,password);
 	}
-	
 	
 	public void authenticate(String user,String password) throws MigrationException
 	{
