@@ -51,7 +51,7 @@
 	<property name="dynamicextensions.hibernate.cfg.xml" value="${basedir}\app_lib\conf\DynamicExtensionsHibernate.cfg.xml" />
 	<property name="staging.hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernateForStagingDb.cfg.xml" />
 	
-	<property name="conf.dir" value="${basedir}/conf" />
+	<property name="conf.dir" value="conf" />
 	
 	<path id="cp">
 		<fileset dir="${basedir}/lib">
@@ -122,7 +122,7 @@
 	
 	<target name="run_migration_tool_for_unmigrated_objects" depends="init,compile">
 		<echo message="Migration started....................." />
-		<java classname="edu.wustl.migrator.Migrator" fork="false">
+		<java classname="edu.wustl.migrator.Migrator" fork="true" maxmemory="1024m">
 			<jvmarg value="-Xms128m"/>
 			<jvmarg value="-Xmx1024m"/>
 			<classpath>
