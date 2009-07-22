@@ -2,7 +2,6 @@ package edu.wustl.migrator;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -32,12 +31,11 @@ public abstract class Migrator
 		Logger logger = Logger.getLogger("");
 		
 		migrationInstallProperties = MigrationUtility.getMigrationInstallProperties();
-		System.out.println(migrationInstallProperties + "migrationInstallProperties");
+		//System.out.println(migrationInstallProperties + "migrationInstallProperties");
 		if(args != null && args.length > 0)
 		{
 			unMigratedObjectFlag = args[0];
 		}
-
 		Long startTime = MigrationUtility.getTime();
 		try
 		{
@@ -53,6 +51,7 @@ public abstract class Migrator
 			SandBoxDao.initializeIdMap();*/
 			
 			String migrationServiceTypeName = migrationInstallProperties.getProperty(MigrationConstants.MIGRATION_SERVICE_TYPE);
+			System.out.println("migrationServiceTypeName : " + migrationServiceTypeName);
 			String userName = migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME);
 			String password = migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD);
 			String migrationMetaDataXmlFileName = migrationInstallProperties.
