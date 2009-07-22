@@ -17,7 +17,6 @@ import edu.wustl.common.lookup.DefaultLookupResult;
 import edu.wustl.migrator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.migrator.dao.SandBoxDao;
 
-
 public class MigrationUtility
 {
 	public static String getGetterFunctionName(String name)
@@ -111,15 +110,14 @@ public class MigrationUtility
 			}
 			catch (SQLException e)
 			{
-
 				e.printStackTrace();
 			}
 		}
 	}
-
+	
 	/**
 	 * @param query 
-	 * 			String , query whose result is to be evaluate
+	 * String , query whose result is to be evaluate
 	 * @return result set 
 	 */
 	public static Properties getMigrationInstallProperties()

@@ -1,11 +1,7 @@
 
 package edu.wustl.migrator.appservice;
 
-import java.util.Properties;
-
-import edu.wustl.migrator.util.MigrationConstants;
 import edu.wustl.migrator.util.MigrationException;
-import edu.wustl.migrator.util.MigrationUtility;
 import gov.nih.nci.system.applicationservice.ApplicationException;
 import gov.nih.nci.system.applicationservice.ApplicationService;
 import gov.nih.nci.system.applicationservice.ApplicationServiceProvider;
@@ -13,7 +9,6 @@ import gov.nih.nci.system.comm.client.ClientSession;
 
 public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 {
-
 	ApplicationService appService;
 	
 	public ApplicationService getAppService()
@@ -27,7 +22,7 @@ public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 	}
 
 	ClientSession clientSession;
-
+	
 	public CaCoreMigrationAppServiceImpl(boolean isAuthenticationRequired,String userName,String password) throws MigrationException
 	{
 		super(isAuthenticationRequired, userName, password);
@@ -35,11 +30,8 @@ public class CaCoreMigrationAppServiceImpl extends MigrationAppService
 	public void initialize(String userName,String password) throws MigrationException
 	{
 		appService = ApplicationServiceProvider.getApplicationService();
-		Properties migrationProperties = MigrationUtility.getMigrationInstallProperties();
-		System.setProperty("javax.net.ssl.trustStore",
-			migrationProperties.getProperty(MigrationConstants.JBOSS_HOME) + "/server/default/conf/chap8.keystore");
 		authenticate(userName,password);
-	}
+	}	
 	
 	public void authenticate(String user,String password) throws MigrationException
 	{

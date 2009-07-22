@@ -1,38 +1,44 @@
-
 package edu.wustl.migrator;
 
+import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Logger;
-
-import edu.wustl.migrator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.migrator.appservice.MigrationAppService;
 import edu.wustl.migrator.dao.SandBoxDao;
 import edu.wustl.migrator.metadata.MigrationClass;
 import edu.wustl.migrator.metadata.MigrationMetadata;
 import edu.wustl.migrator.metadata.MigrationMetadataUtil;
 import edu.wustl.migrator.util.MigrationConstants;
+import edu.wustl.migrator.util.MigrationException;
 import edu.wustl.migrator.util.MigrationUtility;
+import edu.wustl.migrator.util.MigratorThread;
 import edu.wustl.migrator.util.PreparedStatementUtil;
 
-public class Migrator
-{
-	Logger logger = Logger.getLogger(Migrator.class);
-	
+public abstract class Migrator
+{	
     public static String unMigratedObjectFlag = "";
     private static Properties migrationInstallProperties = null;
     
-	public static void main(String arg[])
+    /**
+     * 
+     * @param args
+     */
+    public static void main(String args[])
 	{
-		if(arg != null && arg.length > 0)
-		{
-			unMigratedObjectFlag = arg[0];
-		}
-		//unMigratedObjectFlag = "yes";
-		Long startTime = MigrationUtility.getTime();
+		Logger logger = Logger.getLogger("");
+		
 		migrationInstallProperties = MigrationUtility.getMigrationInstallProperties();
+		System.out.println(migrationInstallProperties + "migrationInstallProperties");
+		if(args != null && args.length > 0)
+		{
+			unMigratedObjectFlag = args[0];
+		}
+
+		Long startTime = MigrationUtility.getTime();
 		try
 		{
 			SandBoxDao.init();
@@ -46,18 +52,32 @@ public class Migrator
 			SandBoxDao.saveObject(o2);
 			SandBoxDao.initializeIdMap();*/
 			
-			/*MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
-					"admin@admin.com", "Mig_catis@04");*/
+			String migrationServiceTypeName = migrationInstallProperties.getProperty(MigrationConstants.MIGRATION_SERVICE_TYPE);
+			String userName = migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME);
+			String password = migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD);
+			String migrationMetaDataXmlFileName = migrationInstallProperties.
+									getProperty(MigrationConstants.MIGRATION_METADATA_XML_FILE_NAME);
+			System.setProperty("javax.net.ssl.trustStore", migrationInstallProperties.
+					getProperty(MigrationConstants.JBOSS_HOME) + "/server/default/conf/chap8.keystore");
+			MigrationAppService migrationAppService = getMigrationServiceTypeInstance(migrationServiceTypeName, userName, password);
 			
-			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
-						migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME),
-						migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD));
+//			MigrationAppService migrationAppService = new CaCoreMigrationAppServiceImpl(true,
+//					migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME),
+//					migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD));
 
+			/*MigrationAppService migrationAppService = new CaTissueThickClientService(true,
+					migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_USER_NAME),
+					migrationInstallProperties.getProperty(MigrationConstants.CLIENT_SESSION_PASSWORD));*/
+
+			
 			MigrationMetadataUtil unMarshaller = new MigrationMetadataUtil();
-			MigrationMetadata metadata = unMarshaller.unmarshall();
+			MigrationMetadata metadata = unMarshaller.unmarshall(migrationMetaDataXmlFileName);
 
 			Collection<MigrationClass> classList = metadata.getMigrationClass();
-
+			
+			MigratorThread migratorThread = new MigratorThread();
+			migratorThread.start();
+			
 			if (classList != null)
 			{
 				Iterator<MigrationClass> it = classList.iterator();
@@ -70,7 +90,7 @@ public class Migrator
 					migrationProcessor.fetchObjects();
 				}
 			}
-
+			MigratorThread.pleaseWait = false;
 		}
 		catch (Exception e)
 		{
@@ -91,4 +111,34 @@ public class Migrator
 		}
 	}
 
+	/**
+	 * Returns the Migration Service type instance
+	 * @param migrationServiceType
+	 * @param username
+	 * @param password
+	 * @return
+	 * @throws MigrationException
+	 */
+    protected static MigrationAppService getMigrationServiceTypeInstance(String migrationServiceType,
+			String username, String password) throws MigrationException
+	{
+		MigrationAppService appService = null;
+		Class migrationServiceTypeClass;
+		try
+		{
+			migrationServiceTypeClass = Class.forName(migrationServiceType);
+			Class[] ctorArgs1 = new Class[3];
+            ctorArgs1[0] = boolean.class;
+            ctorArgs1[1] = String.class;
+            ctorArgs1[2] = String.class;
+			Constructor constructor = migrationServiceTypeClass.getDeclaredConstructor(ctorArgs1);
+			appService = (MigrationAppService)constructor.newInstance(true, username, password);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new MigrationException();
+		}
+		return appService;
+	}
 }

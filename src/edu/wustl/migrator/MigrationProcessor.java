@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -120,11 +119,12 @@ public class MigrationProcessor
 			NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException
 	{
-		Map<Object, Object> sandBoxObjs = new HashMap<Object, Object>();
-		
-		//List<Object> listForInsertion = new ArrayList<Object>();
 		try
 		{
+			Map<Object, Object> sandBoxObjs = new HashMap<Object, Object>();
+			
+			//List<Object> listForInsertion = new ArrayList<Object>();
+		
 			if(SandBoxDao.getCurrentSession() == null)
 			{
 				SandBoxDao.getNewSession();
@@ -170,10 +170,6 @@ public class MigrationProcessor
 				}
 
 			}
-			
-			
-
-			
 		}
 		catch (Exception e)
 		{

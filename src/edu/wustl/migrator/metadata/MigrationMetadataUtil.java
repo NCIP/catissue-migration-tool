@@ -18,7 +18,7 @@ public class MigrationMetadataUtil
 {
 	//static ApplicationService appService = null;
 
-	public  MigrationMetadata unmarshall()
+	public  MigrationMetadata unmarshall(String migrationMetaDataXmlFileName)
 	{
 		MigrationMetadata migrate = null;
 		try
@@ -31,7 +31,7 @@ public class MigrationMetadataUtil
 			un.setMapping(mapping);
 
 			// -- Read in the migration.xml using the mapping
-			FileReader in = new FileReader("migrationmetadata.xml");
+			FileReader in = new FileReader(migrationMetaDataXmlFileName);
 			migrate = (MigrationMetadata) un.unmarshal(in);
 			in.close();
 		}

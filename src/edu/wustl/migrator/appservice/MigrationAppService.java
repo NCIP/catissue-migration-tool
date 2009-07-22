@@ -29,10 +29,10 @@ public abstract class  MigrationAppService
 	abstract public void authenticate(String userName,String password) throws MigrationException;
 	
 	public void insert(Object obj,MigrationClass migration,ObjectIdentifierMap objectIdentifierMap) throws MigrationException
-	{
-		
+	{		
 		try
 		{
+			SandBoxDao.getCurrentSession().clear();
 			Object newObj = insertObject(obj);
 			objectIdentifierMap.setNewId((Long)migration.invokeGetIdMethod(newObj));
 			MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(newObj, migration, objectIdentifierMap);
