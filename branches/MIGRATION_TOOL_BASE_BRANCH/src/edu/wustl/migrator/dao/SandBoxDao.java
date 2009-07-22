@@ -1,20 +1,30 @@
 package edu.wustl.migrator.dao;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.dom4j.Document;
+import org.dom4j.io.DOMWriter;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.util.XMLHelper;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
 import edu.wustl.migrator.metadata.ObjectIdentifierMap;
+import edu.wustl.migrator.util.MigrationConstants;
 import edu.wustl.migrator.util.MigrationException;
 import edu.wustl.migrator.util.PreparedStatementUtil;
+
 
 
 public class SandBoxDao
@@ -44,22 +54,52 @@ public class SandBoxDao
 	}
 	private static SessionFactory sessionFactory = null;
 	
+	
 	public static void init() throws MigrationException
 	{
 		try
 		{
-		sessionFactory = new Configuration().configure(
-				"hibernateForStagingDb.cfg.xml").buildSessionFactory();
-		session = sessionFactory.openSession();
-		insertionSession = sessionFactory.openSession();
-		session.setFlushMode(FlushMode.NEVER);
+			Configuration configuration = setConfiguration(MigrationConstants.STAGING_HIBERNATE_CFG_XML_FILE);
+			sessionFactory = configuration.buildSessionFactory();
+			session = sessionFactory.openSession();
+			insertionSession = sessionFactory.openSession();
+			session.setFlushMode(FlushMode.NEVER);
 		}
 		catch(Exception e)
-		{			
+		{		
 			e.printStackTrace();
 			throw new MigrationException(e.getMessage(),e);
 		}
 	}
+
+	private static final EntityResolver entityResolver =
+		XMLHelper.DEFAULT_DTD_RESOLVER;
+
+	 public static Configuration setConfiguration(String configurationfile) throws MigrationException
+    {
+        try
+        {
+        	Configuration configuration = new Configuration();
+        	InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(configurationfile);
+            List<Object> errors = new ArrayList<Object>();
+            // hibernate api to read configuration file and convert it to
+            // Document(dom4j) object.
+            XMLHelper xmlHelper = new XMLHelper();
+            Document document = xmlHelper.createSAXReader(configurationfile, errors, entityResolver).read(
+                    new InputSource(inputStream));
+            // convert to w3c Document object.
+            DOMWriter writer = new DOMWriter();
+            org.w3c.dom.Document doc = writer.write(document);
+            // configure
+            configuration.configure(doc);
+            return configuration;
+        }
+        catch (Exception exp)
+        {
+        	throw new MigrationException();
+        }
+    }
+
 	public static void getNewSession()
 	{
 		session = sessionFactory.openSession();

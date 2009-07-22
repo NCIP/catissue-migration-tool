@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Ant Script to setup configuration files for test cases-->
 
-<project name="pcaTissue_Migration_Tool_v2.0" default="compile" >
+<project name="Migration_Tool" default="compile" >
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
@@ -167,6 +167,16 @@
 			</then>
 		</elseif>
 		</if> 
+	</target>
+	
+	<target name="create_migrator_jar" depends="compile">
+		<mkdir dir="${basedir}/migrator_jar"/>
+		<jar destfile="${basedir}/migrator_jar/migrator.jar" basedir="${basedir}/bin">
+            <manifest>
+                <attribute name="Main-Class" value="Migrator.java"/>
+            </manifest>
+        </jar>
+
 	</target>
 	
 </project>
