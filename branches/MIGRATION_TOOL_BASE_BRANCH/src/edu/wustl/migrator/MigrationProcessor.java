@@ -461,9 +461,9 @@ public class MigrationProcessor
 						else
 						{
 							//constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
-							setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, oldObject, null);
+							setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
 						}
-						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
+						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, mainObj, setObject);
 					}
 					catch (Exception e)
 					{

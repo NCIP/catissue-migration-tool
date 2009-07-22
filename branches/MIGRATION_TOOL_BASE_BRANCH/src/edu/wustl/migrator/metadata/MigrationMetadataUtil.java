@@ -2,17 +2,9 @@
 package edu.wustl.migrator.metadata;
 
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.exolab.castor.mapping.Mapping;
 import org.exolab.castor.xml.Unmarshaller;
-
-import edu.wustl.migrator.dao.DAO;
 
 public class MigrationMetadataUtil
 {

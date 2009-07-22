@@ -2,9 +2,9 @@ package edu.wustl.migrator.testcase;
 
 import org.junit.Before;
 
-import edu.wustl.catissuecore.util.global.Constants;
 import servletunit.HttpServletRequestSimulator;
 import servletunit.struts.MockStrutsTestCase;
+import edu.wustl.catissuecore.util.global.Constants;
 /**
  * Base test class.
  * @author sachin_lale

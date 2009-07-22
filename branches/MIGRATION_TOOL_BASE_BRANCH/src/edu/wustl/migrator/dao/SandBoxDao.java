@@ -1,7 +1,6 @@
 package edu.wustl.migrator.dao;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -66,7 +65,7 @@ public class SandBoxDao
 			session.setFlushMode(FlushMode.NEVER);
 		}
 		catch(Exception e)
-		{		
+		{
 			e.printStackTrace();
 			throw new MigrationException(e.getMessage(),e);
 		}
