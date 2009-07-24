@@ -89,7 +89,7 @@ public abstract class Migrator
 					migrationProcessor.fetchObjects();
 				}
 			}
-			MigratorThread.pleaseWait = false;
+			migratorThread.interrupt();
 		}
 		catch (Exception e)
 		{
@@ -97,7 +97,6 @@ public abstract class Migrator
 		}
 		finally
 		{
-			
 			PreparedStatementUtil.closePreparedStatements();
 			SandBoxDao.closeInsertionSession();
 			Long endTime = MigrationUtility.getTime();
@@ -126,11 +125,11 @@ public abstract class Migrator
 		try
 		{
 			migrationServiceTypeClass = Class.forName(migrationServiceType);
-			Class[] ctorArgs1 = new Class[3];
-            ctorArgs1[0] = boolean.class;
-            ctorArgs1[1] = String.class;
-            ctorArgs1[2] = String.class;
-			Constructor constructor = migrationServiceTypeClass.getDeclaredConstructor(ctorArgs1);
+			Class[] constructorParameters = new Class[3];
+            constructorParameters[0] = boolean.class;
+            constructorParameters[1] = String.class;
+            constructorParameters[2] = String.class;
+			Constructor constructor = migrationServiceTypeClass.getDeclaredConstructor(constructorParameters);
 			appService = (MigrationAppService)constructor.newInstance(true, username, password);
 		}
 		catch (Exception e)

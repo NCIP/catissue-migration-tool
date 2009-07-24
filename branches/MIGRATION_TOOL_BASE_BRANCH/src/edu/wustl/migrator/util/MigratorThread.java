@@ -27,7 +27,8 @@ public class MigratorThread extends Thread
 		}
 		catch (InterruptedException e)
 		{
-			e.printStackTrace();
+			MigratorThread.pleaseWait = false;
+			System.out.println("Garbage Collector Called Off");
 		}		
 	}
 }

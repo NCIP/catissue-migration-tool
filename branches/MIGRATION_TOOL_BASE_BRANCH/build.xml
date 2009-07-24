@@ -98,7 +98,7 @@
 
 	<target name="compile" depends="clean">
 		<echo message="Compling classes................" />
-		<javac destdir="${basedir}/bin" includes="**/*.*" includeAntRuntime="false">
+		<javac destdir="${basedir}/bin" includes="**/*.*">
     		<src path="${basedir}/src"/>
             <classpath>
        			<fileset dir="${basedir}/lib">
