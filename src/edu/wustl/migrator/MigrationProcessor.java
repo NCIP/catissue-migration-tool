@@ -441,56 +441,100 @@ public class MigrationProcessor
 		{
 			Attribute attribute = attributeItertor.next();
 			String isToSetNull = attribute.getIsToSetNull();
-
-			Object attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
-					null, mainObj, null);
-
-			if (!"Yes".equalsIgnoreCase(isToSetNull))
+			Object attributeObject = null;
+			if(oldObject != null)
 			{
-				try
+				attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
+						null, oldObject, null);
+			}
+			else
+			{
+				attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
+						null, mainObj, null);
+			}
+			if(attributeObject instanceof Collection || attributeObject instanceof Long)
+			{
+				if (!"Yes".equalsIgnoreCase(isToSetNull))
 				{
-					String dataType = attribute.getDataType();
-					Class dataTypeClass = Class.forName(dataType);
-					Object value = attribute.getValueToSet();
-					Object setObject =  null;
-					Constructor constructor = null;
-					if("".equals(dataType))
+					try
 					{
-						constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
-						setObject = constructor.newInstance(value);
-						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, mainObj, setObject);
-					}
-					else
-					{
-						Class[] ctorArgs1 = new Class[1];
-			            ctorArgs1[0] = dataTypeClass;				            
-						Object newAttributeObj = dataTypeClass.newInstance();
-						setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
-						if(newAttributeObj instanceof Collection)
+						String dataType = attribute.getDataType();
+						Class dataTypeClass = Class.forName(dataType);
+						Object value = attribute.getValueToSet();
+						Object setObject =  null;
+						Constructor constructor = null;
+						if("".equals(dataType))
 						{
-							Collection<String> collection = (Collection) setObject;
-							Iterator it = collection.iterator();
-							while(it.hasNext())
-							{
-								((Collection)newAttributeObj).add(it.next());
-							}
-							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{java.util.Collection.class}, mainObj, (Collection)newAttributeObj);
+							constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+							setObject = constructor.newInstance(value);
+							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, mainObj, setObject);
 						}
 						else
 						{
-							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, mainObj, setObject);
+							Class[] ctorArgs1 = new Class[1];
+				            ctorArgs1[0] = dataTypeClass;				            
+							Object newAttributeObj = dataTypeClass.newInstance();
+							setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
+							if(newAttributeObj instanceof Collection)
+							{
+								Collection<String> collection = (Collection) setObject;
+								Iterator it = collection.iterator();
+								while(it.hasNext())
+								{
+									((Collection)newAttributeObj).add(it.next());
+								}
+								mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{java.util.Collection.class}, mainObj, (Collection)newAttributeObj);
+							}
+							else
+							{
+								mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, mainObj, setObject);
+							}
 						}
 					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
-				catch (Exception e)
+				else
 				{
-					e.printStackTrace();
+					mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{attributeObject
+						.getClass()}, mainObj, new Class[]{null});
 				}
 			}
 			else
 			{
-				mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{attributeObject
-					.getClass()}, mainObj, new Class[]{null});
+				if (!"Yes".equalsIgnoreCase(isToSetNull))
+				{
+					try
+					{
+						Class dataTypeClass = Class.forName(attribute.getDataType());
+						Object value = attribute.getValueToSet();
+						Object setObject =  null;
+						Constructor constructor = null;
+						if(value != null && value.toString() != "")
+						{
+							constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+							setObject = constructor.newInstance(value); 
+						}
+						else
+						{
+							//constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+							setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, oldObject, null);
+						}
+						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
+					}
+					catch (Exception e)
+					{
+						
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{attributeObject
+						.getClass()}, mainObj, null);
+				}
 			}			
 		}
 	}
