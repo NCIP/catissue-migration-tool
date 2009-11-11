@@ -111,7 +111,7 @@
         </javac>
     </target>
 	
-	<target name="run_migration_tool" depends="init,compile">
+	<target name="run_bulk_operation" depends="compile">
 		<echo message="Migration started....................." />
 		<java classname="edu.wustl.migrator.Migrator" fork="true" maxmemory="1024m">
 			<classpath>
