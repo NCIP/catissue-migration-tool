@@ -150,7 +150,7 @@ public class BulkOperationProcessor
 				newList.add(newRowData);
 				start++;
 			}
-			boolean flag = createCSVReportFile(newList, csvFileAbsolutePath);
+			createCSVReportFile(newList, csvFileAbsolutePath);
 		}
 		catch (Exception e)
 		{
@@ -265,7 +265,6 @@ public class BulkOperationProcessor
 			outPutFileName = outputFile[0] + "_report.csv"; 
 		}
 		CSVWriter writer = null;
-		String[] test = new String[1];
 		boolean flag = false;
 		try
 		{

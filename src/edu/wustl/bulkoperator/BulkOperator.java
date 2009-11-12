@@ -26,28 +26,28 @@ public abstract class BulkOperator
 		try
 		{
 			validate( args );
-			String userName = args[0];//"editSpecimen";
-			String password = args[1];//"E://editSpecimen.csv";
-			String operationName = args[2];//"editSpecimen";
-			String csvFileAbsolutePath = args[3];//"E://editSpecimen.csv";
+			String jbossHome = args[0];
+			String userName = args[1];//"editSpecimen";
+			String password = args[2];//"E://editSpecimen.csv";
+			String operationName = args[3];//"editSpecimen";
+			String csvFileAbsolutePath = args[4];//"E://editSpecimen.csv";
 			
-			migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-			/*String migrationServiceTypeName = migrationInstallProperties.getProperty(
+			/*migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
+			String migrationServiceTypeName = migrationInstallProperties.getProperty(
 					MigrationConstants.MIGRATION_SERVICE_TYPE);*/
 			/*String userName = migrationInstallProperties.getProperty(
 					MigrationConstants.CLIENT_SESSION_USER_NAME);
 			String password = migrationInstallProperties.getProperty(
 					MigrationConstants.CLIENT_SESSION_PASSWORD);*/
-			String migrationMetaDataXmlFileName = migrationInstallProperties.getProperty(
-					MigrationConstants.MIGRATION_METADATA_XML_FILE_NAME);
-			System.setProperty("javax.net.ssl.trustStore", migrationInstallProperties.getProperty(
-					MigrationConstants.JBOSS_HOME) + "/server/default/conf/chap8.keystore");
+			/*String migrationMetaDataXmlFileName = migrationInstallProperties.getProperty(
+					MigrationConstants.MIGRATION_METADATA_XML_FILE_NAME);*/
+			System.setProperty("javax.net.ssl.trustStore", jbossHome + "/server/default/conf/chap8.keystore");
 			MigrationAppService migrationAppService = getMigrationServiceTypeInstance(
 					userName, password);
 
 			BulkOperationMetadataUtil unMarshaller = new BulkOperationMetadataUtil();
-			BulkOperationMetaData metadata = unMarshaller.unmarshall(migrationMetaDataXmlFileName);
-
+			BulkOperationMetaData metadata = unMarshaller.unmarshall(
+					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME);
 			Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
 			boolean flag = true;
 			if (classList != null)
@@ -141,19 +141,23 @@ public abstract class BulkOperator
 	{
 		if (args.length == 0)
 		{
-			throw new Exception("Please Specify the login name.");
+			throw new Exception("Please Specify the loginName.");
 		}
 		if (args.length < 2)
 		{
-			throw new Exception("Please specify the password.");
+			throw new Exception("Please specify the jbossHome path.");
 		}
 		if (args.length < 3)
 		{
-			throw new Exception("Please specify the operation name.");
+			throw new Exception("Please specify the password.");
 		}
 		if (args.length < 4)
 		{
-			throw new Exception("Please specify the csv file name.");
+			throw new Exception("Please specify the operation name.");
+		}
+		if (args.length < 5)
+		{
+			throw new Exception("Please specify the csvFileName.");
 		}				
 	}
 }
