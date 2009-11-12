@@ -14,7 +14,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -67,26 +66,30 @@ public class BulkOperationProcessor
 	 * 
 	 * @return
 	 */
-	public List<String[]> readCSVData()
+	public List<String[]> readCSVData(String csvFileAbsoluteName) throws BulkOperationException
 	{
-		Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-		String fName = migrationInstallProperties.getProperty("csv.file.dir");
+		/*Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
+		String fName = migrationInstallProperties.getProperty("csv.file.dir");*/
 		CSVReader reader = null;
  		List<String[]> list = null;
 		try
 		{
-			reader = new CSVReader(new FileReader(fName));
+			reader = new CSVReader(new FileReader(csvFileAbsoluteName));
 			list = reader.readAll();
 			reader.close();
-			System.out.println("!!! " + list.size());
+			System.out.println("Records in CSV files : " + (list.size() - 1));
 		}
 		catch (FileNotFoundException e)
 		{
+			System.out.println("\n");
 			e.printStackTrace();
+			throw new BulkOperationException("\nCSV File Not Found at the specified path.");
 		}
 		catch (IOException e)
 		{
+			System.out.println("\n");
 			e.printStackTrace();
+			throw new BulkOperationException("\nError in reading the CSV File.");
 		}		
 		return list;
 	}
@@ -102,13 +105,13 @@ public class BulkOperationProcessor
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public void startBulkOperation() throws ClassNotFoundException, SecurityException,
+	public void startBulkOperation(String csvFileAbsolutePath) throws ClassNotFoundException, SecurityException,
 			NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-			InvocationTargetException
+			InvocationTargetException, BulkOperationException
 	{
 		try
 		{	
-			List<String[]> list = readCSVData();
+			List<String[]> list = readCSVData(csvFileAbsolutePath);
 			int listSize = list.size();
 			int start = 1;
 			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
@@ -126,8 +129,10 @@ public class BulkOperationProcessor
 					{
 						Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
 						processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
+						isSearchObject = false;
 						Object searchedObject = migrationAppService.search(obj);
 						processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
+						isSearchObject = true;
 						migrationAppService.update(searchedObject);
 					}
 					else
@@ -145,11 +150,11 @@ public class BulkOperationProcessor
 				newList.add(newRowData);
 				start++;
 			}
-			boolean flag = createCSVReportFile(newList);
+			boolean flag = createCSVReportFile(newList, csvFileAbsolutePath);
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			throw new BulkOperationException(e.getMessage());
 		}
 	}
 
@@ -248,11 +253,12 @@ public class BulkOperationProcessor
 		}
 	}
 
-	private boolean createCSVReportFile(List<String[]> newList)
+	private boolean createCSVReportFile(List<String[]> newList, String csvFileAbsolutePath)
+		throws BulkOperationException
 	{
-		Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-		String fName = migrationInstallProperties.getProperty("csv.file.dir");
-		String[] outputFile = fName.split(".csv");
+		/*Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
+		String fName = migrationInstallProperties.getProperty("csv.file.dir");*/
+		String[] outputFile = csvFileAbsolutePath.split(".csv");
 		String outPutFileName = null; 
 		if(outputFile.length > 0)
 		{
@@ -269,15 +275,20 @@ public class BulkOperationProcessor
 				writer.writeNext(stringArray);
 			}			
 			writer.close();
+			System.out.println("\nPlease refer Output Report at " + outPutFileName);
 			flag = true;
 		}
 		catch (FileNotFoundException e)
 		{
+			System.out.println("\n");
 			e.printStackTrace();
+			throw new BulkOperationException("\nCSV File Not Found at the specified path.");
 		}
 		catch (IOException e)
 		{
+			System.out.println("\n");
 			e.printStackTrace();
+			throw new BulkOperationException("\nError in writing the Result File.");
 		}
 		return flag;
 	}
@@ -574,7 +585,7 @@ public class BulkOperationProcessor
 				{
 					processNewAtrributes(mainObj, mainMigrationClass,
 							columnNameHashTable, attribute);
-				}					
+				}
 			}
 		}
 		catch (Exception e)
@@ -634,9 +645,9 @@ public class BulkOperationProcessor
 					{
 						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
 					}
-					throw new BulkOperationException("Column Name not mapping with the specified column name " +
-							"in XML template : " + attribute.getCsvColumnName() + " OR Column missing from "
-							+ "CSV file for attribute " + attribute.getCsvColumnName());
+					/*throw new BulkOperationException("Specified a attribute collection in Meta Data XML file " +
+							"but no corresponding column or value found in CSV file for the attribute : "
+							+ attribute.getCsvColumnName());*/
 				}
 			}
 			else
