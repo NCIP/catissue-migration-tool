@@ -26,5 +26,5 @@ public class MigrationConstants
 	public static final String MIGRATION_SERVICE_TYPE = "migration.service.type";
 	public static final String JBOSS_HOME = "jboss.home.dir";
 	public static final String CATISSUE_THICK_CLIENT_SERVICE = "CaTissueThickClientService";
-	public static final String CA_CORE_MIGRATION_APP_SERVICE = "CaCoreMigrationAppServiceImpl";
+	public static final String CA_CORE_MIGRATION_APP_SERVICE = "edu.wustl.bulkoperator.appservice.CaCoreMigrationAppServiceImpl";
 }

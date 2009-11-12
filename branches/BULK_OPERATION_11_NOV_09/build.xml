@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Ant Script to setup configuration files for test cases-->
 
-<project name="Migration_Tool" default="compile" >
+<project name="Bulk Operation" default="compile" >
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
@@ -111,9 +111,18 @@
         </javac>
     </target>
 	
+	<property name="loginName" value="" />
+	<property name="password" value="" />
+	<property name="operation" value="" />
+	<property name="csvFileName" value="" />
+	
 	<target name="run_bulk_operation" depends="compile">
-		<echo message="Migration started....................." />
-		<java classname="edu.wustl.migrator.Migrator" fork="true" maxmemory="1024m">
+		<echo message="Bulk Operation started....................." />
+		<java classname="edu.wustl.bulkoperator.BulkOperator" fork="true" maxmemory="1024m">
+			<arg value="${loginName}" />
+			<arg value="${password}" />
+			<arg value="${operation}" />
+			<arg value="${csvFileName}" />
 			<classpath>
 				<pathelement location="${basedir}/bin"/>
 			</classpath>
@@ -166,17 +175,16 @@
 				</sql>
 			</then>
 		</elseif>
-		</if> 
+		</if>
 	</target>
-	
-	<target name="create_migrator_jar" depends="compile">
-		<mkdir dir="${basedir}/migrator_jar"/>
-		<jar destfile="${basedir}/migrator_jar/migrator.jar" basedir="${basedir}/bin">
+
+	<target name="create_bulkoperator_jar" depends="compile">
+		<mkdir dir="${basedir}/bulkoperator_jar"/>
+		<jar destfile="${basedir}/bulkoperator_jar/bulkoperator.jar" basedir="${basedir}/bin">
             <manifest>
-                <attribute name="Main-Class" value="Migrator.java"/>
+                <attribute name="Main-Class" value="edu.wustl.bulkoperator.BulkOperator"/>
             </manifest>
         </jar>
-
 	</target>
 	
 </project>
