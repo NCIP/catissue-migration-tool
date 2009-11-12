@@ -111,6 +111,7 @@
         </javac>
     </target>
 	
+	<property name="jbossHome" value="" />
 	<property name="loginName" value="" />
 	<property name="password" value="" />
 	<property name="operation" value="" />
@@ -119,6 +120,7 @@
 	<target name="run_bulk_operation" depends="compile">
 		<echo message="Bulk Operation started....................." />
 		<java classname="edu.wustl.bulkoperator.BulkOperator" fork="true" maxmemory="1024m">
+			<arg value="${jbossHome}" />
 			<arg value="${loginName}" />
 			<arg value="${password}" />
 			<arg value="${operation}" />
