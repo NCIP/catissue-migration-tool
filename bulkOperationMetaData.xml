@@ -1,334 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BulkOperationMetadata>
-
-	<!--
-  	<MigrationClass className="edu.wustl.catissuecore.domain.Institution"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_INSTITUTION">
-	</MigrationClass>  
-	 
-	<MigrationClass className="edu.wustl.catissuecore.domain.Department"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_DEPARTMENT">
-	</MigrationClass>
-	 <MigrationClass className="edu.wustl.catissuecore.domain.CancerResearchGroup"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_CANCER_RESEARCH_GROUP">
-	</MigrationClass>
-	 	
-	<MigrationClass className="edu.wustl.catissuecore.domain.User"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_USER">
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Department"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="department" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CancerResearchGroup"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="cancerResearchGroup" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Institution"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="institution" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Address" relationShipType="containment"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="address" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Password" relationShipType="containment"
-			isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="passwordCollection" />
-	</MigrationClass> 
-	 
-	<MigrationClass className="edu.wustl.catissuecore.domain.Site"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_SITE where identifier = 701090">
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="coordinator" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Address" relationShipType="containment"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="address" />
-	</MigrationClass>
-	
-	 <MigrationClass className="edu.wustl.catissuecore.domain.CollectionProtocol"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from catissue_collection_protocol where identifier = 161">
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="principalInvestigator" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ConsentTier"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="consentTierCollection" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="*"
-			roleName="coordinatorCollection" />
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.DistributionProtocol" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="Yes" cardinality="*"
-			roleName="distributionProtocolCollection" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocolEvent"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="collectionProtocolEventCollection">
-			<containmentAssociationCollection
-				className="edu.wustl.catissuecore.domain.SpecimenRequirement"
-				relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-				cardinality="*" roleName="specimenRequirementCollection">
-				<containmentAssociationCollection
-					className="edu.wustl.catissuecore.domain.SpecimenEventParameters"
-					relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-					cardinality="*" roleName="specimenEventCollection">
-					<referenceAssociationCollection
-						className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-						isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="user" />
-				</containmentAssociationCollection>
-				<containmentAssociationCollection
-					className="edu.wustl.catissuecore.domain.SpecimenCharacteristics"
-					relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-					cardinality="1" roleName="specimenCharacteristics" />
-			</containmentAssociationCollection>
-		</containmentAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocol"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="parentCollectionProtocol" /> 
-			
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocol"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
-			cardinality="1" roleName="parentCollectionProtocol" />
-	</MigrationClass>  
-	 
-	<MigrationClass className="edu.wustl.catissuecore.domain.DistributionProtocol"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_DISTRIBUTION_PROTOCOL">
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="principalInvestigator" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.DistributionSpecimenRequirement"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="distributionSpecimenRequirementCollection">
-		</containmentAssociationCollection>
-	</MigrationClass>
-	<MigrationClass className="edu.wustl.catissuecore.domain.Biohazard"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_BIOHAZARD">
-	</MigrationClass> 
-	  
-	<MigrationClass className="edu.wustl.catissuecore.domain.StorageType"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_STORAGE_TYPE where identifier in (700414,
-		700413,700412,700411,700410,700409) ">
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Capacity" relationShipType="containment"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="capacity" />
-		<referenceAssociationCollection
-		className="edu.wustl.catissuecore.domain.StorageType" relationShipType="association"
-		isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="holdsStorageTypeCollection" />
-		<attributeCollection name="id" valueToSet="" isToSetNull="yes" 
-			dataType="java.lang.Long"/>
-		<attributeCollection name="holdsSpecimenClassCollection"  
-			dataType="java.util.HashSet"/>
-	 </MigrationClass>
-	--> <!--
-	<MigrationClass className="edu.wustl.catissuecore.domain.StorageContainer"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_STORAGE_CONTAINER where identifier 
-		&gt;= 709354 and identifier &lt;= 709453">
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ContainerPosition"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="locatedAtPosition">
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.StorageContainer"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="parentContainer" />
-			</containmentAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Capacity" relationShipType="containment"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="capacity" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocol"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="collectionProtocolCollection" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.StorageType"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="holdsStorageTypeCollection" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenArrayType"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="holdsSpecimenArrayTypeCollection" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Site" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="site" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.StorageType"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="storageType" />
-		<attributeCollection name="id" valueToSet="" isToSetNull="yes" 
-			dataType="java.lang.Long"/>
-		<attributeCollection name="holdsSpecimenClassCollection"  
-			dataType="java.util.HashSet"/>
-	</MigrationClass>   
-	
-	<MigrationClass className="edu.wustl.catissuecore.domain.Participant"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from catissue_participant where identifier &gt;= 717771 and 
-		identifier not in (718108,718117,718165,718172,718226,718235,718236,718246,717774,717776,717780,717824,
-		717827,717830,717845,717852,717892,717986,717994,718023,718035,718063,718132,717835,717981,717771) " >
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.Race" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="raceCollection">
-		</containmentAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ParticipantMedicalIdentifier"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="participantMedicalIdentifierCollection">
-			<referenceAssociationCollection
-				className="edu.wustl.catissuecore.domain.Site" relationShipType="association"
-				isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="site" />
-		</containmentAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocolRegistration"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
-			cardinality="*" roleName="collectionProtocolRegistrationCollection" />
-	</MigrationClass>
-	 
-	<MigrationClass
-		className="edu.wustl.catissuecore.domain.CollectionProtocolRegistration"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from CATISSUE_COLL_PROT_REG where identifier &gt;= 717466 and identifier not in (717466,717475,717519,717525,717530,717547,717867) ">
-		<attributeCollection name="isToInsertAnticipatorySCGs"  dataType="java.lang.Boolean"/>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ConsentTierResponse"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="consentTierResponseCollection">
-			<referenceAssociationCollection
-				className="edu.wustl.catissuecore.domain.ConsentTier"
-				relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-				cardinality="1" roleName="consentTier" />
-		</containmentAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="consentWitness" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Participant"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="participant" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocol"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="collectionProtocol" />
-	</MigrationClass>    
-	
-	<MigrationClass className="edu.wustl.catissuecore.domain.SpecimenCollectionGroup"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from catissue_specimen_coll_group where identifier &gt;= 726723 ">
-		<attributeCollection name="isToInsertAnticipatorySpecimens"  dataType="java.lang.Boolean"/>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ConsentTierStatus"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="consentTierStatusCollection">
-			<referenceAssociationCollection
-				className="edu.wustl.catissuecore.domain.ConsentTier"
-				relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-				cardinality="1" roleName="consentTier" />
-		</containmentAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenEventParameters"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="specimenEventParametersCollection">
-			<referenceAssociationCollection
-				className="edu.wustl.catissuecore.domain.User" relationShipType="association"
-				isToMigrate="Yes" isToSetNull="No" cardinality="1" roleName="user" />
-		</containmentAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Site" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="specimenCollectionSite" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocolEvent"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="collectionProtocolEvent" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.CollectionProtocolRegistration"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="collectionProtocolRegistration" />
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Specimen"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
-			cardinality="*" roleName="specimenCollection" />
-	</MigrationClass> 
-	-->
-	<!-- <MigrationClass className="edu.wustl.catissuecore.domain.Specimen"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="select identifier from catissue_specimen where identifier &gt;= 309043 
-		and identifier &lt;= 309542 ">
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ConsentTierStatus"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="consentTierStatusCollection">
-			<referenceAssociationCollection
-				className="edu.wustl.catissuecore.domain.ConsentTier"
-				relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-				cardinality="1" roleName="consentTier" />
-		</containmentAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Specimen" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="Yes" cardinality="*"
-			roleName="childSpecimenCollection" />
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Specimen" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="parentSpecimen">
-			</referenceAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Biohazard" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="*" roleName="biohazardCollection" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.ExternalIdentifier"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="externalIdentifierCollection" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenCollectionGroup"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenCollectionGroup" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenEventParameters"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="*" roleName="specimenEventCollection">
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.User"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="user" />
-		</containmentAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenCharacteristics"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenCharacteristics" />
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenRequirement"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="Yes"
-			cardinality="1" roleName="specimenRequirement" />
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenPosition"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenPosition" >
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.StorageContainer"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="storageContainer" >
-				<attributeCollection name="name"  dataType="java.lang.String"/>
-			</referenceAssociationCollection>
-			</containmentAssociationCollection>
-	</MigrationClass> 
-	-->
 	<BulkOperationClass templateName="editSpecimen" className="edu.wustl.catissuecore.domain.Specimen"
 		relationShipType="main" isOneToManyAssociation="false"
 		cardinality="" roleName="specimen">
@@ -422,7 +93,7 @@
 			cardinality="1" roleName="specimenPosition" >			
 			<referenceAssociationCollection
 			className="edu.wustl.catissuecore.domain.StorageContainer"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
+			relationShipType="association" templateName="createSpecimen" isOneToManyAssociation=""
 			cardinality="1" roleName="storageContainer" >
 				<attributeCollection name="name" csvColumnName="Container name" updateBasedOn="true" dataType="java.lang.String"/>
 			</referenceAssociationCollection>
@@ -440,11 +111,11 @@
 			cardinality="*" roleName="specimenEventCollection">
 			<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.CollectionEventParameters"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
+			relationShipType="association" templateName="createSpecimen" isOneToManyAssociation=""
 			cardinality="1" roleName="collectionEventParameters">
 				<referenceAssociationCollection
 				className="edu.wustl.catissuecore.domain.User"
-				relationShipType="association" isToMigrate="Yes" isToSetNull="No"
+				relationShipType="association" templateName="createSpecimen" isOneToManyAssociation=""
 				cardinality="1" roleName="user">
 					<attributeCollection name="loginName" csvColumnName="Collected User Login Name" updateBasedOn="false" dataType="java.lang.String"/>
 				</referenceAssociationCollection>
@@ -479,7 +150,6 @@
 		<attributeCollection name="lineage" csvColumnName="Lineage" updateBasedOn="false" dataType="java.lang.String"/>
 		<attributeCollection name="pathologicalStatus" csvColumnName="Pathological Status" updateBasedOn="false" dataType="java.lang.String"/>		
 	</BulkOperationClass>
-	
 	  
 	<BulkOperationClass className="edu.wustl.catissuecore.domain.MolecularSpecimenReviewParameters"
 		relationShipType="main" templateName="createMolecularSpecimenEvent" isOneToManyAssociation="false"
@@ -506,7 +176,6 @@
 		<attributeCollection name="ratio28STo18S" csvColumnName="Ratio 28S to 16S" updateBasedOn="false" dataType="java.lang.Double"/>
 		<attributeCollection name="comment" csvColumnName="Comments" updateBasedOn="false" dataType="java.lang.String"/>				
 	</BulkOperationClass>
-	
 	
 	<BulkOperationClass className="edu.wustl.catissuecore.domain.TissueSpecimenReviewEventParameters"
 		relationShipType="main" templateName="createTissueSpecimenReviewParameters"
@@ -552,7 +221,6 @@
 		<attributeCollection name="comment" csvColumnName="Comments" updateBasedOn="false" dataType="java.lang.String"/>				
 	</BulkOperationClass>	
 	
-	
 	<BulkOperationClass className="edu.wustl.catissuecore.domain.CellSpecimenReviewParameters"
 		relationShipType="main" templateName="createCellSpecimenReviewParameters"
 		isOneToManyAssociation="false" cardinality="" roleName="">
@@ -585,13 +253,7 @@
 				className="edu.wustl.catissuecore.domain.Race"
 				relationShipType="association" templateName="createParticipant" isOneToManyAssociation="false"
 				cardinality="1" roleName="race">
-				<attributeCollection name="raceName" csvColumnName="Race1" updateBasedOn="false" dataType="java.lang.String"/>		
-			</containmentAssociationCollection>
-			<containmentAssociationCollection
-				className="edu.wustl.catissuecore.domain.Race"
-				relationShipType="association" templateName="createParticipant" isOneToManyAssociation="false"
-				cardinality="1" roleName="race">
-				<attributeCollection name="raceName" csvColumnName="Race2" updateBasedOn="false" dataType="java.lang.String"/>		
+				<attributeCollection name="raceName" csvColumnName="Race" updateBasedOn="false" dataType="java.lang.String"/>		
 			</containmentAssociationCollection>
 		</containmentAssociationCollection>
 		<containmentAssociationCollection
@@ -607,21 +269,9 @@
 					className="edu.wustl.catissuecore.domain.Site" relationShipType="association"
 					templateName="createParticipant" isOneToManyAssociation="false"
 					cardinality="1" roleName="site">
-					<attributeCollection name="name" csvColumnName="Site1" updateBasedOn="false" dataType="java.lang.String"/>					
+					<attributeCollection name="name" csvColumnName="Site" updateBasedOn="false" dataType="java.lang.String"/>					
 				</referenceAssociationCollection>		
 			</containmentAssociationCollection>
-			<containmentAssociationCollection
-				className="edu.wustl.catissuecore.domain.ParticipantMedicalIdentifier"
-				relationShipType="association" templateName="createParticipant" isOneToManyAssociation="false"
-				cardinality="1" roleName="participantMedicalIdentifier">
-				<attributeCollection name="medicalRecordNumber" csvColumnName="MRN2" updateBasedOn="false" dataType="java.lang.String"/>
-				<referenceAssociationCollection
-					className="edu.wustl.catissuecore.domain.Site" relationShipType="association"
-					templateName="createParticipant" isOneToManyAssociation="false"
-					cardinality="1" roleName="site">
-					<attributeCollection name="name" csvColumnName="Site2" updateBasedOn="false" dataType="java.lang.String"/>
-				</referenceAssociationCollection>		
-			</containmentAssociationCollection>			
 		</containmentAssociationCollection>
 		<containmentAssociationCollection
 			className="edu.wustl.catissuecore.domain.CollectionProtocolRegistration"
@@ -658,47 +308,5 @@
 		<attributeCollection name="ethnicity" csvColumnName="Ethinicity" updateBasedOn="false" dataType="java.lang.String"/>
 		<attributeCollection name="activityStatus" csvColumnName="Activity Status" updateBasedOn="false" dataType="java.lang.String"/>
 	</BulkOperationClass>
-	<!--
-	<MigrationClass className="edu.wustl.catissuecore.domain.Specimen"
-		relationShipType="main" isToMigrate="Yes" isToSetNull="No"
-		cardinality="" roleName="" sql="createAliquot">
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenCollectionGroup"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenCollectionGroup">
-		</referenceAssociationCollection>
-		<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.Specimen" relationShipType="association"
-			isToMigrate="Yes" isToSetNull="No" cardinality="1"
-			roleName="parentSpecimen">
-				<attributeCollection name="label" csvColumnName="Parent Specimen Label" updateBasedOn="false"  dataType="java.lang.String"/>
-		</referenceAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenPosition"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenPosition" >
-			<attributeCollection name="positionDimensionOne" csvColumnName="Position one" updateBasedOn="false"  dataType="java.lang.Integer"/>
-			<attributeCollection name="positionDimensionTwo" csvColumnName="Position two" updateBasedOn="false"  dataType="java.lang.Integer"/>			 
-			<referenceAssociationCollection
-			className="edu.wustl.catissuecore.domain.StorageContainer"
-			relationShipType="association" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="storageContainer" >
-				<attributeCollection name="name" csvColumnName="Container name" updateBasedOn="false"  dataType="java.lang.String"/>
-			</referenceAssociationCollection>			
-		</containmentAssociationCollection>
-		<containmentAssociationCollection
-			className="edu.wustl.catissuecore.domain.SpecimenCharacteristics"
-			relationShipType="containment" isToMigrate="Yes" isToSetNull="No"
-			cardinality="1" roleName="specimenCharacteristics">
-		</containmentAssociationCollection>
-		<attributeCollection name="lineage" csvColumnName="Lineage" updateBasedOn="false"  dataType="java.lang.String"/>
-		<attributeCollection name="initialQuantity" csvColumnName="Quantity per aliquot" updateBasedOn="false"  dataType="java.lang.Double"/>
-		<attributeCollection name="availableQuantity" csvColumnName="Quantity per aliquot" updateBasedOn="false"  dataType="java.lang.Double"/>
-		<attributeCollection name="isAvailable" csvColumnName="Is Available" updateBasedOn="false"  dataType="java.lang.Boolean"/>
-		<attributeCollection name="collectionStatus" csvColumnName="Collection Status" updateBasedOn="false"  dataType="java.lang.String"/>
-		<attributeCollection name="specimenClass" csvColumnName="Specimen Class" updateBasedOn="false"  dataType="java.lang.String"/>
-		<attributeCollection name="specimenType" csvColumnName="Type" updateBasedOn="false"  dataType="java.lang.String"/>
-		<attributeCollection name="activityStatus" csvColumnName="Activity Status" updateBasedOn="false"  dataType="java.lang.String"/>
-	</MigrationClass>
-	-->
+
 </BulkOperationMetadata>
