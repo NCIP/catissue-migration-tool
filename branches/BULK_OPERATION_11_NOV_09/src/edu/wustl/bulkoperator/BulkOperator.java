@@ -1,8 +1,11 @@
 package edu.wustl.bulkoperator;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import edu.wustl.bulkoperator.appservice.MigrationAppService;
@@ -12,8 +15,9 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.MigrationConstants;
+import edu.wustl.dao.DAO;
 
-public abstract class BulkOperator
+public class BulkOperator
 {	
     private static Properties migrationInstallProperties = null;    
     /**
@@ -25,12 +29,18 @@ public abstract class BulkOperator
 		Long startTime = BulkOperationUtility.getTime();
 		try
 		{
+			/*String jbossHome = "G://jboss-4.2.2.GA/";//args[0];
+			String userName = "admin@admin.com";//args[1];//"editSpecimen";
+			String password = "Login1234";//args[2];//"E://editSpecimen.csv";
+			String operationName = "editSpecimen";//args[3];//"editSpecimen";
+			String csvFileAbsolutePath = "E://Copy of editSpecimen.csv";//args[4];//"E://editSpecimen.csv";
+*/			
 			validate( args );
 			String jbossHome = args[0];
-			String userName = args[1];//"editSpecimen";
-			String password = args[2];//"E://editSpecimen.csv";
-			String operationName = args[3];//"editSpecimen";
-			String csvFileAbsolutePath = args[4];//"E://editSpecimen.csv";
+			String userName = args[1];
+			String password = args[2];
+			String operationName = args[3];
+			String csvFileAbsolutePath = args[4];
 			
 			/*migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
 			String migrationServiceTypeName = migrationInstallProperties.getProperty(
@@ -48,36 +58,9 @@ public abstract class BulkOperator
 			BulkOperationMetadataUtil unMarshaller = new BulkOperationMetadataUtil();
 			BulkOperationMetaData metadata = unMarshaller.unmarshall(
 					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME);
-			Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
-			boolean flag = true;
-			if (classList != null)
-			{
-				Iterator<BulkOperationClass> it = classList.iterator();
-				while (it.hasNext())
-				{
-					BulkOperationClass migration = it.next();
-					if(migration.getTemplateName().equals(operationName))
-					{
-						BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
-								migration, migrationAppService);
-						migrationProcessor.startBulkOperation(csvFileAbsolutePath);
-						flag = false;
-						break;
-					}
-				}
-				if(flag)
-				{
-					System.out.println("\n");
-					throw new BulkOperationException("\nIncorrect OPERATION NAME specified. No such operation " +
-							"is allowed in Bulk Operation.");
-				}
-			}
-			else
-			{
-				System.out.println("\n");
-				throw new BulkOperationException("Error in BULK OPERATION META DATA XML. Please check the " +
-						"XML file created");
-			}
+
+			initiateBulkOperationFromCommandLine(operationName, csvFileAbsolutePath,
+				migrationAppService, metadata);
 		}
 		catch (Exception e)
 		{
@@ -100,6 +83,118 @@ public abstract class BulkOperator
 		}
 	}
 
+	public static boolean configureBulkOperation(boolean flag)
+	{
+		boolean check = false;
+		if(flag)
+		{
+			check = true;
+		}
+		return check;
+	}
+
+	/**
+	 * @param operationName
+	 * @param csvFileAbsolutePath
+	 * @param migrationAppService
+	 * @param metadata
+	 * @throws ClassNotFoundException
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws BulkOperationException
+	 */
+	private static void initiateBulkOperationFromCommandLine(String operationName,
+			String csvFileAbsolutePath,
+			MigrationAppService migrationAppService,
+			BulkOperationMetaData metadata) throws ClassNotFoundException,
+			SecurityException, NoSuchMethodException, IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException,
+			BulkOperationException
+	{
+		Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
+		boolean flag = true;
+		if (classList != null)
+		{
+			Iterator<BulkOperationClass> it = classList.iterator();
+			while (it.hasNext())
+			{
+				BulkOperationClass migration = it.next();
+				if(migration.getTemplateName().equals(operationName))
+				{
+					BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
+							migration, migrationAppService);
+					migrationProcessor.startBulkOperation(csvFileAbsolutePath);
+					flag = false;
+					break;
+				}
+			}
+			if(flag)
+			{
+				System.out.println("\n");
+				throw new BulkOperationException("\nIncorrect OPERATION NAME specified. No such operation " +
+						"is allowed in Bulk Operation.");
+			}
+		}
+		else
+		{
+			System.out.println("\n");
+			throw new BulkOperationException("Error in BULK OPERATION META DATA XML. Please check the " +
+					"XML file created");
+		}
+	}
+
+	
+	public static File initiateBulkOperationFromUI(String operationName,
+			List<String[]> csvFileData, BulkOperationMetaData metadata,
+			String userName, DAO dao)
+				throws ClassNotFoundException,
+			SecurityException, NoSuchMethodException, IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException,
+			BulkOperationException
+	{
+		File file = null;
+		try
+		{
+			Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
+			boolean flag = true;
+			if (classList != null)
+			{
+				Iterator<BulkOperationClass> it = classList.iterator();
+				while (it.hasNext())
+				{
+					BulkOperationClass migration = it.next();
+					if(migration.getTemplateName().equals(operationName))
+					{
+						MigrationAppService migrationAppService = null;
+						BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
+								migration, migrationAppService);
+						file = migrationProcessor.startBulkOperationFromUI(csvFileData,
+								operationName, userName, dao);
+						flag = false;
+						break;
+					}
+				}
+				if(flag)
+				{
+					System.out.println("\n");
+					throw new BulkOperationException("bulk.error.incorrect.operation.name");
+				}
+			}
+			else
+			{
+				System.out.println("\n");
+				throw new BulkOperationException("bulk.error.bulk.metadata.xml.file");
+			}
+		}
+		catch (Exception e)
+		{
+			throw new BulkOperationException(e.getMessage());
+		}
+		return file;
+	}
 	/**
 	 * Returns the Migration Service type instance
 	 * @param migrationServiceType
