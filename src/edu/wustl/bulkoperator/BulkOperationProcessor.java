@@ -1,6 +1,7 @@
 
 package edu.wustl.bulkoperator;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -24,6 +25,8 @@ import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.catissuecore.client.CaCoreAppServicesDelegator;
+import edu.wustl.dao.DAO;
 
 public class BulkOperationProcessor
 {
@@ -115,11 +118,12 @@ public class BulkOperationProcessor
 			int listSize = list.size();
 			int start = 1;
 			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
+			int newListLength = newList.size(); 
 			checkForAddOrEditTemplateType(bulkOperationclass);
 			while(start < listSize)
 			{
 				int rowDataLength = getStringArraySize(list, start);
-				String[] newRowData = formatDataColumnsInReportFile(list, start);
+				String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
 				Hashtable<String, String> columnNameHashTable = 
 					createHashTable(list, start);							
 				Object obj = createDomainObject(columnNameHashTable);							
@@ -158,6 +162,139 @@ public class BulkOperationProcessor
 		}
 	}
 
+	public File startBulkOperationFromUI(List<String[]> list, String operationName,
+			String userName, DAO dao) 
+	throws ClassNotFoundException, SecurityException,
+	NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
+	InvocationTargetException, BulkOperationException
+	{
+		File file = null;
+		CaCoreAppServicesDelegator appServicesDelegator =
+			new CaCoreAppServicesDelegator();
+		try
+		{	
+			//List<String[]> list = readCSVData(csvFileAbsolutePath);
+			int listSize = list.size();
+			int start = 1;
+			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
+			int newListLength = newList.get(0).length; 
+			int whereConditionCount =
+				checkForAddOrEditTemplateTypeForUI(bulkOperationclass);
+			while(start < listSize)
+			{
+				//int rowDataLength = getStringArraySize(list, start);
+				String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
+				int rowDataLength = newRowData.length; 
+				Hashtable<String, String> columnNameHashTable = 
+					createHashTable(list, start);						
+				Object obj = createDomainObject(columnNameHashTable);							
+				try
+				{					
+					if(isSearchObject)
+					{
+						Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
+						//processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
+						String hql = populateObjectToSearch(obj, bulkOperationclass, attributes,
+								columnNameHashTable, whereConditionCount);
+						isSearchObject = false;
+						List objectList = dao.executeQuery(hql);
+						//Object searchedObject = migrationAppService.search(obj);
+						Object searchedObject = objectList.get(0);
+						if(searchedObject == null)
+						{
+							throw new Exception("bulk.object.not.found");
+						}
+						else
+						{
+							processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
+							isSearchObject = true;
+							appServicesDelegator.delegateEdit(userName, searchedObject);
+						}
+					}
+					else
+					{
+						processObject(obj, bulkOperationclass, objectMap, columnNameHashTable);						
+						appServicesDelegator.delegateAdd(userName, obj);
+					}
+					newRowData[rowDataLength - 2] = "Success";
+				}
+				catch(BulkOperationException e)
+				{
+					e.printStackTrace();
+					throw new BulkOperationException(e.getMessage());
+				}
+				catch(Exception e)
+				{
+					e.printStackTrace();
+					newRowData[rowDataLength - 2] = "Failure";
+					newRowData[rowDataLength - 1] = e.getMessage();
+				}
+				newList.add(newRowData);
+				start++;
+			}
+			file = createCSVReportFileForUI(newList, operationName);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new BulkOperationException(e.getMessage());
+		}
+		return file;
+	}
+	
+	private String populateObjectToSearch(Object object, BulkOperationClass
+			bulkOperationclass2, Collection<Attribute> attributes,
+			Hashtable<String, String> columnNameHashTable, int whereConditionCount)
+	{
+		String[] whereCondition = new String[whereConditionCount];
+		Iterator<Attribute> attributeItertor = attributes.iterator();
+		int count = 0;
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if(attribute.getUpdateBasedOn())
+			{
+				String dataType = attribute.getDataType();
+				String name = attribute.getName();
+				String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
+				if(csvData != null && !"".equals(csvData))
+				{
+					if("java.util.Date".equals(dataType) ||
+							"java.lang.String".equals(dataType))
+					{	
+						whereCondition[count] = name + " like '" + csvData + "'";
+					}
+					else
+					{
+						whereCondition[count] = name + " = " + csvData;
+					}
+					count++;
+				}
+			}			
+		}
+		String hql = " from " + bulkOperationclass2.getClassName() + " ";
+		if(count > 0)
+		{
+			hql = hql + " where ";
+		}
+		for(int i = 0; i < whereCondition.length; i++)
+		{
+			if(whereCondition[i].toString() != null && !"".equals(whereCondition[i].toString()))
+			{
+				String where = whereCondition[i];
+				hql = hql + where;
+			}
+			if(i+1 < whereCondition.length)
+			{
+				if(whereCondition[i + 1].toString() != null && !"".equals(whereCondition[i + 1].toString()))
+				{
+					hql = hql + " and ";
+				}
+			}
+		}
+		System.out.println("---------- " + hql + " --------------");
+		return hql;
+	}
 	/**
 	 * @param columnNameHashTable
 	 * @return
@@ -209,11 +346,19 @@ public class BulkOperationProcessor
 		return rowDataLength;
 	}
 
-	private String[] formatDataColumnsInReportFile(List<String[]> list, int start)
+	private String[] formatDataColumnsInReportFile(List<String[]> list, int start, int newListLength)
 	{
 		String[] rowData = list.get(start);
 		int rowDataLength = rowData.length;
-		String[] newRowData = new String[rowDataLength + 2];
+		String[] newRowData = null;
+		if(newListLength == 0)
+		{
+			newRowData = new String[rowDataLength + 2];
+		}
+		else
+		{
+			newRowData = new String[newListLength];
+		}
 		for(int i = 0 ; i < rowDataLength; i++)
 		{
 			newRowData[i] = rowData[i];
@@ -224,7 +369,7 @@ public class BulkOperationProcessor
 	private List<String[]> formatColumnNamesInReportFile(List<String[]> list, int listIndex)
 	{
 		List<String[]> newList = new ArrayList<String[]>();
-		String[] newColumnName = formatDataColumnsInReportFile(list, listIndex);
+		String[] newColumnName = formatDataColumnsInReportFile(list, listIndex, 0);
 		//String[] newColumnName = list.get(listIndex);
 		int columnNameLength = list.get(listIndex).length;
 		/*String[] newColumnName = new String[columnNameLength + 2];
@@ -251,6 +396,23 @@ public class BulkOperationProcessor
 				break;
 			}
 		}
+	}
+	
+	private int checkForAddOrEditTemplateTypeForUI(BulkOperationClass migrationClass)
+	{
+		Collection<Attribute> attributes = migrationClass.getAttributeCollection();
+		Iterator<Attribute> attributeItertor = attributes.iterator();
+		int count = 0;
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if(attribute.getUpdateBasedOn())
+			{
+				isSearchObject = true;
+				count++;
+			}
+		}
+		return count;
 	}
 
 	private boolean createCSVReportFile(List<String[]> newList, String csvFileAbsolutePath)
@@ -291,20 +453,52 @@ public class BulkOperationProcessor
 		}
 		return flag;
 	}
+	
+	private File createCSVReportFileForUI(List<String[]> newList, String operationName)
+	throws BulkOperationException, IOException
+	{
+		String csvFileName = operationName + ".csv"; 
+		CSVWriter writer = null;
+		File csvFile = null;
+		try
+		{
+			csvFile = new File(csvFileName);
+			csvFile.createNewFile();
+			writer = new CSVWriter(new FileWriter(csvFileName), ',');	
+			for(String[] stringArray : newList)
+			{				
+				writer.writeNext(stringArray);
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			throw new BulkOperationException("bulk.error.create.csv.output.file");
+		}
+		finally
+		{
+			writer.close();
+		}
+		return csvFile;
+	}
 
 	private Hashtable<String, String> createHashTable(List<String[]> list, int columnValueIndex)
 	{
 		Hashtable<String, String> hashTable = null;
 		String[] columnNames = list.get(0);
 		String[] columnValues = list.get(columnValueIndex);
-		
-		if(columnNames.length == columnValues.length)
+		int columnValuesLengh = columnValues.length; 
+		if(columnNames.length > 0)
 		{
 			hashTable = new Hashtable<String, String>();
 			for(int i = 0; i < columnNames.length; i++)
 			{				
 				String key = columnNames[i].trim();
-				String value = columnValues[i];
+				String value = "";
+				if(i < columnValuesLengh)
+				{
+					value = columnValues[i].trim();
+				}
 				hashTable.put(key, value);
 			}
 		}		
@@ -391,16 +585,22 @@ public class BulkOperationProcessor
 			{
 				Collection containmentObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
 						containmentMigrationClass.getRoleName(), null, mainObj, null);
-				List sortedList = new ArrayList(containmentObjectCollection); 
-				Collections.sort(sortedList, new SortObject());
-				containmentObjectCollection = new LinkedHashSet(sortedList);				
+				if(containmentObjectCollection != null)
+				{
+					List sortedList = new ArrayList(containmentObjectCollection); 
+					Collections.sort(sortedList, new SortObject());
+					containmentObjectCollection = new LinkedHashSet(sortedList);
+				}
 				//added for participant race
 				Collection<Object> newContainmentObjectCollection = new LinkedHashSet<Object>();
 				//create a containment obj and populate data in it from CSV and then add 
 				//it to NewContainmentCollection
-				if (containmentObjectCollection != null || containmentObjectCollection.isEmpty())
+				if (containmentObjectCollection == null)
 				{
-					Iterator collIter = containmentObjectCollection.iterator();						
+					//
+				}
+				else
+				{
 					if(containmentObjectCollection.isEmpty())
 					{
 						Collection<BulkOperationClass> innerContainmentMigrationClassList = containmentMigrationClass
@@ -419,7 +619,8 @@ public class BulkOperationProcessor
 								processObject(innerObect, migrationClass, null,
 										columnNameHashTable);
 								String roleName = containmentMigrationClass.getRoleName();
-								mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},mainObj, innerObect);
+								mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
+										mainObj, innerObect);
 							}
 
 							for(BulkOperationClass migrationClass : innerContainmentMigrationClassList)
@@ -440,7 +641,8 @@ public class BulkOperationProcessor
 								containmentObjectCollection.add(innerObect);
 							}
 							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},mainObj, containmentObjectCollection);
+							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
+									mainObj, containmentObjectCollection);
 						}
 						Collection<BulkOperationClass> associations = containmentMigrationClass.
 								getReferenceAssociationCollection();
@@ -453,9 +655,69 @@ public class BulkOperationProcessor
 							processObject(innerObect, migrationClass, null,
 									columnNameHashTable);
 							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},mainObj, innerObect);
+							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
+									mainObj, innerObect);							
+						}						
+					}
+					else
+					{
+						Collection<BulkOperationClass> innerContainmentMigrationClassList = containmentMigrationClass
+									.getContainmentAssociationCollection();
+						if(!innerContainmentMigrationClassList.isEmpty() ||
+									innerContainmentMigrationClassList != null)
+						{
+							Collection<BulkOperationClass> associations = containmentMigrationClass.
+									getReferenceAssociationCollection();
+							for(BulkOperationClass migrationClass : associations)
+							{
+								Class innerObj = migrationClass.getClassObject();
+								Constructor con = innerObj.getConstructor(null);
+								Object innerObect = con.newInstance(null);
+								
+								processObject(innerObect, migrationClass, null,
+										columnNameHashTable);
+								String roleName = containmentMigrationClass.getRoleName();
+								mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
+										mainObj, innerObect);
+							}
+
+							for(BulkOperationClass migrationClass : innerContainmentMigrationClassList)
+							{
+								Class innerObj = migrationClass.getClassObject();
+								Constructor con = innerObj.getConstructor(null);
+								Object innerObect = con.newInstance(null);
+								
+								processObject(innerObect, migrationClass, null,
+										columnNameHashTable);
+								if(mainMigrationClass.getIsOneToManyAssociation())
+								{
+									String roleName = mainMigrationClass.getRoleName();
+									migrationClass.invokeSetterMethod(roleName, 
+									new Class[]{mainObj.getClass()},innerObect, 
+									mainObj);
+								}
+								containmentObjectCollection.add(innerObect);
+							}
+							String roleName = containmentMigrationClass.getRoleName();
+							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
+									mainObj, containmentObjectCollection);
+						}
+						Collection<BulkOperationClass> associations = containmentMigrationClass.
+								getReferenceAssociationCollection();
+						for(BulkOperationClass migrationClass : associations)
+						{
+							Class innerObj = migrationClass.getClassObject();
+							Constructor con = innerObj.getConstructor(null);
+							Object innerObect = con.newInstance(null);
+							
+							processObject(innerObect, migrationClass, null,
+									columnNameHashTable);
+							String roleName = containmentMigrationClass.getRoleName();
+							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
+									mainObj, innerObect);
 							
 						}						
+					
 					}
 				}
 			}
@@ -505,7 +767,10 @@ public class BulkOperationProcessor
 	 */
 	private void processAssociations(Object mainObj, BulkOperationClass mainMigrationClass,
 			Collection<BulkOperationClass> associationsMigrationClassList,
-			Hashtable<String, String> columnNameHashTable) throws BulkOperationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException
+			Hashtable<String, String> columnNameHashTable)
+			throws BulkOperationException, ClassNotFoundException, NoSuchMethodException,
+			SecurityException, InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException
 	{
 		Iterator<BulkOperationClass> associationItert = associationsMigrationClassList.iterator();
 		while (associationItert.hasNext())
@@ -567,30 +832,25 @@ public class BulkOperationProcessor
 	 */
 	private void processAttributes(Object mainObj, BulkOperationClass mainMigrationClass,
 			Collection<Attribute> attributes, Object oldObject,
-			Hashtable<String, String> columnNameHashTable) throws BulkOperationException
+			Hashtable<String, String> columnNameHashTable) throws ClassNotFoundException,
+			NoSuchMethodException, SecurityException, InstantiationException,
+			IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, BulkOperationException
 	{
-		try
+		Iterator<Attribute> attributeItertor = attributes.iterator();
+		while (attributeItertor.hasNext())
 		{
-			Iterator<Attribute> attributeItertor = attributes.iterator();
-			while (attributeItertor.hasNext())
+			Attribute attribute = attributeItertor.next();
+			if(isSearchObject && attribute.getUpdateBasedOn())
 			{
-				Attribute attribute = attributeItertor.next();
-				if(isSearchObject && attribute.getUpdateBasedOn())
-				{
-					processNewAtrributes(mainObj, mainMigrationClass,
-							columnNameHashTable, attribute);
-				}
-				else if(!isSearchObject)
-				{
-					processNewAtrributes(mainObj, mainMigrationClass,
-							columnNameHashTable, attribute);
-				}
+				processNewAtrributes(mainObj, mainMigrationClass,
+						columnNameHashTable, attribute);
 			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			throw new BulkOperationException("Error in attributes collection : " + e.getMessage());
+			else if(!isSearchObject)
+			{
+				processNewAtrributes(mainObj, mainMigrationClass,
+						columnNameHashTable, attribute);
+			}
 		}
 	}
 
@@ -602,64 +862,66 @@ public class BulkOperationProcessor
 			IllegalArgumentException, InvocationTargetException,
 			BulkOperationException
 	{
-		if(attribute.getDataType() != null)
+		if(attribute.getDataType() != null && !"".equals(attribute.getDataType()))
 		{
 			Class dataTypeClass = Class.forName(attribute.getDataType());
 			Constructor constructor = null;
-			if(attribute.getCsvColumnName() != null)
+			if(attribute.getCsvColumnName() != null && !"".equals(attribute.getCsvColumnName()))
 			{
-				String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
-				//System.out.println(attribute.getCsvColumnName() + " : " + csvData + " --> ");
-				if(csvData != null && !"".equals(csvData))
+				if(columnNameHashTable.containsKey(attribute.getCsvColumnName()))
 				{
-					if("java.lang.Integer".equals(attribute.getDataType()) ||
-							"java.lang.Double".equals(attribute.getDataType()) ||
-								"java.lang.Boolean".equals(attribute.getDataType()) ||
-									"java.lang.Long".equals(attribute.getDataType()) ||
-										"java.util.Date".equals(attribute.getDataType()))
+					String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
+					//System.out.println(attribute.getCsvColumnName() + " : " + csvData + " --> ");
+					if(csvData != null && !"".equals(csvData))
 					{
-						constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
-					}				
+						if("java.lang.Integer".equals(attribute.getDataType()) ||
+								"java.lang.Double".equals(attribute.getDataType()) ||
+									"java.lang.Boolean".equals(attribute.getDataType()) ||
+										"java.lang.Long".equals(attribute.getDataType()) ||
+											"java.util.Date".equals(attribute.getDataType()))
+						{
+							constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
+						}				
+						else
+						{
+							constructor = dataTypeClass.getConstructor(dataTypeClass);
+						}			
+						Object setObject = constructor.newInstance(csvData);
+						Object attributeObject = null;
+						if(mainObj != null)
+						{
+							attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
+									null, mainObj, null);
+							if(csvData != null && !"".equals(csvData))
+							{
+								mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, 
+										mainObj, setObject);
+							}			
+						}
+					}
 					else
 					{
-						constructor = dataTypeClass.getConstructor(dataTypeClass);
-					}			
-					Object setObject = constructor.newInstance(csvData);
-					Object attributeObject = null;
-					if(mainObj != null)
-					{
-						attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
-								null, mainObj, null);
-						if(csvData != null && !"".equals(csvData))
+						Object setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
+						if(setObject != null)
 						{
-							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, 
-									mainObj, setObject);
-						}			
+							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
+						}
 					}
 				}
 				else
 				{
-					Object setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
-					if(setObject != null)
-					{
-						mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
-					}
-					/*throw new BulkOperationException("Specified a attribute collection in Meta Data XML file " +
-							"but no corresponding column or value found in CSV file for the attribute : "
-							+ attribute.getCsvColumnName());*/
+					throw new BulkOperationException("bulk.error.csv.column.name.change");
 				}
 			}
 			else
 			{
-				throw new BulkOperationException("Atrribute specified in XML template but corresponding " +
-						"Column not found CSV file for attribute : " + attribute.getName()); 
+				throw new BulkOperationException("bulk.error.incorrect.csv.column.name"); 
 						
 			}
 		}
 		else
 		{
-			throw new BulkOperationException("In correct data type mentioned in the XML template" +
-					" file for attribute name : " + attribute.getName());
+			throw new BulkOperationException("bulk.error.incorrect.xml.attribute.datatype");
 		}
 	}
 }
