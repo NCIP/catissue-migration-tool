@@ -116,45 +116,48 @@ public class BulkOperationProcessor
 		{	
 			List<String[]> list = readCSVData(csvFileAbsolutePath);
 			int listSize = list.size();
-			int start = 1;
-			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
-			int newListLength = newList.size(); 
-			checkForAddOrEditTemplateType(bulkOperationclass);
-			while(start < listSize)
+			if(listSize > 0)
 			{
-				int rowDataLength = getStringArraySize(list, start);
-				String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
-				Hashtable<String, String> columnNameHashTable = 
-					createHashTable(list, start);							
-				Object obj = createDomainObject(columnNameHashTable);							
-				try
-				{					
-					if(isSearchObject)
-					{
-						Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
-						processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
-						isSearchObject = false;
-						Object searchedObject = migrationAppService.search(obj);
-						processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
-						isSearchObject = true;
-						migrationAppService.update(searchedObject);
-					}
-					else
-					{
-						processObject(obj, bulkOperationclass, objectMap, columnNameHashTable);						
-						migrationAppService.insert(obj,bulkOperationclass, objectMap);
-					}
-					newRowData[rowDataLength] = "Success";
-				}
-				catch(BulkOperationException e)
+				int start = 1;
+				List<String[]> newList = formatColumnNamesInReportFile(list, 0);
+				int newListLength = newList.get(0).length; 
+				checkForAddOrEditTemplateType(bulkOperationclass);
+				while(start < listSize)
 				{
-					newRowData[rowDataLength] = "Failure";
-					newRowData[rowDataLength + 1] = e.getMessage();
+					int rowDataLength = getStringArraySize(list, start);
+					String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
+					Hashtable<String, String> columnNameHashTable = 
+						createHashTable(list, start);							
+					Object obj = createDomainObject(columnNameHashTable);							
+					try
+					{					
+						if(isSearchObject)
+						{
+							Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
+							processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
+							isSearchObject = false;
+							Object searchedObject = migrationAppService.search(obj);
+							processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
+							isSearchObject = true;
+							migrationAppService.update(searchedObject);
+						}
+						else
+						{
+							processObject(obj, bulkOperationclass, objectMap, columnNameHashTable);						
+							migrationAppService.insert(obj,bulkOperationclass, objectMap);
+						}
+						newRowData[rowDataLength] = "Success";
+					}
+					catch(BulkOperationException e)
+					{
+						newRowData[rowDataLength] = "Failure";
+						newRowData[rowDataLength + 1] = e.getMessage();
+					}
+					newList.add(newRowData);
+					start++;
 				}
-				newList.add(newRowData);
-				start++;
+				createCSVReportFile(newList, csvFileAbsolutePath);
 			}
-			createCSVReportFile(newList, csvFileAbsolutePath);
 		}
 		catch (Exception e)
 		{
