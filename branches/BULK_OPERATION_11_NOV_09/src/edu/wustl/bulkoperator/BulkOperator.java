@@ -15,7 +15,6 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.MigrationConstants;
-import edu.wustl.dao.DAO;
 
 public class BulkOperator
 {	
@@ -149,7 +148,7 @@ public class BulkOperator
 	
 	public static File initiateBulkOperationFromUI(String operationName,
 			List<String[]> csvFileData, BulkOperationMetaData metadata,
-			String userName, DAO dao)
+			String userName)
 				throws ClassNotFoundException,
 			SecurityException, NoSuchMethodException, IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException,
@@ -172,7 +171,7 @@ public class BulkOperator
 						BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
 								migration, migrationAppService);
 						file = migrationProcessor.startBulkOperationFromUI(csvFileData,
-								operationName, userName, dao);
+								operationName, userName);
 						flag = false;
 						break;
 					}

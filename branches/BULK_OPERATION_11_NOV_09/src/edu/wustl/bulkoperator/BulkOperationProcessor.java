@@ -26,7 +26,7 @@ import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.catissuecore.client.CaCoreAppServicesDelegator;
-import edu.wustl.dao.DAO;
+import edu.wustl.catissuecore.util.global.AppUtility;
 
 public class BulkOperationProcessor
 {
@@ -166,7 +166,7 @@ public class BulkOperationProcessor
 	}
 
 	public File startBulkOperationFromUI(List<String[]> list, String operationName,
-			String userName, DAO dao) 
+			String userName) 
 	throws ClassNotFoundException, SecurityException,
 	NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
 	InvocationTargetException, BulkOperationException
@@ -200,7 +200,7 @@ public class BulkOperationProcessor
 						String hql = populateObjectToSearch(obj, bulkOperationclass, attributes,
 								columnNameHashTable, whereConditionCount);
 						isSearchObject = false;
-						List objectList = dao.executeQuery(hql);
+						List objectList = AppUtility.executeQuery(hql);
 						//Object searchedObject = migrationAppService.search(obj);
 						Object searchedObject = objectList.get(0);
 						if(searchedObject == null)
