@@ -10,20 +10,20 @@ public class BulkOperationMetadataUtil
 {
 	//static ApplicationService appService = null;
 
-	public  BulkOperationMetaData unmarshall(String migrationMetaDataXmlFileName)
+	public  BulkOperationMetaData unmarshall(String bulkOperationMetaDataXmlFile, String xmlMappingFile)
 	{
 		BulkOperationMetaData bulkOperationMetaData = null;
 		try
 		{
 			// -- Load a mapping file
 			Mapping mapping = new Mapping();
-			mapping.loadMapping("mapping.xml");
+			mapping.loadMapping(xmlMappingFile);
 
 			Unmarshaller un = new Unmarshaller(BulkOperationMetaData.class);
 			un.setMapping(mapping);
 
 			// -- Read in the migration.xml using the mapping
-			FileReader fileReader = new FileReader(migrationMetaDataXmlFileName);
+			FileReader fileReader = new FileReader(bulkOperationMetaDataXmlFile);
 			bulkOperationMetaData = (BulkOperationMetaData) un.unmarshal(fileReader);
 			fileReader.close();
 		}
@@ -34,6 +34,4 @@ public class BulkOperationMetadataUtil
 		}
 		return bulkOperationMetaData;
 	}
-
-	
 }

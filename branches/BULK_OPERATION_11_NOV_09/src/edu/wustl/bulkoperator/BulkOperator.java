@@ -56,7 +56,7 @@ public class BulkOperator
 
 			BulkOperationMetadataUtil unMarshaller = new BulkOperationMetadataUtil();
 			BulkOperationMetaData metadata = unMarshaller.unmarshall(
-					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME);
+					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME, "mapping.xml");
 
 			initiateBulkOperationFromCommandLine(operationName, csvFileAbsolutePath,
 				migrationAppService, metadata);
