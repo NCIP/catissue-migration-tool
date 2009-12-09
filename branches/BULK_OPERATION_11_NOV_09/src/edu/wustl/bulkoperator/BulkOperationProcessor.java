@@ -64,6 +64,11 @@ public class BulkOperationProcessor
 		this.bulkOperationclass = migration;
 		this.migrationAppService = migrationAppService;
 	}
+	
+	public BulkOperationProcessor()
+	{
+		//default constructor.
+	}
 
 	/**
 	 * 
@@ -231,6 +236,10 @@ public class BulkOperationProcessor
 					e.printStackTrace();
 					newRowData[rowDataLength - 2] = "Failure";
 					newRowData[rowDataLength - 1] = e.getMessage();
+					if(whereConditionCount > 0)
+					{
+						isSearchObject = true;
+					}
 				}
 				newList.add(newRowData);
 				start++;
@@ -485,26 +494,39 @@ public class BulkOperationProcessor
 		return csvFile;
 	}
 
-	private Hashtable<String, String> createHashTable(List<String[]> list, int columnValueIndex)
+	public Hashtable<String, String> createHashTable(List<String[]> list, int columnValueIndex)
 	{
 		Hashtable<String, String> hashTable = null;
 		String[] columnNames = list.get(0);
-		String[] columnValues = list.get(columnValueIndex);
-		int columnValuesLengh = columnValues.length; 
-		if(columnNames.length > 0)
+		if(list.size() > columnValueIndex)
+		{
+			String[] columnValues = list.get(columnValueIndex);
+			int columnValuesLengh = columnValues.length; 
+			if(columnNames.length > 0)
+			{
+				hashTable = new Hashtable<String, String>();
+				for(int i = 0; i < columnNames.length; i++)
+				{				
+					String key = columnNames[i].trim();
+					String value = "";
+					if(i < columnValuesLengh)
+					{
+						value = columnValues[i].trim();
+					}
+					hashTable.put(key, value);
+				}
+			}
+		}
+		else
 		{
 			hashTable = new Hashtable<String, String>();
 			for(int i = 0; i < columnNames.length; i++)
 			{				
 				String key = columnNames[i].trim();
 				String value = "";
-				if(i < columnValuesLengh)
-				{
-					value = columnValues[i].trim();
-				}
 				hashTable.put(key, value);
 			}
-		}		
+		}
 		return hashTable;
 	}
 
@@ -524,7 +546,7 @@ public class BulkOperationProcessor
 	 * @throws IllegalArgumentException 
 	 * @throws ClassNotFoundException 
 	 */
-	private void processObject(Object mainObj, BulkOperationClass migrationClass,ObjectIdentifierMap objectMap,
+	public void processObject(Object mainObj, BulkOperationClass migrationClass,ObjectIdentifierMap objectMap,
 			Hashtable<String, String> columnNameHashTable)
 			throws BulkOperationException, InstantiationException, IllegalAccessException,
 			SecurityException, NoSuchMethodException, IllegalArgumentException,
@@ -718,9 +740,7 @@ public class BulkOperationProcessor
 							String roleName = containmentMigrationClass.getRoleName();
 							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
 									mainObj, innerObect);
-							
-						}						
-					
+						}
 					}
 				}
 			}
