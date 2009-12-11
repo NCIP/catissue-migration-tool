@@ -27,9 +27,14 @@ import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.catissuecore.client.CaCoreAppServicesDelegator;
 import edu.wustl.catissuecore.util.global.AppUtility;
+import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperationProcessor
 {
+	/**
+	 * logger Logger - Generic logger.
+	 */
+	private static final Logger logger = Logger.getCommonLogger(BulkOperationProcessor.class);
 	MigrationAppService migrationAppService;
 	BulkOperationClass bulkOperationclass = null;
 	ObjectIdentifierMap objectMap;
@@ -85,19 +90,17 @@ public class BulkOperationProcessor
 			reader = new CSVReader(new FileReader(csvFileAbsoluteName));
 			list = reader.readAll();
 			reader.close();
-			System.out.println("Records in CSV files : " + (list.size() - 1));
+			logger.info("Records in CSV files : " + (list.size() - 1));
 		}
-		catch (FileNotFoundException e)
+		catch (FileNotFoundException exp)
 		{
-			System.out.println("\n");
-			e.printStackTrace();
-			throw new BulkOperationException("\nCSV File Not Found at the specified path.");
+			logger.info("CSV File Not Found at the specified path.");
+			throw new BulkOperationException("\nCSV File Not Found at the specified path.", exp);
 		}
-		catch (IOException e)
+		catch (IOException exp)
 		{
-			System.out.println("\n");
-			e.printStackTrace();
-			throw new BulkOperationException("\nError in reading the CSV File.");
+			logger.info("Error in reading the CSV File.");
+			throw new BulkOperationException("\nError in reading the CSV File.", exp);
 		}		
 		return list;
 	}
@@ -126,7 +129,7 @@ public class BulkOperationProcessor
 				int start = 1;
 				List<String[]> newList = formatColumnNamesInReportFile(list, 0);
 				int newListLength = newList.get(0).length; 
-				checkForAddOrEditTemplateType(bulkOperationclass);
+				int whereConditionCount = checkForAddOrEditTemplateType(bulkOperationclass);
 				while(start < listSize)
 				{
 					int rowDataLength = getStringArraySize(list, start);
@@ -153,10 +156,15 @@ public class BulkOperationProcessor
 						}
 						newRowData[rowDataLength] = "Success";
 					}
-					catch(BulkOperationException e)
+					catch(BulkOperationException exp)
 					{
+						logger.debug(exp.getMessage(), exp);
 						newRowData[rowDataLength] = "Failure";
-						newRowData[rowDataLength + 1] = e.getMessage();
+						newRowData[rowDataLength + 1] = exp.getMessage();
+						if(whereConditionCount > 0)
+						{
+							isSearchObject = true;
+						}
 					}
 					newList.add(newRowData);
 					start++;
@@ -164,9 +172,10 @@ public class BulkOperationProcessor
 				createCSVReportFile(newList, csvFileAbsolutePath);
 			}
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			throw new BulkOperationException(e.getMessage());
+			logger.debug(exp.getMessage(), exp);
+			throw new BulkOperationException(exp.getMessage(), exp);
 		}
 	}
 
@@ -187,7 +196,7 @@ public class BulkOperationProcessor
 			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
 			int newListLength = newList.get(0).length; 
 			int whereConditionCount =
-				checkForAddOrEditTemplateTypeForUI(bulkOperationclass);
+				checkForAddOrEditTemplateType(bulkOperationclass);
 			while(start < listSize)
 			{
 				//int rowDataLength = getStringArraySize(list, start);
@@ -395,22 +404,7 @@ public class BulkOperationProcessor
 		return newList;
 	}
 
-	private void checkForAddOrEditTemplateType(BulkOperationClass migrationClass)
-	{
-		Collection<Attribute> attributes = migrationClass.getAttributeCollection();
-		Iterator<Attribute> attributeItertor = attributes.iterator();
-		while (attributeItertor.hasNext())
-		{
-			Attribute attribute = attributeItertor.next();
-			if(attribute.getUpdateBasedOn())
-			{
-				isSearchObject = true;
-				break;
-			}
-		}
-	}
-	
-	private int checkForAddOrEditTemplateTypeForUI(BulkOperationClass migrationClass)
+	private int checkForAddOrEditTemplateType(BulkOperationClass migrationClass)
 	{
 		Collection<Attribute> attributes = migrationClass.getAttributeCollection();
 		Iterator<Attribute> attributeItertor = attributes.iterator();
@@ -448,20 +442,21 @@ public class BulkOperationProcessor
 				writer.writeNext(stringArray);
 			}			
 			writer.close();
-			System.out.println("\nPlease refer Output Report at " + outPutFileName);
+			logger.info("\nPlease refer Output Report at " + outPutFileName);
+			logger.info("\n");
 			flag = true;
 		}
-		catch (FileNotFoundException e)
+		catch (FileNotFoundException exp)
 		{
-			System.out.println("\n");
-			e.printStackTrace();
-			throw new BulkOperationException("\nCSV File Not Found at the specified path.");
+			logger.info("\n");
+			logger.info("CSV File Not Found at the specified path.");
+			throw new BulkOperationException("\nCSV File Not Found at the specified path.", exp);
 		}
-		catch (IOException e)
+		catch (IOException exp)
 		{
-			System.out.println("\n");
-			e.printStackTrace();
-			throw new BulkOperationException("\nError in writing the Result File.");
+			logger.info("\n");
+			logger.info("Error in writing the Result File.");
+			throw new BulkOperationException("\nError in writing the Result File.", exp);
 		}
 		return flag;
 	}
@@ -933,17 +928,20 @@ public class BulkOperationProcessor
 				}
 				else
 				{
+					logger.info("Column name in CSV template is changed.");
 					throw new BulkOperationException("bulk.error.csv.column.name.change");
 				}
 			}
 			else
 			{
+				logger.info("Column name is not specified for a attribute in bulk operation meta data.");
 				throw new BulkOperationException("bulk.error.incorrect.csv.column.name"); 
 						
 			}
 		}
 		else
 		{
+			logger.info("DataType specified for the Attribute in bulk operation meta data  not specified.");
 			throw new BulkOperationException("bulk.error.incorrect.xml.attribute.datatype");
 		}
 	}
