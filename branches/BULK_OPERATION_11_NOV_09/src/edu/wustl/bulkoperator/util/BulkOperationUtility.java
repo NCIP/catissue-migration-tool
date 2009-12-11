@@ -2,6 +2,7 @@ package edu.wustl.bulkoperator.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,12 +14,23 @@ import java.util.Properties;
 
 import org.hibernate.Session;
 
+import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.bulkoperator.dao.SandBoxDao;
 import edu.wustl.common.lookup.DefaultLookupResult;
+import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperationUtility
 {
+	/**
+	 * logger Logger - Generic logger.
+	 */
+	private static final Logger logger = Logger.getCommonLogger(BulkOperationUtility.class);
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static String getGetterFunctionName(String name)
 	{
 		String functionName = null;
@@ -150,5 +162,40 @@ public class BulkOperationUtility
 			ioException.printStackTrace();
 		}
 		return props;
+	}
+	/**
+	 * Get CSV Template Column Names.
+	 * @param csvFile String.
+	 * @return List of String[].
+	 * @throws Exception Exception.
+	 */
+	public static List<String[]> getCSVTemplateColumnNames(String csvFilePath)
+		throws Exception
+	{
+		CSVReader csvReader = null;
+ 		List<String[]> csvDataList = null;
+		try
+		{
+			csvReader = new CSVReader(new FileReader(csvFilePath));
+			csvDataList = csvReader.readAll();
+		}
+		catch (FileNotFoundException fnfExp)
+		{
+			logger.debug("CSV File Not Found at the specified path.");
+			throw new BulkOperationException("CSV File Not Found at the specified path.", fnfExp);
+		}
+		catch (IOException ioExp)
+		{
+			logger.debug("Error in reading the CSV File.");
+			throw new BulkOperationException("Error in reading the CSV File.", ioExp);
+		}
+		finally
+		{
+			if(csvReader != null)
+			{
+				csvReader.close();
+			}
+		}
+		return csvDataList;
 	}
 }

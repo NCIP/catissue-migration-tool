@@ -15,9 +15,26 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.MigrationConstants;
+import edu.wustl.common.util.logger.Logger;
+import edu.wustl.common.util.logger.LoggerConfig;
 
 public class BulkOperator
 {	
+	/**
+	 * logger Logger - Generic logger.
+	 */
+	static
+	{
+		LoggerConfig.configureLogger(System.getProperty("user.dir") + "/conf");
+	}
+	/**
+	 * logger Logger - Generic logger.
+	 */
+	private static final Logger logger = Logger.getCommonLogger(
+			BulkOperator.class);
+	/**
+	 * 
+	 */
     private static Properties migrationInstallProperties = null;    
     /**
      * Main method.
@@ -31,9 +48,9 @@ public class BulkOperator
 			/*String jbossHome = "G://jboss-4.2.2.GA/";//args[0];
 			String userName = "admin@admin.com";//args[1];//"editSpecimen";
 			String password = "Login1234";//args[2];//"E://editSpecimen.csv";
-			String operationName = "editSpecimen";//args[3];//"editSpecimen";
-			String csvFileAbsolutePath = "E://Copy of editSpecimen.csv";//args[4];//"E://editSpecimen.csv";
-*/			
+			String operationName = "createParticipantRegistration2";//args[3];//"editSpecimen";
+			String csvFileAbsolutePath = "E://createParticipantRegistration2.csv";*///args[4];//"E://editSpecimen.csv";
+			
 			validate( args );
 			String jbossHome = args[0];
 			String userName = args[1];
@@ -57,27 +74,39 @@ public class BulkOperator
 			BulkOperationMetadataUtil unMarshaller = new BulkOperationMetadataUtil();
 			BulkOperationMetaData metadata = unMarshaller.unmarshall(
 					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME, "mapping.xml");
-
-			initiateBulkOperationFromCommandLine(operationName, csvFileAbsolutePath,
-				migrationAppService, metadata);
+			List<String> errorList = ValidateBulkOperationXmlTemplate.
+						validateXML(operationName, csvFileAbsolutePath, metadata);
+			if(errorList.isEmpty())
+			{
+				initiateBulkOperationFromCommandLine(operationName, csvFileAbsolutePath,
+						migrationAppService, metadata);
+			}
+			else
+			{
+				logger.info("------------------------ERROR--------------------------------\n");
+				for(String error : errorList)
+				{
+					logger.info(error);
+					logger.info("\n");
+				}
+				logger.info("------------------------ERROR--------------------------------");
+			}
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println(e.getMessage() + "\n\n");
-			e.printStackTrace();
-			System.out.println("------------------------ERROR:--------------------------------");
-			System.out.println("------------------------ERROR:--------------------------------");
+			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.info(exp.getMessage() + "\n");
+			logger.debug(exp.getMessage(), exp);
+			logger.info("------------------------ERROR:--------------------------------");
 		}
 		finally
 		{
 			Long endTime = BulkOperationUtility.getTime();
 			Long totalTime = endTime - startTime ;
-			System.out.println("time taken = " + totalTime + "seconds");
+			logger.info("time taken = " + totalTime + "seconds");
 			if(totalTime > 60)
 			{
-				System.out.println("time taken = " + totalTime/60 + "mins");
+				logger.info("time taken = " + totalTime/60 + "mins");
 			}
 		}
 	}
@@ -132,20 +161,33 @@ public class BulkOperator
 			}
 			if(flag)
 			{
-				System.out.println("\n");
-				throw new BulkOperationException("\nIncorrect OPERATION NAME specified. No such operation " +
-						"is allowed in Bulk Operation.");
+				logger.info("\n");
+				throw new BulkOperationException("\nThe operation name specified does match " +
+						"with any the template name specified in the XML template.");
 			}
 		}
 		else
 		{
-			System.out.println("\n");
+			logger.info("\n");
 			throw new BulkOperationException("Error in BULK OPERATION META DATA XML. Please check the " +
-					"XML file created");
+					"XML file created.");
 		}
 	}
-
-	
+	/**
+	 * 
+	 * @param operationName
+	 * @param csvFileData
+	 * @param metadata
+	 * @param userName
+	 * @return File
+	 * @throws ClassNotFoundException
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws BulkOperationException
+	 */
 	public static File initiateBulkOperationFromUI(String operationName,
 			List<String[]> csvFileData, BulkOperationMetaData metadata,
 			String userName)
@@ -209,7 +251,7 @@ public class BulkOperator
 		Class migrationServiceTypeClass;
 		try
 		{
-			System.out.println("migrationServiceTypeName : " +
+			logger.info("migrationServiceTypeName : " +
 					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE);
 			migrationServiceTypeClass = Class.forName(
 					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE);
@@ -235,22 +277,27 @@ public class BulkOperator
 	{
 		if (args.length == 0)
 		{
-			throw new Exception("Please Specify the loginName.");
+			logger.debug("Please Specify the jbossHome path.");
+			throw new Exception("Please Specify the jbossHome path.");
 		}
 		if (args.length < 2)
 		{
-			throw new Exception("Please specify the jbossHome path.");
+			logger.debug("Please specify the loginName.");
+			throw new Exception("Please specify the loginName.");
 		}
 		if (args.length < 3)
 		{
+			logger.debug("Please specify the password.");
 			throw new Exception("Please specify the password.");
 		}
 		if (args.length < 4)
 		{
+			logger.debug("Please specify the operation name.");
 			throw new Exception("Please specify the operation name.");
 		}
 		if (args.length < 5)
 		{
+			logger.debug("Please specify the csvFileName.");
 			throw new Exception("Please specify the csvFileName.");
 		}				
 	}
