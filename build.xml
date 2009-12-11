@@ -185,7 +185,14 @@
 		<jar destfile="${basedir}/bulkoperator_jar/bulkoperator.jar" basedir="${basedir}/bin">
             <manifest>
                 <attribute name="Main-Class" value="edu.wustl.bulkoperator.BulkOperator"/>
-            </manifest>
+            	<section name="BulkOperator Jar">
+				    <attribute name="Version" value="1.0"/>
+					<attribute name="Built-By" value="Bulk Operator Team" />   	   			   	   					
+					<attribute name="Build-on" value="12/11/2009 09.00 a.m." />
+			   	   	<attribute name="SVN-URL" value="http://washusvn.persistent.co.in:8080/svn/Washu/MigrationTool/branches/
+			   	   	 BULK_OPERATION" />
+			   	</section>
+			</manifest>
         </jar>
 	</target>
 	
