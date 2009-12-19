@@ -1,12 +1,14 @@
+
 package edu.wustl.bulkoperator;
 
-import java.io.File;
-import java.lang.reflect.Constructor;
+import java.io.FileInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+
+import org.xml.sax.InputSource;
 
 import edu.wustl.bulkoperator.appservice.MigrationAppService;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -15,11 +17,16 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.MigrationConstants;
+import edu.wustl.bulkoperator.validator.TemplateValidator;
+import edu.wustl.common.exception.ApplicationException;
+import edu.wustl.common.jobmanager.JobData;
+import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;
 
 public class BulkOperator
-{	
+{
+
 	/**
 	 * logger Logger - Generic logger.
 	 */
@@ -28,277 +35,191 @@ public class BulkOperator
 		LoggerConfig.configureLogger(System.getProperty("user.dir") + "/conf");
 	}
 	/**
-	 * logger Logger - Generic logger.
-	 */
-	private static final Logger logger = Logger.getCommonLogger(
-			BulkOperator.class);
-	/**
 	 * 
 	 */
-    private static Properties migrationInstallProperties = null;    
-    /**
-     * Main method.
-     * @param args
-     */
-    public static void main(String args[])
-	{	
-		Long startTime = BulkOperationUtility.getTime();
+	private static Logger logger = Logger.getCommonLogger(BulkOperator.class);
+	BulkOperationMetaData metadata;
+	
+	/**
+	 * @return the metadata
+	 */
+	public BulkOperationMetaData getMetadata()
+	{
+		return metadata;
+	}
+
+	public BulkOperator(String xmlTemplateFilePath, String mappingFilePath)
+			throws BulkOperationException
+	{
 		try
 		{
-			/*String jbossHome = "G://jboss-4.2.2.GA/";//args[0];
-			String userName = "admin@admin.com";//args[1];//"editSpecimen";
-			String password = "Login1234";//args[2];//"E://editSpecimen.csv";
-			String operationName = "createParticipantRegistration2";//args[3];//"editSpecimen";
-			String csvFileAbsolutePath = "E://createParticipantRegistration2.csv";*///args[4];//"E://editSpecimen.csv";
-			
-			validate( args );
-			String jbossHome = args[0];
-			String userName = args[1];
-			String password = args[2];
-			String operationName = args[3];
-			String csvFileAbsolutePath = args[4];
-			
-			/*migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-			String migrationServiceTypeName = migrationInstallProperties.getProperty(
-					MigrationConstants.MIGRATION_SERVICE_TYPE);*/
-			/*String userName = migrationInstallProperties.getProperty(
-					MigrationConstants.CLIENT_SESSION_USER_NAME);
-			String password = migrationInstallProperties.getProperty(
-					MigrationConstants.CLIENT_SESSION_PASSWORD);*/
-			/*String migrationMetaDataXmlFileName = migrationInstallProperties.getProperty(
-					MigrationConstants.MIGRATION_METADATA_XML_FILE_NAME);*/
-			System.setProperty("javax.net.ssl.trustStore", jbossHome + "/server/default/conf/chap8.keystore");
-			MigrationAppService migrationAppService = getMigrationServiceTypeInstance(
-					userName, password);
-
-			BulkOperationMetadataUtil unMarshaller = new BulkOperationMetadataUtil();
-			BulkOperationMetaData metadata = unMarshaller.unmarshall(
-					MigrationConstants.BULK_OPEARTION_META_DATA_XML_FILE_NAME, "mapping.xml");
-			List<String> errorList = ValidateBulkOperationXmlTemplate.
-						validateXML(operationName, csvFileAbsolutePath, metadata);
-			if(errorList.isEmpty())
-			{
-				initiateBulkOperationFromCommandLine(operationName, csvFileAbsolutePath,
-						migrationAppService, metadata);
-			}
-			else
-			{
-				logger.info("------------------------ERROR--------------------------------\n");
-				for(String error : errorList)
-				{
-					logger.info(error);
-					logger.info("\n");
-				}
-				logger.info("------------------------ERROR--------------------------------");
-			}
+			BulkOperationMetadataUtil bulkOperationMetadataUtil = new BulkOperationMetadataUtil();
+			this.metadata = bulkOperationMetadataUtil.unmarshall(xmlTemplateFilePath,
+					mappingFilePath);
 		}
-		catch (Exception exp)
+		catch (Exception ex)
 		{
-			logger.info("------------------------ERROR:--------------------------------\n");
-			logger.info(exp.getMessage() + "\n");
-			logger.debug(exp.getMessage(), exp);
-			logger.info("------------------------ERROR:--------------------------------");
-		}
-		finally
-		{
-			Long endTime = BulkOperationUtility.getTime();
-			Long totalTime = endTime - startTime ;
-			logger.info("time taken = " + totalTime + "seconds");
-			if(totalTime > 60)
-			{
-				logger.info("time taken = " + totalTime/60 + "mins");
-			}
+			throw new BulkOperationException(ex.getMessage(), ex);
 		}
 	}
 
-	public static boolean configureBulkOperation(boolean flag)
+	public BulkOperator(InputSource xmlTemplate, InputSource mappingFile)
+			throws BulkOperationException
 	{
-		boolean check = false;
-		if(flag)
+		try
 		{
-			check = true;
+			BulkOperationMetadataUtil bulkOperationMetadataUtil = new BulkOperationMetadataUtil();
+			this.metadata = bulkOperationMetadataUtil.unmarshall(xmlTemplate, mappingFile);
 		}
-		return check;
+		catch (Exception ex)
+		{
+			throw new BulkOperationException(ex.getMessage(), ex);
+		}
 	}
 
-	/**
-	 * @param operationName
-	 * @param csvFileAbsolutePath
-	 * @param migrationAppService
-	 * @param metadata
-	 * @throws ClassNotFoundException
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 * @throws BulkOperationException
-	 */
-	private static void initiateBulkOperationFromCommandLine(String operationName,
-			String csvFileAbsolutePath,
-			MigrationAppService migrationAppService,
-			BulkOperationMetaData metadata) throws ClassNotFoundException,
-			SecurityException, NoSuchMethodException, IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException,
-			BulkOperationException
-	{
-		Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
-		boolean flag = true;
-		if (classList != null)
-		{
-			Iterator<BulkOperationClass> it = classList.iterator();
-			while (it.hasNext())
-			{
-				BulkOperationClass migration = it.next();
-				if(migration.getTemplateName().equals(operationName))
-				{
-					BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
-							migration, migrationAppService);
-					migrationProcessor.startBulkOperation(csvFileAbsolutePath);
-					flag = false;
-					break;
-				}
-			}
-			if(flag)
-			{
-				logger.info("\n");
-				throw new BulkOperationException("\nThe operation name specified does match " +
-						"with any the template name specified in the XML template.");
-			}
-		}
-		else
-		{
-			logger.info("\n");
-			throw new BulkOperationException("Error in BULK OPERATION META DATA XML. Please check the " +
-					"XML file created.");
-		}
-	}
-	/**
-	 * 
-	 * @param operationName
-	 * @param csvFileData
-	 * @param metadata
-	 * @param userName
-	 * @return File
-	 * @throws ClassNotFoundException
-	 * @throws SecurityException
-	 * @throws NoSuchMethodException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 * @throws BulkOperationException
-	 */
-	public static File initiateBulkOperationFromUI(String operationName,
-			List<String[]> csvFileData, BulkOperationMetaData metadata,
-			String userName)
-				throws ClassNotFoundException,
-			SecurityException, NoSuchMethodException, IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException,
-			BulkOperationException
-	{
-		File file = null;
-		try
-		{
-			Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
-			boolean flag = true;
-			if (classList != null)
-			{
-				Iterator<BulkOperationClass> it = classList.iterator();
-				while (it.hasNext())
-				{
-					BulkOperationClass migration = it.next();
-					if(migration.getTemplateName().equals(operationName))
-					{
-						MigrationAppService migrationAppService = null;
-						BulkOperationProcessor migrationProcessor = new BulkOperationProcessor(
-								migration, migrationAppService);
-						file = migrationProcessor.startBulkOperationFromUI(csvFileData,
-								operationName, userName);
-						flag = false;
-						break;
-					}
-				}
-				if(flag)
-				{
-					System.out.println("\n");
-					throw new BulkOperationException("bulk.error.incorrect.operation.name");
-				}
-			}
-			else
-			{
-				System.out.println("\n");
-				throw new BulkOperationException("bulk.error.bulk.metadata.xml.file");
-			}
-		}
-		catch (Exception e)
-		{
-			throw new BulkOperationException(e.getMessage());
-		}
-		return file;
-	}
-	/**
-	 * Returns the Migration Service type instance
-	 * @param migrationServiceType
-	 * @param username
-	 * @param password
-	 * @return
-	 * @throws BulkOperationException
-	 */
-    protected static MigrationAppService getMigrationServiceTypeInstance(
-			String username, String password) throws BulkOperationException
-	{
-		MigrationAppService appService = null;
-		Class migrationServiceTypeClass;
-		try
-		{
-			logger.info("migrationServiceTypeName : " +
-					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE);
-			migrationServiceTypeClass = Class.forName(
-					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE);
-			Class[] constructorParameters = new Class[3];
-            constructorParameters[0] = boolean.class;
-            constructorParameters[1] = String.class;
-            constructorParameters[2] = String.class;
-			Constructor constructor = migrationServiceTypeClass.getDeclaredConstructor(constructorParameters);
-			appService = (MigrationAppService)constructor.newInstance(true, username, password);
-		}
-		catch (Exception e)
-		{
-			throw new BulkOperationException("Invalid User Name or Password.");
-		}
-		return appService;
-	}
-    
 	/**
 	 * @param args - args
 	 * @throws Exception - Exception
 	 */
-	private static void validate(String[] args) throws Exception
+	private static void validateParameters(String operationName, String csvFileAbsolutePath,
+			String userName, String password, String jbossHome) throws ApplicationException
 	{
-		if (args.length == 0)
+		StringBuffer errMsg = new StringBuffer();
+		boolean errorFlag = false;
+		errMsg.append("Please specify the ");
+		if (Validator.isEmpty(jbossHome))
 		{
-			logger.debug("Please Specify the jbossHome path.");
-			throw new Exception("Please Specify the jbossHome path.");
+			errorFlag = true;
+			errMsg.append("JBoss home directory path,");
 		}
-		if (args.length < 2)
+		if (Validator.isEmpty(userName))
 		{
-			logger.debug("Please specify the loginName.");
-			throw new Exception("Please specify the loginName.");
+			errorFlag = true;
+			errMsg.append("Application user login name,");
 		}
-		if (args.length < 3)
+		if (Validator.isEmpty(password))
 		{
-			logger.debug("Please specify the password.");
-			throw new Exception("Please specify the password.");
+			errorFlag = true;
+			errMsg.append("Password,");
 		}
-		if (args.length < 4)
+		if (Validator.isEmpty(operationName))
 		{
-			logger.debug("Please specify the operation name.");
-			throw new Exception("Please specify the operation name.");
+			errorFlag = true;
+			errMsg.append("Operation name,");
 		}
-		if (args.length < 5)
+		if (Validator.isEmpty(csvFileAbsolutePath))
 		{
-			logger.debug("Please specify the csvFileName.");
-			throw new Exception("Please specify the csvFileName.");
-		}				
+			errorFlag = true;
+			errMsg.append("CSV file path,");
+		}
+		if (errorFlag)
+		{
+			errMsg.deleteCharAt(errMsg.length() - 1);
+			errMsg.append('.');
+			throw new ApplicationException(null, null, errMsg.toString());
+		}
+	}
+
+	/**
+	 * Main method.
+	 * @param args
+	 */
+	public static void main(String args[])
+	{
+		Long startTime = BulkOperationUtility.getTime();
+		System.setProperty("operationName", "editSpecimen");
+		System.setProperty("csvFileAbsolutePath", "D:/createSpecimen1.csv");
+		System.setProperty("xmlFileAbsolutePath", "D:/createSpecimen.xml");
+		System.setProperty("userName", "admin@admin.com");
+		System.setProperty("password", "Login1234");
+		System.setProperty("jbossHome", "G:/jboss-4.2.2.GA_8080");
+		try
+		{
+			String operationName = System.getProperty("operationName");
+			String csvFileAbsolutePath = System.getProperty("csvFileAbsolutePath");
+			String xmlFileAbsolutePath = System.getProperty("xmlFileAbsolutePath");
+			String userName = System.getProperty("userName");
+			String password = System.getProperty("password");
+			String jbossHome = System.getProperty("jbossHome");
+			validateParameters(operationName, csvFileAbsolutePath, userName, password, jbossHome);
+
+			System.setProperty("javax.net.ssl.trustStore", jbossHome
+					+ "/server/default/conf/chap8.keystore");
+			FileInputStream inputStream = new FileInputStream(csvFileAbsolutePath);
+			Properties properties = new Properties();
+			properties.put("inputStream", inputStream);
+			DataList dataList = DataReader.getNewDataReaderInstance(properties).readData();
+
+			BulkOperator bulkOperator = new BulkOperator(
+					xmlFileAbsolutePath, "mapping.xml");
+			bulkOperator.startProcess(operationName, userName, password, "1", dataList,
+					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE, null);
+		}
+		catch (ApplicationException e)
+		{
+			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.info(e.getMsgValues() + "\n");
+			//logger.debug(e.getMsgValues(), e.printStackTrace());
+			System.out
+					.println("Usage: jbossHome loginName password operationName csvFileAbsolutePath \n");
+			System.out.println("------------------------ERROR:--------------------------------\n");
+			System.out.println("------------------------ERROR:--------------------------------");
+			System.out.println("------------------------ERROR:--------------------------------");
+		}
+		catch (Exception e)
+		{
+			System.out.println("------------------------ERROR:--------------------------------\n");
+			System.out.println("------------------------ERROR:--------------------------------\n");
+			System.out.println(e.getMessage() + "\n\n");
+			e.printStackTrace();
+			System.out
+					.println("Usage: operationName csvFileAbsolutePath userName password jbossHome\n");
+			System.out.println("------------------------ERROR:--------------------------------\n");
+			System.out.println("------------------------ERROR:--------------------------------");
+			System.out.println("------------------------ERROR:--------------------------------");
+		}
+		finally
+		{
+			Long endTime = BulkOperationUtility.getTime();
+			Long totalTime = endTime - startTime;
+			System.out.println("time taken = " + totalTime + "seconds");
+			if (totalTime > 60)
+			{
+				System.out.println("time taken = " + totalTime / 60 + "mins");
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param operationName
+	 * @param userName
+	 * @param password
+	 * @param dataList
+	 * @throws ClassNotFoundException
+	 * @throws SecurityException
+	 * @throws NoSuchMethodException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws BulkOperationException
+	 */
+	public void startProcess(String operationName, String userName, String password, String userId, 
+			DataList dataList, String appServiceClassName, JobData jobData) throws Exception
+	{
+		Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
+		if (classList != null)
+		{
+			Iterator<BulkOperationClass> it = classList.iterator();
+			if(it.hasNext())
+			{
+				BulkOperationClass bulkOperationClass = it.next();
+				MigrationAppService migrationAppService = MigrationAppService.getInstance(
+							appServiceClassName, true, userName, password);
+				BulkOperationProcessor bulkOperationProcessor = new BulkOperationProcessor(
+						bulkOperationClass, migrationAppService, dataList, jobData);
+				bulkOperationProcessor.process();
+			}
+		}
 	}
 }

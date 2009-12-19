@@ -2,6 +2,7 @@ package edu.wustl.bulkoperator.metadata;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -11,16 +12,17 @@ public class BulkOperationClass
 {	
 	String className;
 	String relationShipType;
-	Boolean isOneToManyAssociation;
 	String cardinality;
 	String roleName;
+	String parentRoleName;
 	String templateName;
+	Integer maxNoOfRecords;
 	Class klass;
 	Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
 	Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
 	Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
 	
-	
+
 	public Collection<Attribute> getAttributeCollection()
 	{
 		return attributeCollection;
@@ -99,21 +101,6 @@ public class BulkOperationClass
 		this.relationShipType = relationShipType;
 	}
 
-
-	
-	public Boolean getIsOneToManyAssociation()
-	{
-		return isOneToManyAssociation;
-	}
-
-
-	
-	public void setIsOneToManyAssociation(Boolean isOneToManyAssociation)
-	{
-		this.isOneToManyAssociation = isOneToManyAssociation;
-	}
-
-
 	public String getCardinality() {
 		return cardinality;
 	}
@@ -130,6 +117,41 @@ public class BulkOperationClass
 		this.roleName = roleName;
 	}
 	
+	public String getParentRoleName() 
+	{
+		return parentRoleName;
+	}
+	public void setParentRoleName(String parentRoleName) 
+	{
+		this.parentRoleName = parentRoleName;
+	}
+	
+	public Integer getMaxNoOfRecords()
+	{
+		return maxNoOfRecords;
+	}
+	
+	public void setMaxNoOfRecords(Integer maxNoOfRecords)
+	{
+		this.maxNoOfRecords = maxNoOfRecords;
+	}
+	
+	public boolean isUpdateOperation()
+	{
+		boolean isUpdateOperation = false;
+		Collection<Attribute> attributes = getAttributeCollection();
+		Iterator<Attribute> attributeItertor = attributes.iterator();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if(attribute.getUpdateBasedOn())
+			{
+				isUpdateOperation = true;
+			}
+		}
+		return isUpdateOperation;
+	}
+
 	public Class getClassObject() throws BulkOperationException
 	{
 		
@@ -202,12 +224,14 @@ public class BulkOperationClass
 				catch(Exception e2)
 				{
 					e2.printStackTrace();
+					throw new BulkOperationException(e.getMessage(),e);
 				}
 				
 			}
 			catch(Exception e4)
 			{
 				e4.printStackTrace();
+				throw new BulkOperationException(e.getMessage(),e);
 			}
 		}
 		catch (Exception e)
@@ -245,4 +269,3 @@ public class BulkOperationClass
 		}
 	}
 }
-
