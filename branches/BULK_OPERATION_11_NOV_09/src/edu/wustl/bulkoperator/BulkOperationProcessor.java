@@ -2,109 +2,49 @@
 package edu.wustl.bulkoperator;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 import edu.wustl.bulkoperator.appservice.MigrationAppService;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
-import edu.wustl.catissuecore.client.CaCoreAppServicesDelegator;
-import edu.wustl.catissuecore.util.global.AppUtility;
-import edu.wustl.common.util.logger.Logger;
+import edu.wustl.common.jobmanager.JobData;
+import edu.wustl.common.util.global.CommonServiceLocator;
+import edu.wustl.common.util.global.Validator;
 
 public class BulkOperationProcessor
 {
-	/**
-	 * logger Logger - Generic logger.
-	 */
-	private static final Logger logger = Logger.getCommonLogger(BulkOperationProcessor.class);
+
 	MigrationAppService migrationAppService;
 	BulkOperationClass bulkOperationclass = null;
 	ObjectIdentifierMap objectMap;
+	DataList dataList = null;
 	int counter = 0;
-	boolean isSearchObject = false;
+	boolean isUpdateOperation = false;
+	int currentRowIndex = 0;
+	JobData jobData = null;
 
-	public BulkOperationClass getMigration()
-	{
-		return bulkOperationclass;
-	}
-
-	public void setMigration(BulkOperationClass migration, MigrationAppService migrationAppService)
-	{
-		this.bulkOperationclass = migration;
-		this.migrationAppService=migrationAppService;
-	}
-
-	Set<Long> ids = new LinkedHashSet<Long>();
-
-	public Set<Long> getIds()
-	{
-		return ids;
-	}
-
-	public void setIds(Set<Long> ids)
-	{
-		this.ids = ids;
-	}
-
-	public BulkOperationProcessor(BulkOperationClass migration, MigrationAppService migrationAppService)
+	public BulkOperationProcessor(BulkOperationClass migration,
+			MigrationAppService migrationAppService, DataList list, JobData jobData)
 	{
 		this.bulkOperationclass = migration;
 		this.migrationAppService = migrationAppService;
-	}
-	
-	public BulkOperationProcessor()
-	{
-		//default constructor.
+		this.dataList = list;
+		this.jobData = jobData;
+		isUpdateOperation = bulkOperationclass.isUpdateOperation();
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<String[]> readCSVData(String csvFileAbsoluteName) throws BulkOperationException
-	{
-		/*Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-		String fName = migrationInstallProperties.getProperty("csv.file.dir");*/
-		CSVReader reader = null;
- 		List<String[]> list = null;
-		try
-		{
-			reader = new CSVReader(new FileReader(csvFileAbsoluteName));
-			list = reader.readAll();
-			reader.close();
-			logger.info("Records in CSV files : " + (list.size() - 1));
-		}
-		catch (FileNotFoundException exp)
-		{
-			logger.info("CSV File Not Found at the specified path.");
-			throw new BulkOperationException("\nCSV File Not Found at the specified path.", exp);
-		}
-		catch (IOException exp)
-		{
-			logger.info("Error in reading the CSV File.");
-			throw new BulkOperationException("\nError in reading the CSV File.", exp);
-		}		
-		return list;
-	}
-	
 	/**
 	 * 
 	 * @param mainObjectsList
@@ -116,413 +56,93 @@ public class BulkOperationProcessor
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public void startBulkOperation(String csvFileAbsolutePath) throws ClassNotFoundException, SecurityException,
-			NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-			InvocationTargetException, BulkOperationException
+	public void process() throws BulkOperationException
 	{
+		int failureCount = 0;
 		try
-		{	
-			List<String[]> list = readCSVData(csvFileAbsolutePath);
-			int listSize = list.size();
-			if(listSize > 0)
-			{
-				int start = 1;
-				List<String[]> newList = formatColumnNamesInReportFile(list, 0);
-				int newListLength = newList.get(0).length; 
-				int whereConditionCount = checkForAddOrEditTemplateType(bulkOperationclass);
-				while(start < listSize)
-				{
-					int rowDataLength = getStringArraySize(list, start);
-					String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
-					Hashtable<String, String> columnNameHashTable = 
-						createHashTable(list, start);							
-					Object obj = createDomainObject(columnNameHashTable);							
-					try
-					{					
-						if(isSearchObject)
-						{
-							Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
-							processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
-							isSearchObject = false;
-							Object searchedObject = migrationAppService.search(obj);
-							processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
-							isSearchObject = true;
-							migrationAppService.update(searchedObject);
-						}
-						else
-						{
-							processObject(obj, bulkOperationclass, objectMap, columnNameHashTable);						
-							migrationAppService.insert(obj,bulkOperationclass, objectMap);
-						}
-						newRowData[rowDataLength] = "Success";
-					}
-					catch(BulkOperationException exp)
-					{
-						logger.debug(exp.getMessage(), exp);
-						newRowData[rowDataLength] = "Failure";
-						newRowData[rowDataLength + 1] = exp.getMessage();
-						if(whereConditionCount > 0)
-						{
-							isSearchObject = true;
-						}
-					}
-					newList.add(newRowData);
-					start++;
-				}
-				createCSVReportFile(newList, csvFileAbsolutePath);
-			}
-		}
-		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
-			throw new BulkOperationException(exp.getMessage(), exp);
-		}
-	}
-
-	public File startBulkOperationFromUI(List<String[]> list, String operationName,
-			String userName) 
-	throws ClassNotFoundException, SecurityException,
-	NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-	InvocationTargetException, BulkOperationException
-	{
-		File file = null;
-		CaCoreAppServicesDelegator appServicesDelegator =
-			new CaCoreAppServicesDelegator();
-		try
-		{	
-			//List<String[]> list = readCSVData(csvFileAbsolutePath);
-			int listSize = list.size();
-			int start = 1;
-			List<String[]> newList = formatColumnNamesInReportFile(list, 0);
-			int newListLength = newList.get(0).length; 
-			int whereConditionCount =
-				checkForAddOrEditTemplateType(bulkOperationclass);
-			while(start < listSize)
+			for (int i = 0; i < dataList.size(); i++)
 			{
-				//int rowDataLength = getStringArraySize(list, start);
-				String[] newRowData = formatDataColumnsInReportFile(list, start, newListLength);
-				int rowDataLength = newRowData.length; 
-				Hashtable<String, String> columnNameHashTable = 
-					createHashTable(list, start);						
-				Object obj = createDomainObject(columnNameHashTable);							
 				try
-				{					
-					if(isSearchObject)
+				{
+					Hashtable<String, String> valueTable = dataList.getValue(i);
+					currentRowIndex = i;
+
+					if (isUpdateOperation)
 					{
-						Collection<Attribute> attributes = bulkOperationclass.getAttributeCollection();
-						//processAttributes(obj, bulkOperationclass, attributes, null, columnNameHashTable);
-						String hql = populateObjectToSearch(obj, bulkOperationclass, attributes,
-								columnNameHashTable, whereConditionCount);
-						isSearchObject = false;
-						List objectList = AppUtility.executeQuery(hql);
-						//Object searchedObject = migrationAppService.search(obj);
-						Object searchedObject = objectList.get(0);
-						if(searchedObject == null)
-						{
-							throw new Exception("bulk.object.not.found");
-						}
-						else
-						{
-							processObject(searchedObject, bulkOperationclass, objectMap, columnNameHashTable);
-							isSearchObject = true;
-							appServicesDelegator.delegateEdit(userName, searchedObject);
-						}
+						String hql = BulkOperationUtility.createHQL(bulkOperationclass, dataList
+								.getValue(currentRowIndex));
+						Object searchedObject = migrationAppService.search(hql);
+						processObject(searchedObject, bulkOperationclass, "");
+						migrationAppService.update(searchedObject);
 					}
 					else
 					{
-						processObject(obj, bulkOperationclass, objectMap, columnNameHashTable);						
-						appServicesDelegator.delegateAdd(userName, obj);
+						Object domainObject = bulkOperationclass.getNewInstance();
+						processObject(domainObject, bulkOperationclass, "");
+						migrationAppService.insert(domainObject, bulkOperationclass, objectMap);
 					}
-					newRowData[rowDataLength - 2] = "Success";
+					dataList.addStatusMessage(currentRowIndex, "Success", " ");
 				}
-				catch(BulkOperationException e)
+				catch (BulkOperationException exp)
 				{
-					e.printStackTrace();
-					throw new BulkOperationException(e.getMessage());
+					insertReportInDatabase(currentRowIndex, failureCount, JobData.JOB_FAILED_STATUS);
+					throw new BulkOperationException(exp);
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
-					e.printStackTrace();
-					newRowData[rowDataLength - 2] = "Failure";
-					newRowData[rowDataLength - 1] = e.getMessage();
-					if(whereConditionCount > 0)
-					{
-						isSearchObject = true;
-					}
+					dataList.addStatusMessage(currentRowIndex, "Failure", e.getMessage());
+					failureCount++;
 				}
-				newList.add(newRowData);
-				start++;
+				if (currentRowIndex % 10 == 0)
+				{	
+					insertReportInDatabase(i,failureCount, JobData.JOB_IN_PROGRESS_STATUS);
+				}
 			}
-			file = createCSVReportFileForUI(newList, operationName);
+			insertReportInDatabase(dataList.size(),failureCount, JobData.JOB_COMPLETED_STATUS);			
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage());
+			throw new BulkOperationException(e.getMessage(), e);
 		}
-		return file;
-	}
-	
-	private String populateObjectToSearch(Object object, BulkOperationClass
-			bulkOperationclass2, Collection<Attribute> attributes,
-			Hashtable<String, String> columnNameHashTable, int whereConditionCount)
-	{
-		String[] whereCondition = new String[whereConditionCount];
-		Iterator<Attribute> attributeItertor = attributes.iterator();
-		int count = 0;
-		while (attributeItertor.hasNext())
-		{
-			Attribute attribute = attributeItertor.next();
-			if(attribute.getUpdateBasedOn())
-			{
-				String dataType = attribute.getDataType();
-				String name = attribute.getName();
-				String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
-				if(csvData != null && !"".equals(csvData))
-				{
-					if("java.util.Date".equals(dataType) ||
-							"java.lang.String".equals(dataType))
-					{	
-						whereCondition[count] = name + " like '" + csvData + "'";
-					}
-					else
-					{
-						whereCondition[count] = name + " = " + csvData;
-					}
-					count++;
-				}
-			}			
-		}
-		String hql = " from " + bulkOperationclass2.getClassName() + " ";
-		if(count > 0)
-		{
-			hql = hql + " where ";
-		}
-		for(int i = 0; i < whereCondition.length; i++)
-		{
-			if(whereCondition[i].toString() != null && !"".equals(whereCondition[i].toString()))
-			{
-				String where = whereCondition[i];
-				hql = hql + where;
-			}
-			if(i+1 < whereCondition.length)
-			{
-				if(whereCondition[i + 1].toString() != null && !"".equals(whereCondition[i + 1].toString()))
-				{
-					hql = hql + " and ";
-				}
-			}
-		}
-		System.out.println("---------- " + hql + " --------------");
-		return hql;
-	}
-	/**
-	 * @param columnNameHashTable
-	 * @return
-	 * @throws BulkOperationException
-	 * @throws ClassNotFoundException
-	 * @throws NoSuchMethodException
-	 * @throws SecurityException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
-	 */
-	private Object createDomainObject(
-			Hashtable<String, String> columnNameHashTable)
-			throws BulkOperationException, ClassNotFoundException,
-			NoSuchMethodException, SecurityException, InstantiationException,
-			IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException
-	{
-		String objectName = null;
-		if(columnNameHashTable.get("Specimen Class") != null)
-		{
-			objectName = BulkOperationUtility.getSpecimenClassDomainObjectName
-								(columnNameHashTable.get("Specimen Class").trim());
-		}							
-		Class classObj = null;
-		if(objectName == null)
-		{
-			classObj = bulkOperationclass.getClassObject();
-		}
-		else
-		{
-			classObj = Class.forName(objectName);
-		}				
-		Constructor constructor = classObj.getConstructor();
-		Object object = constructor.newInstance(null);
-		return object;
 	}
 
 	/**
-	 * @param list
-	 * @param start
-	 * @return
+	 * @param i
+	 * @throws IOException
 	 */
-	private int getStringArraySize(List<String[]> list, int start)
+	private void insertReportInDatabase(int recordsProcessed, int failureCount, String statusMessage)
+	throws IOException
 	{
-		String[] rowData = list.get(start);
-		int rowDataLength = rowData.length;
-		return rowDataLength;
-	}
-
-	private String[] formatDataColumnsInReportFile(List<String[]> list, int start, int newListLength)
-	{
-		String[] rowData = list.get(start);
-		int rowDataLength = rowData.length;
-		String[] newRowData = null;
-		if(newListLength == 0)
+		BulkOperationUtility utility = new BulkOperationUtility();
+		String commonFileName = bulkOperationclass.getTemplateName() + jobData.getJobID();
+		File file = dataList.createCSVReportFile(commonFileName);
+		String [] fileNames = file.getName().split(".csv");
+		String zipFilePath = CommonServiceLocator.getInstance().getAppHome()
+					+ System.getProperty("file.separator") + fileNames[0];
+		File zipFile = utility.createZip(file, zipFilePath);
+		Timestamp startedTime = jobData.getStartedTime();
+		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+		long timeTaken = 0L;
+		int hours = currentTime.getHours() - startedTime.getHours();
+		if(hours > 0 )
 		{
-			newRowData = new String[rowDataLength + 2];
+			timeTaken = hours * 60 * 60; 
 		}
-		else
+		int minutes = currentTime.getMinutes() - startedTime.getHours();
+		if(minutes > 0)
 		{
-			newRowData = new String[newListLength];
+			timeTaken = timeTaken + (minutes * 60);
 		}
-		for(int i = 0 ; i < rowDataLength; i++)
-		{
-			newRowData[i] = rowData[i];
-		}
-		return newRowData;
-	}
-
-	private List<String[]> formatColumnNamesInReportFile(List<String[]> list, int listIndex)
-	{
-		List<String[]> newList = new ArrayList<String[]>();
-		String[] newColumnName = formatDataColumnsInReportFile(list, listIndex, 0);
-		//String[] newColumnName = list.get(listIndex);
-		int columnNameLength = list.get(listIndex).length;
-		/*String[] newColumnName = new String[columnNameLength + 2];
-		for(int i = 0 ; i < columnNameLength; i++)
-		{
-			newColumnName[i] = columnName[i];
-		}*/
-		newColumnName[columnNameLength] = "Success";
-		newColumnName[columnNameLength + 1] = "Error Message";
-		newList.add(newColumnName);
-		return newList;
-	}
-
-	private int checkForAddOrEditTemplateType(BulkOperationClass migrationClass)
-	{
-		Collection<Attribute> attributes = migrationClass.getAttributeCollection();
-		Iterator<Attribute> attributeItertor = attributes.iterator();
-		int count = 0;
-		while (attributeItertor.hasNext())
-		{
-			Attribute attribute = attributeItertor.next();
-			if(attribute.getUpdateBasedOn())
-			{
-				isSearchObject = true;
-				count++;
-			}
-		}
-		return count;
-	}
-
-	private boolean createCSVReportFile(List<String[]> newList, String csvFileAbsolutePath)
-		throws BulkOperationException
-	{
-		/*Properties migrationInstallProperties = BulkOperationUtility.getMigrationInstallProperties();
-		String fName = migrationInstallProperties.getProperty("csv.file.dir");*/
-		String[] outputFile = csvFileAbsolutePath.split(".csv");
-		String outPutFileName = null; 
-		if(outputFile.length > 0)
-		{
-			outPutFileName = outputFile[0] + "_report.csv"; 
-		}
-		CSVWriter writer = null;
-		boolean flag = false;
-		try
-		{
-			writer = new CSVWriter(new FileWriter(outPutFileName), ',');	
-			for(String[] stringArray : newList)
-			{				
-				writer.writeNext(stringArray);
-			}			
-			writer.close();
-			logger.info("\nPlease refer Output Report at " + outPutFileName);
-			logger.info("\n");
-			flag = true;
-		}
-		catch (FileNotFoundException exp)
-		{
-			logger.info("\n");
-			logger.info("CSV File Not Found at the specified path.");
-			throw new BulkOperationException("\nCSV File Not Found at the specified path.", exp);
-		}
-		catch (IOException exp)
-		{
-			logger.info("\n");
-			logger.info("Error in writing the Result File.");
-			throw new BulkOperationException("\nError in writing the Result File.", exp);
-		}
-		return flag;
-	}
-	
-	private File createCSVReportFileForUI(List<String[]> newList, String operationName)
-	throws BulkOperationException, IOException
-	{
-		String csvFileName = operationName + ".csv"; 
-		CSVWriter writer = null;
-		File csvFile = null;
-		try
-		{
-			csvFile = new File(csvFileName);
-			csvFile.createNewFile();
-			writer = new CSVWriter(new FileWriter(csvFileName), ',');	
-			for(String[] stringArray : newList)
-			{				
-				writer.writeNext(stringArray);
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			throw new BulkOperationException("bulk.error.create.csv.output.file");
-		}
-		finally
-		{
-			writer.close();
-		}
-		return csvFile;
-	}
-
-	public Hashtable<String, String> createHashTable(List<String[]> list, int columnValueIndex)
-	{
-		Hashtable<String, String> hashTable = null;
-		String[] columnNames = list.get(0);
-		if(list.size() > columnValueIndex)
-		{
-			String[] columnValues = list.get(columnValueIndex);
-			int columnValuesLengh = columnValues.length; 
-			if(columnNames.length > 0)
-			{
-				hashTable = new Hashtable<String, String>();
-				for(int i = 0; i < columnNames.length; i++)
-				{				
-					String key = columnNames[i].trim();
-					String value = "";
-					if(i < columnValuesLengh)
-					{
-						value = columnValues[i].trim();
-					}
-					hashTable.put(key, value);
-				}
-			}
-		}
-		else
-		{
-			hashTable = new Hashtable<String, String>();
-			for(int i = 0; i < columnNames.length; i++)
-			{				
-				String key = columnNames[i].trim();
-				String value = "";
-				hashTable.put(key, value);
-			}
-		}
-		return hashTable;
+		int seconds = currentTime.getMinutes() - startedTime.getHours();
+		timeTaken = timeTaken + seconds;
+		Object[] keys = {JobData.LOG_FILE_KEY,
+				JobData.NO_OF_RECORDS_PROCESSED_KEY, JobData.NO_OF_FAILED_RECORDS_KEY,
+				JobData.TIME_TAKEN_KEY, JobData.NO_OF_TOTAL_RECORDS_KEY, JobData.LOG_FILE_NAME_KEY};
+		Object[] values = {zipFile, recordsProcessed, failureCount, timeTaken, dataList.size(), zipFile.getName()};
+		jobData.updateJobStatus(keys, values, statusMessage);
+		zipFile.delete();
 	}
 
 	/**
@@ -541,33 +161,27 @@ public class BulkOperationProcessor
 	 * @throws IllegalArgumentException 
 	 * @throws ClassNotFoundException 
 	 */
-	public void processObject(Object mainObj, BulkOperationClass migrationClass,ObjectIdentifierMap objectMap,
-			Hashtable<String, String> columnNameHashTable)
-			throws BulkOperationException, InstantiationException, IllegalAccessException,
-			SecurityException, NoSuchMethodException, IllegalArgumentException,
-			InvocationTargetException, ClassNotFoundException
+	public void processObject(Object mainObj, BulkOperationClass migrationClass, String columnSuffix)
+			throws BulkOperationException
 	{
-		if (migrationClass.getContainmentAssociationCollection() != null
-				&& !migrationClass.getContainmentAssociationCollection().isEmpty())
-		{
-			Collection<BulkOperationClass> containmentMigrationClassList = migrationClass
-					.getContainmentAssociationCollection();
-			processContainments(mainObj, migrationClass, containmentMigrationClassList,objectMap, columnNameHashTable);
-		}		
-		if (migrationClass.getReferenceAssociationCollection() != null
-				&& !migrationClass.getReferenceAssociationCollection().isEmpty())
-		{
-			Collection<BulkOperationClass> associations = migrationClass
-					.getReferenceAssociationCollection();
-			processAssociations(mainObj, migrationClass, associations, columnNameHashTable);
-		}		
 		if (migrationClass.getAttributeCollection() != null
 				&& !migrationClass.getAttributeCollection().isEmpty())
 		{
-			Collection<Attribute> attributes = migrationClass
-					.getAttributeCollection();
-			processAttributes(mainObj, migrationClass, attributes, null, columnNameHashTable);
-		}				
+			processAttributes(mainObj, migrationClass, columnSuffix);
+		}
+
+		if (migrationClass.getContainmentAssociationCollection() != null
+				&& !migrationClass.getContainmentAssociationCollection().isEmpty())
+		{
+			processContainments(mainObj, migrationClass, columnSuffix);
+		}
+
+		if (migrationClass.getReferenceAssociationCollection() != null
+				&& !migrationClass.getReferenceAssociationCollection().isEmpty())
+		{
+			processAssociations(mainObj, migrationClass, columnSuffix);
+		}
+
 	}
 
 	/**
@@ -588,182 +202,78 @@ public class BulkOperationProcessor
 	 * @throws ClassNotFoundException 
 	 */
 	private void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
-			Collection<BulkOperationClass> containmentMigrationClassList,
-			ObjectIdentifierMap mainObjectIdentifierMap, 
-			Hashtable<String, String> columnNameHashTable) throws BulkOperationException,
-			InstantiationException, IllegalAccessException, SecurityException,
-			NoSuchMethodException, IllegalArgumentException, InvocationTargetException,
-			ClassNotFoundException
+			String columnSuffix) throws BulkOperationException
 	{
 
-		Iterator<BulkOperationClass> containmentItert = containmentMigrationClassList.iterator();
-		while (containmentItert.hasNext())
+		try
 		{
-			BulkOperationClass containmentMigrationClass = containmentItert.next();
-			String cardinality = containmentMigrationClass.getCardinality();
-			if (cardinality != null && cardinality.equals("*") && cardinality != "")
+			Iterator<BulkOperationClass> containmentItert = mainMigrationClass
+					.getContainmentAssociationCollection().iterator();
+			while (containmentItert.hasNext())
 			{
-				Collection containmentObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
-						containmentMigrationClass.getRoleName(), null, mainObj, null);
-				if(containmentObjectCollection != null)
+				BulkOperationClass containmentMigrationClass = containmentItert.next();
+				String cardinality = containmentMigrationClass.getCardinality();
+				if (cardinality != null && cardinality.equals("*") && cardinality != "")
 				{
-					List sortedList = new ArrayList(containmentObjectCollection); 
-					Collections.sort(sortedList, new SortObject());
+					Collection containmentObjectCollection = (Collection) mainMigrationClass
+							.invokeGetterMethod(containmentMigrationClass.getRoleName(), null,
+									mainObj, null);
+					if (containmentObjectCollection == null)
+					{
+						containmentObjectCollection = new LinkedHashSet();
+					}
+					List sortedList = new ArrayList(containmentObjectCollection);
+					//Collections.sort(sortedList, new SortObject());
 					containmentObjectCollection = new LinkedHashSet(sortedList);
-				}
-				//added for participant race
-				Collection<Object> newContainmentObjectCollection = new LinkedHashSet<Object>();
-				//create a containment obj and populate data in it from CSV and then add 
-				//it to NewContainmentCollection
-				if (containmentObjectCollection == null)
-				{
-					//
-				}
-				else
-				{
-					if(containmentObjectCollection.isEmpty())
+					//added for participant race
+					//Collection<Object> newContainmentObjectCollection = new LinkedHashSet<Object>();
+					//create a containment obj and populate data in it from CSV and then add 
+					//it to NewContainmentCollection
+					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						Collection<BulkOperationClass> innerContainmentMigrationClassList = containmentMigrationClass
-									.getContainmentAssociationCollection();
-						if(!innerContainmentMigrationClassList.isEmpty() ||
-									innerContainmentMigrationClassList != null)
+						List<String> attributeList = BulkOperationUtility.getAttributeList(
+								containmentMigrationClass, "#" + i);
+						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+								attributeList))
 						{
-							Collection<BulkOperationClass> associations = containmentMigrationClass.
-									getReferenceAssociationCollection();
-							for(BulkOperationClass migrationClass : associations)
+							Object containmentObject = containmentMigrationClass.getNewInstance();
+							processObject(containmentObject, containmentMigrationClass, "#" + i);
+							containmentObjectCollection.add(containmentObject);
+							String roleName = containmentMigrationClass.getParentRoleName();
+							if (!Validator.isEmpty(roleName))
 							{
-								Class innerObj = migrationClass.getClassObject();
-								Constructor con = innerObj.getConstructor(null);
-								Object innerObect = con.newInstance(null);
-								
-								processObject(innerObect, migrationClass, null,
-										columnNameHashTable);
-								String roleName = containmentMigrationClass.getRoleName();
-								mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
-										mainObj, innerObect);
+								containmentMigrationClass.invokeSetterMethod(roleName,
+										new Class[]{mainObj.getClass()},
+										containmentObject, mainObj);
 							}
-
-							for(BulkOperationClass migrationClass : innerContainmentMigrationClassList)
-							{
-								Class innerObj = migrationClass.getClassObject();
-								Constructor con = innerObj.getConstructor(null);
-								Object innerObect = con.newInstance(null);
-								
-								processObject(innerObect, migrationClass, null,
-										columnNameHashTable);
-								if(mainMigrationClass.getIsOneToManyAssociation())
-								{
-									String roleName = mainMigrationClass.getRoleName();
-									migrationClass.invokeSetterMethod(roleName, 
-									new Class[]{mainObj.getClass()},innerObect, 
-									mainObj);
-								}
-								containmentObjectCollection.add(innerObect);
-							}
-							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
-									mainObj, containmentObjectCollection);
-						}
-						Collection<BulkOperationClass> associations = containmentMigrationClass.
-								getReferenceAssociationCollection();
-						for(BulkOperationClass migrationClass : associations)
-						{
-							Class innerObj = migrationClass.getClassObject();
-							Constructor con = innerObj.getConstructor(null);
-							Object innerObect = con.newInstance(null);
-							
-							processObject(innerObect, migrationClass, null,
-									columnNameHashTable);
-							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
-									mainObj, innerObect);							
-						}						
-					}
-					else
-					{
-						Collection<BulkOperationClass> innerContainmentMigrationClassList = containmentMigrationClass
-									.getContainmentAssociationCollection();
-						if(!innerContainmentMigrationClassList.isEmpty() ||
-									innerContainmentMigrationClassList != null)
-						{
-							Collection<BulkOperationClass> associations = containmentMigrationClass.
-									getReferenceAssociationCollection();
-							for(BulkOperationClass migrationClass : associations)
-							{
-								Class innerObj = migrationClass.getClassObject();
-								Constructor con = innerObj.getConstructor(null);
-								Object innerObect = con.newInstance(null);
-								
-								processObject(innerObect, migrationClass, null,
-										columnNameHashTable);
-								String roleName = containmentMigrationClass.getRoleName();
-								mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
-										mainObj, innerObect);
-							}
-
-							for(BulkOperationClass migrationClass : innerContainmentMigrationClassList)
-							{
-								Class innerObj = migrationClass.getClassObject();
-								Constructor con = innerObj.getConstructor(null);
-								Object innerObect = con.newInstance(null);
-								
-								processObject(innerObect, migrationClass, null,
-										columnNameHashTable);
-								if(mainMigrationClass.getIsOneToManyAssociation())
-								{
-									String roleName = mainMigrationClass.getRoleName();
-									migrationClass.invokeSetterMethod(roleName, 
-									new Class[]{mainObj.getClass()},innerObect, 
-									mainObj);
-								}
-								containmentObjectCollection.add(innerObect);
-							}
-							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
-									mainObj, containmentObjectCollection);
-						}
-						Collection<BulkOperationClass> associations = containmentMigrationClass.
-								getReferenceAssociationCollection();
-						for(BulkOperationClass migrationClass : associations)
-						{
-							Class innerObj = migrationClass.getClassObject();
-							Constructor con = innerObj.getConstructor(null);
-							Object innerObect = con.newInstance(null);
-							
-							processObject(innerObect, migrationClass, null,
-									columnNameHashTable);
-							String roleName = containmentMigrationClass.getRoleName();
-							mainMigrationClass.invokeSetterMethod(roleName, new Class[]{innerObj},
-									mainObj, innerObect);
 						}
 					}
-				}
-			}
-			else if (cardinality != null && cardinality.equals("1") && cardinality != "")
-			{
-				Object containmentObject = mainMigrationClass.invokeGetterMethod(
-						containmentMigrationClass.getRoleName(), null, mainObj, null);
-				if (containmentObject != null)
-				{
-					processObject(containmentObject, containmentMigrationClass,null,
-								columnNameHashTable);
-					String roleName = containmentMigrationClass.getRoleName();				
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject.getClass()},
-							mainObj, containmentObject);
-				}
-				else
-				{
-					Class test = containmentMigrationClass.getClassObject();					
-					Constructor constructor = test.getConstructor(null);					
-					containmentObject = constructor.newInstance();					
-					processObject(containmentObject, containmentMigrationClass,null,
-							columnNameHashTable);					
 					String roleName = containmentMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, 
-							new Class[]{containmentObject.getClass()}, 
-							mainObj, containmentObject);					
+					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
+							mainObj, containmentObjectCollection);
+				}
+				else if (cardinality != null && cardinality.equals("1") && cardinality != "")
+				{
+					Object containmentObject = mainMigrationClass.invokeGetterMethod(
+							containmentMigrationClass.getRoleName(), null, mainObj, null);
+					if (containmentObject == null)
+					{
+						Class klass = containmentMigrationClass.getClassObject();
+						Constructor constructor = klass.getConstructor(null);
+						containmentObject = constructor.newInstance();
+					}
+					processObject(containmentObject, containmentMigrationClass, columnSuffix);
+					String roleName = containmentMigrationClass.getRoleName();
+					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject
+							.getClass()}, mainObj, containmentObject);
 				}
 			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new BulkOperationException(e.getMessage(), e);
 		}
 	}
 
@@ -784,63 +294,64 @@ public class BulkOperationProcessor
 	 * @throws InstantiationException
 	 */
 	private void processAssociations(Object mainObj, BulkOperationClass mainMigrationClass,
-			Collection<BulkOperationClass> associationsMigrationClassList,
-			Hashtable<String, String> columnNameHashTable)
-			throws BulkOperationException, ClassNotFoundException, NoSuchMethodException,
-			SecurityException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException
+			String columnSuffix) throws BulkOperationException
 	{
-		Iterator<BulkOperationClass> associationItert = associationsMigrationClassList.iterator();
-		while (associationItert.hasNext())
+		try
 		{
-			// the associated object to the main object
-			BulkOperationClass associationMigrationClass = associationItert.next();
-			//the function name related to the associated object used in the main object
-			String cardinality = associationMigrationClass.getCardinality();
-			//Class<?> associatedClass = Class.forName(associationMigrationClass.getClassName());
-			if (cardinality != null && cardinality.equals("*") && cardinality != ""
-					&& mainObj != null)
+			Iterator<BulkOperationClass> associationItert = mainMigrationClass
+					.getReferenceAssociationCollection().iterator();
+			while (associationItert.hasNext())
 			{
-				Collection<Object> newAssociationCollection = new LinkedHashSet<Object>();
-				Collection associationObjectCollection = (Collection) mainMigrationClass.invokeGetterMethod(
-						associationMigrationClass.getRoleName(), null, mainObj, null);				
-				//getterForAssociation.invoke(mainObj, null);
-				if (associationObjectCollection != null)
+				// the associated object to the main object
+				BulkOperationClass associationMigrationClass = associationItert.next();
+				//the function name related to the associated object used in the main object
+				String cardinality = associationMigrationClass.getCardinality();
+				//Class<?> associatedClass = Class.forName(associationMigrationClass.getClassName());
+				if (cardinality != null && cardinality.equals("*") && cardinality != ""
+						&& mainObj != null)
 				{
-					String roleName = associationMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
-							mainObj, newAssociationCollection);
+					Collection<Object> newAssociationCollection = new LinkedHashSet<Object>();
+					Collection associationObjectCollection = (Collection) mainMigrationClass
+							.invokeGetterMethod(associationMigrationClass.getRoleName(), null,
+									mainObj, null);
+					//getterForAssociation.invoke(mainObj, null);
+					if (associationObjectCollection == null)
+					{
+						associationObjectCollection = newAssociationCollection;
+					}
+					if (associationObjectCollection != null)
+					{
+						String roleName = associationMigrationClass.getRoleName();
+						mainMigrationClass.invokeSetterMethod(roleName,
+								new Class[]{Collection.class}, mainObj, newAssociationCollection);
+					}
 				}
-			}
-			else if (cardinality != null && cardinality.equals("1") && cardinality != "")
-			{
-				Object associatedObject = mainMigrationClass.invokeGetterMethod(
-						associationMigrationClass.getRoleName(), null, mainObj, null);
-				Object newAssociatedObject = null;
-				if (associatedObject != null)
+				else if (cardinality != null && cardinality.equals("1") && cardinality != "")
 				{
-					newAssociatedObject = associationMigrationClass.getNewInstance();
-					Collection<Attribute> attributes = associationMigrationClass.getAttributeCollection();
+					Object associatedObject = mainMigrationClass.invokeGetterMethod(
+							associationMigrationClass.getRoleName(), null, mainObj, null);
+
+					if (associatedObject == null)
+					{
+						associatedObject = associationMigrationClass.getNewInstance();
+					}
+					Collection<Attribute> attributes = associationMigrationClass
+							.getAttributeCollection();
 					//added for setting the old values to the object
-					processAttributes(associatedObject, associationMigrationClass, 
-							attributes, newAssociatedObject, columnNameHashTable);
+					processObject(associatedObject, associationMigrationClass, columnSuffix);
 					String roleName = associationMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject.getClass()},mainObj, associatedObject);
-				}
-				else
-				{
-					Class test = associationMigrationClass.getClassObject();					
-					Constructor constructor = test.getConstructor(null);					
-					associatedObject = constructor.newInstance(null);
-					Collection<Attribute> attributes = associationMigrationClass.getAttributeCollection();
-					processAttributes(associatedObject, associationMigrationClass, 
-							attributes, newAssociatedObject, columnNameHashTable);					
-					String roleName = associationMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject.getClass()},mainObj, associatedObject);
+					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject
+							.getClass()}, mainObj, associatedObject);
 				}
 			}
 		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new BulkOperationException(e.getMessage(), e);
+		}
 	}
+
 	/**
 	 * 
 	 * @param mainObj
@@ -849,100 +360,42 @@ public class BulkOperationProcessor
 	 * @throws BulkOperationException
 	 */
 	private void processAttributes(Object mainObj, BulkOperationClass mainMigrationClass,
-			Collection<Attribute> attributes, Object oldObject,
-			Hashtable<String, String> columnNameHashTable) throws ClassNotFoundException,
-			NoSuchMethodException, SecurityException, InstantiationException,
-			IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, BulkOperationException
+			String columnSuffix) throws BulkOperationException
 	{
-		Iterator<Attribute> attributeItertor = attributes.iterator();
-		while (attributeItertor.hasNext())
+		try
 		{
-			Attribute attribute = attributeItertor.next();
-			if(isSearchObject && attribute.getUpdateBasedOn())
+			Iterator<Attribute> attributeItertor = mainMigrationClass.getAttributeCollection()
+					.iterator();
+			Hashtable<String, String> valueTable = dataList.getValue(currentRowIndex);
+			while (attributeItertor.hasNext())
 			{
-				processNewAtrributes(mainObj, mainMigrationClass,
-						columnNameHashTable, attribute);
-			}
-			else if(!isSearchObject)
-			{
-				processNewAtrributes(mainObj, mainMigrationClass,
-						columnNameHashTable, attribute);
-			}
-		}
-	}
-
-	private void processNewAtrributes(Object mainObj,
-			BulkOperationClass mainMigrationClass,
-			Hashtable<String, String> columnNameHashTable, Attribute attribute)
-			throws ClassNotFoundException, NoSuchMethodException,
-			SecurityException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException,
-			BulkOperationException
-	{
-		if(attribute.getDataType() != null && !"".equals(attribute.getDataType()))
-		{
-			Class dataTypeClass = Class.forName(attribute.getDataType());
-			Constructor constructor = null;
-			if(attribute.getCsvColumnName() != null && !"".equals(attribute.getCsvColumnName()))
-			{
-				if(columnNameHashTable.containsKey(attribute.getCsvColumnName()))
+				Attribute attribute = attributeItertor.next();
+				if (attribute.getDataType() != null && !"".equals(attribute.getDataType()))
 				{
-					String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
-					//System.out.println(attribute.getCsvColumnName() + " : " + csvData + " --> ");
-					if(csvData != null && !"".equals(csvData))
+					Class dataTypeClass = Class.forName(attribute.getDataType());
+					if (!Validator.isEmpty(attribute.getCsvColumnName() + columnSuffix))
 					{
-						if("java.lang.Integer".equals(attribute.getDataType()) ||
-								"java.lang.Double".equals(attribute.getDataType()) ||
-									"java.lang.Boolean".equals(attribute.getDataType()) ||
-										"java.lang.Long".equals(attribute.getDataType()) ||
-											"java.util.Date".equals(attribute.getDataType()))
+						if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
+								+ columnSuffix)))
 						{
-							constructor = dataTypeClass.getConstructor(Class.forName("java.lang.String"));
-						}				
-						else
-						{
-							constructor = dataTypeClass.getConstructor(dataTypeClass);
-						}			
-						Object setObject = constructor.newInstance(csvData);
-						Object attributeObject = null;
-						if(mainObj != null)
-						{
-							attributeObject = mainMigrationClass.invokeGetterMethod(attribute.getName(),
-									null, mainObj, null);
-							if(csvData != null && !"".equals(csvData))
-							{
-								mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{dataTypeClass}, 
-										mainObj, setObject);
-							}			
+							String csvData = valueTable.get(attribute.getCsvColumnName()
+									+ columnSuffix);
+							Object attributeValue = attribute.getValueOfDataType(csvData);
+							mainMigrationClass.invokeSetterMethod(attribute.getName(),
+									new Class[]{dataTypeClass}, mainObj, attributeValue);
 						}
 					}
 					else
 					{
-						Object setObject = mainMigrationClass.invokeGetterMethod(attribute.getName(), null, mainObj, null);
-						if(setObject != null)
-						{
-							mainMigrationClass.invokeSetterMethod(attribute.getName(), new Class[]{setObject.getClass()}, mainObj, setObject);
-						}
+						throw new BulkOperationException("bulk.error.csv.column.name.change");
 					}
 				}
-				else
-				{
-					logger.info("Column name in CSV template is changed.");
-					throw new BulkOperationException("bulk.error.csv.column.name.change");
-				}
-			}
-			else
-			{
-				logger.info("Column name is not specified for a attribute in bulk operation meta data.");
-				throw new BulkOperationException("bulk.error.incorrect.csv.column.name"); 
-						
 			}
 		}
-		else
+		catch (Exception e)
 		{
-			logger.info("DataType specified for the Attribute in bulk operation meta data  not specified.");
-			throw new BulkOperationException("bulk.error.incorrect.xml.attribute.datatype");
+			e.printStackTrace();
+			throw new BulkOperationException(e.getMessage(), e);
 		}
 	}
 }
