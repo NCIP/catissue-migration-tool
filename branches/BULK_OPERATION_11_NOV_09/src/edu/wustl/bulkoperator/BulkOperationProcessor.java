@@ -73,8 +73,15 @@ public class BulkOperationProcessor
 						String hql = BulkOperationUtility.createHQL(bulkOperationclass, dataList
 								.getValue(currentRowIndex));
 						Object searchedObject = migrationAppService.search(hql);
-						processObject(searchedObject, bulkOperationclass, "");
-						migrationAppService.update(searchedObject);
+						if(searchedObject == null)
+						{
+							throw new Exception("Object not found in database.");
+						}
+						else
+						{
+							processObject(searchedObject, bulkOperationclass, "");
+							migrationAppService.update(searchedObject);
+						}
 					}
 					else
 					{
