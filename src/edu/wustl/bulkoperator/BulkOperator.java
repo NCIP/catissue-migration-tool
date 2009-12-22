@@ -6,20 +6,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.Set;
 
 import org.xml.sax.InputSource;
 
 import edu.wustl.bulkoperator.appservice.MigrationAppService;
+import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.MigrationConstants;
-import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.exception.ApplicationException;
-import edu.wustl.common.jobmanager.JobData;
 import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;

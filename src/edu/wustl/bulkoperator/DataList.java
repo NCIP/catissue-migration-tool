@@ -121,6 +121,7 @@ public class DataList
 		}
 		line.deleteCharAt(line.length()-1);
 		writer.write(line.toString());
+		line.append("\n");
 		for(int i=0;i<valueListSize;i++)
 		{
 			line.setLength(0);
@@ -133,7 +134,6 @@ public class DataList
 			//line.append(valueTable.get(STATUS_KEY + ","));
 			//line.append(valueTable.get(MESSAGE_KEY + ","));
 			line.deleteCharAt(line.length()-1);
-			
 			line.append("\n");
 			writer.write(line.toString());
 		}
