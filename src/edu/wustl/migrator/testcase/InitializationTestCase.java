@@ -1,7 +1,5 @@
 
 package edu.wustl.migrator.testcase;
-import java.io.File;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.Reference;
@@ -17,12 +15,6 @@ import org.junit.Test;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import edu.wustl.catissuecore.util.global.Constants;
-import edu.wustl.catissuecore.util.global.Variables;
-import edu.wustl.catissuecore.util.listener.CatissueCoreServletContextListener;
-import edu.wustl.common.util.XMLPropertyHandler;
-import edu.wustl.common.util.dbManager.DBUtil;
-import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.logger.Logger;
 
 /**
@@ -87,7 +79,7 @@ public class InitializationTestCase extends CaTissueSuiteBaseTest
 	{
 		try
 		{
-			Logger.configure("");
+			//Logger.configure("");
 			// Create a Properties object and set properties appropriately
 			System.setProperty("java.naming.factory.initial", NamingContextFactory.class.getName());
 			System.setProperty("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
@@ -129,43 +121,43 @@ public class InitializationTestCase extends CaTissueSuiteBaseTest
 	{
 			try
 			{
-				Variables.applicationHome = ".";
-
-				initCaTissueSuite();
-
-				//System.setProperties(props);
-				System.setProperty("gov.nih.nci.security.configFile",
-						Variables.applicationHome+"/CaTissue_TestCases/ApplicationSecurityConfig.xml");
-				System.setProperty("app.propertiesFile",
-						Variables.applicationHome+"/catissuecore-properties/caTissueCore_Properties.xml");
-				System.setProperty("java.security.auth.login.config",
-						Variables.applicationHome+"/CaTissue_TestCases/test_login.conf");
-				if (!initComplete)
-				{
-					initComplete = true;
-
-					Class.forName(DBUtil.class.getName());
-
-					CatissueCoreServletContextListener init =
-						new CatissueCoreServletContextListener();
-					ApplicationProperties.initBundle("ApplicationResources");
-					String path = System.getProperty("app.propertiesFile");
-			    	XMLPropertyHandler.init(path);
-			    	File propetiesDirPath = new File(path);
-			    	Variables.propertiesDirPath = propetiesDirPath.getParent();
-			    	if (Variables.propertiesDirPath.startsWith("file:\\"))
-			    	{
-			    		int beginIndex = "file:\\".length();
-			    		Variables.propertiesDirPath=
-			    			Variables.propertiesDirPath.substring(beginIndex);
-			    	}
-			    	Variables.applicationName = ApplicationProperties.getValue("app.name");
-			        Variables.applicationVersion = ApplicationProperties.getValue("app.version");
-					int maximumTreeNodeLimit = Integer.parseInt(XMLPropertyHandler.getValue
-							(Constants.MAXIMUM_TREE_NODE_LIMIT));
-					Variables.maximumTreeNodeLimit = maximumTreeNodeLimit;
-					init.initCatissueParams();
-				}
+//				Variables.applicationHome = ".";
+//
+//				initCaTissueSuite();
+//
+//				//System.setProperties(props);
+//				System.setProperty("gov.nih.nci.security.configFile",
+//						Variables.applicationHome+"/CaTissue_TestCases/ApplicationSecurityConfig.xml");
+//				System.setProperty("app.propertiesFile",
+//						Variables.applicationHome+"/catissuecore-properties/caTissueCore_Properties.xml");
+//				System.setProperty("java.security.auth.login.config",
+//						Variables.applicationHome+"/CaTissue_TestCases/test_login.conf");
+//				if (!initComplete)
+//				{
+//					initComplete = true;
+//
+//					Class.forName(DBUtil.class.getName());
+//
+//					CatissueCoreServletContextListener init =
+//						new CatissueCoreServletContextListener();
+//					ApplicationProperties.initBundle("ApplicationResources");
+//					String path = System.getProperty("app.propertiesFile");
+//			    	XMLPropertyHandler.init(path);
+//			    	File propetiesDirPath = new File(path);
+//			    	Variables.propertiesDirPath = propetiesDirPath.getParent();
+//			    	if (Variables.propertiesDirPath.startsWith("file:\\"))
+//			    	{
+//			    		int beginIndex = "file:\\".length();
+//			    		Variables.propertiesDirPath=
+//			    			Variables.propertiesDirPath.substring(beginIndex);
+//			    	}
+//			    	Variables.applicationName = ApplicationProperties.getValue("app.name");
+//			        Variables.applicationVersion = ApplicationProperties.getValue("app.version");
+//					int maximumTreeNodeLimit = Integer.parseInt(XMLPropertyHandler.getValue
+//							(Constants.MAXIMUM_TREE_NODE_LIMIT));
+//					Variables.maximumTreeNodeLimit = maximumTreeNodeLimit;
+//					init.initCatissueParams();
+//				}
 			}
 			catch(Exception ex)
 			{
