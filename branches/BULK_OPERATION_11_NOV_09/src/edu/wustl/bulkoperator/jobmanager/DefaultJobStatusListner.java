@@ -86,6 +86,7 @@ public class DefaultJobStatusListner implements JobStatusListener
 		jobDetails.setJobName(jobData.getJobName());
 		jobDetails.setJobStartedBy(Long.valueOf(jobData.getJobStartedBy()));
 		jobDetails.setStatus(jobData.getJobStatus());
+		jobDetails.setStartTime(jobData.getStartedTime());
 		final Object fileObj = jobData.getJobStatusEntry().get(JobData.LOG_FILE_KEY);
 		jobDetails.setCurrentRecordsProcessed(Long.valueOf(jobData.getJobStatusEntryValue(
 				JobData.NO_OF_RECORDS_PROCESSED_KEY).toString()));
