@@ -14,12 +14,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 import edu.wustl.bulkoperator.appservice.MigrationAppService;
+import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
-import edu.wustl.common.jobmanager.JobData;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Validator;
 

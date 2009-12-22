@@ -1,5 +1,5 @@
 
-package edu.wustl.common.jobmanager;
+package edu.wustl.bulkoperator.jobmanager;
 
 import java.sql.Blob;
 import java.sql.Timestamp;
