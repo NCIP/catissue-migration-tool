@@ -96,9 +96,9 @@ public class BulkOperationProcessor
 					insertReportInDatabase(currentRowIndex, failureCount, JobData.JOB_FAILED_STATUS);
 					throw new BulkOperationException(exp);
 				}
-				catch (Exception e)
+				catch (Exception exp)
 				{
-					dataList.addStatusMessage(currentRowIndex, "Failure", e.getMessage());
+					dataList.addStatusMessage(currentRowIndex, "Failure", exp.getMessage());
 					failureCount++;
 				}
 				if (currentRowIndex % 10 == 0)
@@ -108,10 +108,10 @@ public class BulkOperationProcessor
 			}
 			insertReportInDatabase(dataList.size(),failureCount, JobData.JOB_COMPLETED_STATUS);			
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			exp.printStackTrace();
+			throw new BulkOperationException(exp.getMessage(), exp);
 		}
 	}
 
