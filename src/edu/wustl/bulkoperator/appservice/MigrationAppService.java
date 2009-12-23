@@ -57,60 +57,51 @@ public abstract class MigrationAppService
 			throws BulkOperationException;
 
 	public void insert(Object obj, BulkOperationClass migration,
-			ObjectIdentifierMap objectIdentifierMap) throws BulkOperationException
+			ObjectIdentifierMap objectIdentifierMap) throws Exception
 	{
 		try
 		{
-			//SandBoxDao.getCurrentSession().clear();
 			Object newObj = insertObject(obj);
-			//objectIdentifierMap.setNewId((Long)migration.invokeGetIdMethod(newObj));
-			//MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(newObj, migration, objectIdentifierMap);
 		}
 		catch (Exception appExp)
 		{
-			throw new BulkOperationException(appExp.getMessage(), appExp);
+			throw new Exception(appExp.getMessage(), appExp);
 		}
 	}
 
-	public Object search(Object obj) throws BulkOperationException
+	public Object search(Object obj) throws Exception
 	{
 		Object newObj = null;
 		try
 		{
-			//SandBoxDao.getCurrentSession().clear();
 			newObj = searchObject(obj);
-			//objectIdentifierMap.setNewId((Long)migration.invokeGetIdMethod(newObj));
-			//MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(newObj, migration, objectIdentifierMap);
 		}
 		catch (Exception appExp)
 		{
-			throw new BulkOperationException(appExp.getMessage(), appExp);
+			throw new Exception(appExp.getMessage(), appExp);
 		}
 		return newObj;
 	}
 
-	public Object update(Object obj) throws BulkOperationException
+	public Object update(Object obj) throws Exception
 	{
 		Object newObj = null;
 		try
 		{
-			//SandBoxDao.getCurrentSession().clear();
 			newObj = updateObject(obj);
-			//objectIdentifierMap.setNewId((Long)migration.invokeGetIdMethod(newObj));
-			//MigrationObjectStatusHandler.getInstance().handleSuccessfullyMigratedObject(newObj, migration, objectIdentifierMap);
 		}
 		catch (Exception appExp)
 		{
-			throw new BulkOperationException(appExp.getMessage(), appExp);
+			throw new Exception(appExp.getMessage(), appExp);
 		}
 		return newObj;
 	}
 
-	abstract protected Object insertObject(Object obj) throws BulkOperationException;
+	abstract protected Object insertObject(Object obj) throws Exception;
 
-	abstract public void deleteObject(Object obj) throws BulkOperationException;
+	abstract public void deleteObject(Object obj) throws Exception;
 
-	abstract protected Object updateObject(Object obj) throws BulkOperationException;
+	abstract protected Object updateObject(Object obj) throws Exception;
 
-	abstract protected Object searchObject(Object obj) throws BulkOperationException;
+	abstract protected Object searchObject(Object obj) throws Exception;
 }
