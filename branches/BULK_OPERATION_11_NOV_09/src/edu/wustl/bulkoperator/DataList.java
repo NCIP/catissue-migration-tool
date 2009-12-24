@@ -73,7 +73,7 @@ public class DataList
 		boolean hasValue = false;
 		Hashtable<String,String> valueTable = valueList.get(index);
 		Object value = valueTable.get(headerName);
-		if(value!=null)
+		if(value!=null && !"".equals(value.toString()))
 		{
 			hasValue = true;
 		}

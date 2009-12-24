@@ -82,8 +82,8 @@ public class ImportBulkOperationTemplate
 		{
 //			String operationName = "editSpecimen";
 //			String dropdownName = "Edit Specimen";
-//			String csvFile = "D:/createSpecimen.csv";
-//			String xmlFile = "D:/createSpecimen.xml";
+//			String csvFile = "G:/createSpecimen.csv";
+//			String xmlFile = "G:/createSpecimen.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -134,7 +134,7 @@ public class ImportBulkOperationTemplate
 		try
 		{
 			metaData = new BulkOperationMetadataUtil().unmarshall(xmlFile,
-					"./catissuecore-properties/mapping.xml");;
+					"./catissuecore-properties/mapping.xml");
 		}
 		catch (Exception exp)
 		{
@@ -201,6 +201,10 @@ public class ImportBulkOperationTemplate
 				addTemplate(connection, operationName, dropdownName, csvFileData, xmlFileData);
 			}
 		}
+//		catch (Exception exp)
+//		{
+//			throw new Exception(exp);
+//		}
 		finally
 		{
 			connection.close();
@@ -396,13 +400,13 @@ public class ImportBulkOperationTemplate
 				}
 			}
 		}
-		catch(Exception exp)
-		{
-			logger.debug("Error in database operation. Please the database driver and database " +
-				"properties mentioned in the caTissueInstall.properties file.", exp);
-			throw new BulkOperationException("Error in database operation. Please the database " +
-				"driver and database properties mentioned in the caTissueInstall.properties file.");
-		}
+//		catch(Exception exp)
+//		{
+//			logger.debug("Error in database operation. Please the database driver and database " +
+//				"properties mentioned in the caTissueInstall.properties file.", exp);
+//			throw new BulkOperationException("Error in database operation. Please the database " +
+//				"driver and database properties mentioned in the caTissueInstall.properties file.");
+//		}
 		finally
 		{
 			resultSet.close();

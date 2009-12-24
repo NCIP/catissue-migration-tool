@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,7 +23,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.hibernate.Session;
 
-import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.appservice.CaCoreMigrationAppServiceImpl;
 import edu.wustl.bulkoperator.dao.SandBoxDao;
 import edu.wustl.bulkoperator.metadata.Attribute;
@@ -321,12 +319,13 @@ public class BulkOperationUtility
 		catch (FileNotFoundException fnfException)
 		{
 			logger.debug("caTissueInstall.properties file not found.", fnfException);
-			throw new BulkOperationException("caTissueInstall.properties file not found.");
+			throw new BulkOperationException("caTissueInstall.properties file not found.", fnfException);
 		}
 		catch (IOException ioException)
 		{
 			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
-			throw new BulkOperationException("Error while accessing caTissueInstall.properties file.");
+			throw new BulkOperationException("Error while accessing caTissueInstall.properties file.",
+					ioException);
 		}
 		return props;
 	}

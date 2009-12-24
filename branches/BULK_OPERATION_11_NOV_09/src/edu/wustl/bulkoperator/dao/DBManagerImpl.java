@@ -71,12 +71,22 @@ public class DBManagerImpl
 			logger.debug("Error in creating database connection." +
 					" Please check the database driver.", cnfExp);
 			throw new BulkOperationException("Error in creating database connection." +
-					" Please check the database driver.");
+					" Please check the database driver.", cnfExp);
 		}
 		catch (SQLException sqlExp)
 		{
 			logger.debug("Error in creating database connection.", sqlExp);
-			throw new BulkOperationException("Error in creating database connection.");
+			throw new BulkOperationException("Error in creating database connection.", sqlExp);
+		}
+		catch (Exception exp)
+		{
+			logger.debug("Error in creating database connection." +
+				" Please check the database driver or the caTissueInstall.properties have some " +
+				"missing database properties.", 
+					exp);
+			throw new BulkOperationException("Error in creating database connection." +
+					" Please check the database driver or the caTissueInstall.properties have some " +
+					"missing database properties.", exp);
 		}
 		return connection;
 	}
