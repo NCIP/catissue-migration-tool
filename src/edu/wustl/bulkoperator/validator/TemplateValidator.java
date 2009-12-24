@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.wustl.bulkoperator.BulkOperationProcessor;
 import edu.wustl.bulkoperator.DataList;
 import edu.wustl.bulkoperator.metadata.Attribute;
+import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.util.logger.Logger;
@@ -27,6 +28,7 @@ public class TemplateValidator
 	 */
 	private List<String> errorList = new ArrayList<String>();
 	private int globalRecordsCount = 0;
+	private boolean isDiscriminator = false;
 
 	/**
 	 * Validate Xml And Csv.
@@ -36,8 +38,8 @@ public class TemplateValidator
 	 * @param csvColumnNames Map of String, String.
 	 * @throws Exception Exception.
 	 */
-	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass, String operationName,
-			DataList dataList) throws Exception
+	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass,
+			String operationName, DataList dataList) throws Exception
 	{
 		validateBulkOperationClass(bulkOperationClass, operationName, dataList.getHeaderList(), 0);
 		if (errorList.isEmpty())
@@ -51,7 +53,7 @@ public class TemplateValidator
 		Set<String> errorSet = new HashSet<String>(errorList);
 		return errorSet;
 	}
-	
+
 	/**
 	 * Validate Bulk Operation Main Class..
 	 * @param bulkOperationClass BulkOperationClass
@@ -63,15 +65,15 @@ public class TemplateValidator
 			String operationName, List<String> csvColumnNames, int maxRowNumbers) throws Exception
 	{
 		try
-		{			
+		{
 			bulkOperationClass.getClassObject();
-			if(bulkOperationClass.getMaxNoOfRecords() != null)
+			if (bulkOperationClass.getMaxNoOfRecords() != null)
 			{
-				if(bulkOperationClass.getMaxNoOfRecords() >= 1 &&
-						"*".equals(bulkOperationClass.getCardinality()))
+				if (bulkOperationClass.getMaxNoOfRecords() >= 1
+						&& "*".equals(bulkOperationClass.getCardinality()))
 				{
 					maxRowNumbers = bulkOperationClass.getMaxNoOfRecords();
-					if(globalRecordsCount == 0)
+					if (globalRecordsCount == 0)
 					{
 						globalRecordsCount = maxRowNumbers;
 					}
@@ -92,14 +94,15 @@ public class TemplateValidator
 					+ " for the main XML tag.", exp);
 		}
 		try
-		{			
-			validateXMLTagAttibutes(bulkOperationClass, operationName, csvColumnNames, globalRecordsCount);
-			if(globalRecordsCount !=  0 && maxRowNumbers != 0)
+		{
+			validateXMLTagAttibutes(bulkOperationClass, operationName, csvColumnNames,
+					globalRecordsCount);
+			if (globalRecordsCount != 0 && maxRowNumbers != 0)
 			{
-				for(int i = globalRecordsCount; i >= 1; i--)
+				for (int i = globalRecordsCount; i >= 1; i--)
 				{
 					validateAssociations(bulkOperationClass, operationName, csvColumnNames, i);
-				}	
+				}
 			}
 			else
 			{
@@ -113,15 +116,13 @@ public class TemplateValidator
 		}
 	}
 
-	
-
 	/**
 	 * Validate XML Tag Attributes.
 	 * @param bulkOperationClass BulkOperationClass.
 	 * @param operationName String.
 	 */
 	private void validateXMLTagAttibutes(BulkOperationClass bulkOperationClass,
-			String operationName,  List<String> csvColumnNames, int maxRowNumbers)
+			String operationName, List<String> csvColumnNames, int maxRowNumbers)
 			throws BulkOperationException
 	{
 		getRelationShipType(bulkOperationClass);
@@ -151,7 +152,7 @@ public class TemplateValidator
 					+ bulkOperationClass.getClassName() + " is incorrect. "
 					+ "It should greater than or equal to 1.");
 		}
-		else if(maxNoOfRecords > 1 && bulkOperationClass.getCardinality() == "1")
+		else if (maxNoOfRecords > 1 && bulkOperationClass.getCardinality() == "1")
 		{
 			logger.debug("The 'maxRecords' value mentioned for "
 					+ bulkOperationClass.getClassName() + " is incorrect. "
@@ -159,7 +160,22 @@ public class TemplateValidator
 			errorList.add("The 'maxRecords' value mentioned for "
 					+ bulkOperationClass.getClassName() + " is incorrect. "
 					+ "The value should be '1' if its cardinality value is set to '1'.");
-		}		
+		}
+		Integer batchSize = bulkOperationClass.getBatchSize();
+		if (bulkOperationClass.getBatchSize() == null)
+		{
+			checkForNullData(bulkOperationClass, "batchSize");
+		}
+		else if (String.valueOf(bulkOperationClass.getBatchSize()) != null && batchSize < 0)
+		{
+			logger
+					.debug("The 'batchSize' value mentioned for " + bulkOperationClass.getClassName()
+						+ " is incorrect. The value should be greater than equal to '0'. If you enter " +
+						"the value as '0' it refers the default value '100' set in the application.");
+			errorList.add("The 'batchSize' value mentioned for " + bulkOperationClass.getClassName()
+						+ " is incorrect. The value should be greater than equal to '0'. If you enter " +
+						"the value as '0' it refers the default value '100' set in the application.");
+		}
 	}
 
 	/**
@@ -169,18 +185,18 @@ public class TemplateValidator
 	private void validateTemplateName(BulkOperationClass bulkOperationClass, String operationName)
 	{
 		String templateName = bulkOperationClass.getTemplateName();
-		if(templateName == null)
+		if (templateName == null)
 		{
 			checkForNullData(bulkOperationClass, "templateName");
 		}
 		else if (!operationName.equals(templateName.trim()))
 		{
-			logger
-				.debug("The operation name specified does not match with the template name "
-					+ "specified in the XML for " + bulkOperationClass.getClassName() + " class tag.");
-			errorList
-				.add("The operation name specified does not match with the template name "
-					+ "specified in the XML for " + bulkOperationClass.getClassName() + " class tag.");
+			logger.debug("The operation name specified does not match with the template name "
+					+ "specified in the XML for " + bulkOperationClass.getClassName()
+					+ " class tag.");
+			errorList.add("The operation name specified does not match with the template name "
+					+ "specified in the XML for " + bulkOperationClass.getClassName()
+					+ " class tag.");
 		}
 	}
 
@@ -192,7 +208,7 @@ public class TemplateValidator
 	 * @throws BulkOperationException BulkOperationException.
 	 */
 	private void validateAssociations(BulkOperationClass bulkOperationClass, String operationName,
-			 List<String> csvColumnNames, int maxRowNumbers) throws BulkOperationException
+			List<String> csvColumnNames, int maxRowNumbers) throws BulkOperationException
 	{
 		if (bulkOperationClass.getAttributeCollection() != null
 				&& !bulkOperationClass.getAttributeCollection().isEmpty())
@@ -217,7 +233,7 @@ public class TemplateValidator
 			validateContainmentReference(operationName, referenceClassList, csvColumnNames,
 					maxRowNumbers);
 		}
-		
+
 	}
 
 	/**
@@ -228,8 +244,8 @@ public class TemplateValidator
 	 * @throws BulkOperationException BulkOperationException.
 	 */
 	private void validateContainmentReference(String operationName,
-			Collection<BulkOperationClass> classList,  List<String> csvColumnNames,
-			int maxRowNumbers) throws BulkOperationException
+			Collection<BulkOperationClass> classList, List<String> csvColumnNames, int maxRowNumbers)
+			throws BulkOperationException
 	{
 		for (BulkOperationClass innerClass : classList)
 		{
@@ -265,19 +281,45 @@ public class TemplateValidator
 	 * @throws BulkOperationException BulkOperationException.
 	 */
 	private void validateAttributes(Collection<Attribute> attributesClassList,
-			BulkOperationClass bulkOperationClass,  List<String> csvColumnNames,
-			int maxRowNumbers) throws BulkOperationException
+			BulkOperationClass bulkOperationClass, List<String> csvColumnNames, int maxRowNumbers)
+			throws BulkOperationException
 	{
-		Class classObject = bulkOperationClass.getClassObject();
 		for (Attribute attribute : attributesClassList)
 		{
 			try
 			{
+				Class classObject = null;
+				String belongsTo = attribute.getBelongsTo();
+				if (belongsTo == null)
+				{
+					checkForNullData(bulkOperationClass, "belongsTo");
+				}
+				else if (belongsTo != null && !"".equals(belongsTo))
+				{
+					try
+					{
+						classObject = Class.forName(belongsTo);
+					}
+					catch (Exception exp)
+					{
+						logger.debug("The 'belongsTo' attribute in discriminator tag in "
+								+ bulkOperationClass.getClassName() + " has incorrect class name.",
+								exp);
+						errorList.add("The 'belongsTo' attribute in discriminator tag in "
+								+ bulkOperationClass.getClassName() + " has incorrect class name.");
+						classObject = bulkOperationClass.getClassObject();
+					}
+				}
+				else
+				{
+					classObject = bulkOperationClass.getClassObject();
+				}
+				validateDiscriminator(bulkOperationClass, attribute);
 				Field field = null;
 				String attributeName = attribute.getName();
 				if (attributeName == null)
 				{
-					checkForNullData(bulkOperationClass, "attributeName");
+					checkForNullData(bulkOperationClass, "attribute Name");
 				}
 				else if ("".equals(attributeName.trim()))
 				{
@@ -292,11 +334,11 @@ public class TemplateValidator
 					if (field == null)
 					{
 						logger.debug("The keyword '" + attributeName
-								+ "' in attribute collection tag of " + bulkOperationClass.getClassName()
-								+ " class tag in incorrect.");
+								+ "' in attribute collection tag of "
+								+ bulkOperationClass.getClassName() + " class tag in incorrect.");
 						errorList.add("The keyword '" + attributeName
-								+ "' in attribute collection tag of " + bulkOperationClass.getClassName()
-								+ " class tag in incorrect.");
+								+ "' in attribute collection tag of "
+								+ bulkOperationClass.getClassName() + " class tag in incorrect.");
 					}
 				}
 				validateColumnName(bulkOperationClass, attribute, csvColumnNames, maxRowNumbers);
@@ -307,6 +349,96 @@ public class TemplateValidator
 			{
 				logger.debug(exp.getMessage(), exp);
 				errorList.add(exp.getMessage());
+			}
+		}
+	}
+
+	private void validateDiscriminator(BulkOperationClass bulkOperationClass, Attribute attribute)
+	{
+		Collection<AttributeDiscriminator> attributeDisColl = attribute
+				.getDiscriminatorCollection();
+		if (!attributeDisColl.isEmpty() && isDiscriminator)
+		{
+			logger.debug("There can be only one attribute Collection tag which can have "
+					+ "discriminatorCollection tag in XML template. The XML template has more "
+					+ "than one attribute collection holding the discriminatorCollection tag.");
+			errorList.add("There can be only one attribute Collection tag which can have "
+					+ "discriminatorCollection tag in XML template. The XML template has more "
+					+ "than one attribute collection holding the discriminatorCollection tag.");
+		}
+		else
+		{
+			for (AttributeDiscriminator discriminator : attributeDisColl)
+			{
+				validateDiscriminatorName(bulkOperationClass, discriminator);
+				validateDiscriminatorValue(bulkOperationClass, discriminator);
+				isDiscriminator = true;
+			}
+		}
+	}
+
+	/**
+	 * @param bulkOperationClass
+	 * @param discriminator
+	 */
+	private void validateDiscriminatorName(BulkOperationClass bulkOperationClass,
+			AttributeDiscriminator discriminator)
+	{
+		String name = discriminator.getName();
+		if (name == null)
+		{
+			logger.debug("The keyword 'name' is either missing or incorrectly "
+					+ "written for discriminator tag in " + bulkOperationClass.getClassName()
+					+ " class tag in the XML.");
+			errorList.add("The keyword 'name' is either missing or incorrectly "
+					+ "written for discriminator tag in " + bulkOperationClass.getClassName()
+					+ " class tag in the XML.");
+		}
+		else if ("".equals(name.trim()))
+		{
+			logger.debug("The value for 'name' attribute in discriminator tag in "
+					+ bulkOperationClass.getClassName() + " in XML cannot be empty.");
+			errorList.add("The value for 'name' attribute in discriminator tag in "
+					+ bulkOperationClass.getClassName() + " in XML cannot be empty.");
+		}
+	}
+
+	/**
+	 * @param bulkOperationClass
+	 * @param discriminator
+	 */
+	private void validateDiscriminatorValue(BulkOperationClass bulkOperationClass,
+			AttributeDiscriminator discriminator)
+	{
+		String value = discriminator.getValue();
+		if (value == null)
+		{
+			logger.debug("The keyword 'value' is either missing or incorrectly "
+					+ "written for discriminator tag in " + bulkOperationClass.getClassName()
+					+ " class tag in the XML.");
+			errorList.add("The keyword 'value' is either missing or incorrectly "
+					+ "written for discriminator tag in " + bulkOperationClass.getClassName()
+					+ " class tag in the XML.");
+		}
+		else if ("".equals(value.trim()))
+		{
+			logger.debug("The 'value' attribute in discriminator tag in "
+					+ bulkOperationClass.getClassName() + " in XML cannot be empty.");
+			errorList.add("The 'value' attribute in discriminator tag in "
+					+ bulkOperationClass.getClassName() + " in XML cannot be empty.");
+		}
+		else
+		{
+			try
+			{
+				Class.forName(value);
+			}
+			catch (Exception exp)
+			{
+				logger.debug("The 'value' attribute in discriminator tag in "
+						+ bulkOperationClass.getClassName() + " has incorrect class name.", exp);
+				errorList.add("The 'value' attribute in discriminator tag in "
+						+ bulkOperationClass.getClassName() + " has incorrect class name.");
 			}
 		}
 	}
@@ -341,7 +473,7 @@ public class TemplateValidator
 	 */
 	private void validateDataType(BulkOperationClass bulkOperationClass, Attribute attribute,
 			Field field, String attributeName)
-	{	
+	{
 		String dataType = attribute.getDataType();
 		try
 		{
@@ -377,14 +509,14 @@ public class TemplateValidator
 	 * @param csvColumnNames Hash table of String, String.
 	 */
 	private void validateColumnName(BulkOperationClass bulkOperationClass, Attribute attribute,
-			 List<String> csvColumnNames, int maxRowNumbers)
+			List<String> csvColumnNames, int maxRowNumbers)
 	{
 		String csvColumnName = attribute.getCsvColumnName();
 		if (csvColumnName == null)
 		{
 			checkForNullData(bulkOperationClass, "csvColumnName");
 		}
-		if(maxRowNumbers != 0)
+		if (maxRowNumbers != 0)
 		{
 			csvColumnName = attribute.getCsvColumnName() + "#" + maxRowNumbers;
 		}

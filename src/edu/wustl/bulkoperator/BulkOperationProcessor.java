@@ -59,6 +59,11 @@ public class BulkOperationProcessor
 	public void process() throws BulkOperationException
 	{
 		int failureCount = 0;
+		int modValue = bulkOperationclass.getBatchSize();
+		if(modValue == 0)
+		{
+			modValue = 100;
+		}
 		try
 		{
 			for (int i = 0; i < dataList.size(); i++)
@@ -85,7 +90,11 @@ public class BulkOperationProcessor
 					}
 					else
 					{
-						Object domainObject = bulkOperationclass.getNewInstance();
+						Object domainObject = bulkOperationclass.getClassDiscriminator(valueTable);
+						if(domainObject == null)
+						{
+							domainObject = bulkOperationclass.getNewInstance();
+						}
 						processObject(domainObject, bulkOperationclass, "");
 						migrationAppService.insert(domainObject, bulkOperationclass, objectMap);
 					}
@@ -101,7 +110,7 @@ public class BulkOperationProcessor
 					dataList.addStatusMessage(currentRowIndex, "Failure", exp.getMessage());
 					failureCount++;
 				}
-				if (currentRowIndex % 10 == 0)
+				if ((currentRowIndex % modValue) == 0)
 				{	
 					insertReportInDatabase(i,failureCount, JobData.JOB_IN_PROGRESS_STATUS);
 				}

@@ -125,9 +125,9 @@ public class BulkOperator
 	public static void main(String args[])
 	{
 		Long startTime = BulkOperationUtility.getTime();
-		System.setProperty("operationName", "editSpecimen");
-		System.setProperty("csvFileAbsolutePath", "D:/createSpecimen1.csv");
-		System.setProperty("xmlFileAbsolutePath", "D:/createSpecimen.xml");
+		System.setProperty("operationName", "createSpecimen");
+		System.setProperty("csvFileAbsolutePath", "G:/createSpecimen.csv");
+		System.setProperty("xmlFileAbsolutePath", "G:/createSpecimen.xml");
 		System.setProperty("userName", "admin@admin.com");
 		System.setProperty("password", "Login1234");
 		System.setProperty("jbossHome", "G:/jboss-4.2.2.GA_8080");
