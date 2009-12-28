@@ -388,22 +388,25 @@ public class BulkOperationProcessor
 				Attribute attribute = attributeItertor.next();
 				if (attribute.getDataType() != null && !"".equals(attribute.getDataType()))
 				{
-					Class dataTypeClass = Class.forName(attribute.getDataType());
-					if (!Validator.isEmpty(attribute.getCsvColumnName() + columnSuffix))
+					if(String.valueOf(mainObj.getClass()).contains(attribute.getBelongsTo()))
 					{
-						if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
-								+ columnSuffix)))
+						Class dataTypeClass = Class.forName(attribute.getDataType());
+						if (!Validator.isEmpty(attribute.getCsvColumnName() + columnSuffix))
 						{
-							String csvData = valueTable.get(attribute.getCsvColumnName()
-									+ columnSuffix);
-							Object attributeValue = attribute.getValueOfDataType(csvData);
-							mainMigrationClass.invokeSetterMethod(attribute.getName(),
-									new Class[]{dataTypeClass}, mainObj, attributeValue);
+							if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
+									+ columnSuffix)))
+							{
+								String csvData = valueTable.get(attribute.getCsvColumnName()
+										+ columnSuffix);
+								Object attributeValue = attribute.getValueOfDataType(csvData);
+								mainMigrationClass.invokeSetterMethod(attribute.getName(),
+										new Class[]{dataTypeClass}, mainObj, attributeValue);
+							}
 						}
-					}
-					else
-					{
-						throw new BulkOperationException("bulk.error.csv.column.name.change");
+						else
+						{
+							throw new BulkOperationException("bulk.error.csv.column.name.change");
+						}
 					}
 				}
 			}
