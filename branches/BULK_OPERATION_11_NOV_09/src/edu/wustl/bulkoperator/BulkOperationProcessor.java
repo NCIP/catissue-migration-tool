@@ -59,6 +59,7 @@ public class BulkOperationProcessor
 	public void process() throws BulkOperationException
 	{
 		int failureCount = 0;
+		int successCount = 0;
 		int modValue = bulkOperationclass.getBatchSize();
 		if(modValue == 0)
 		{
@@ -96,12 +97,14 @@ public class BulkOperationProcessor
 							domainObject = bulkOperationclass.getNewInstance();
 						}
 						processObject(domainObject, bulkOperationclass, "");
-						migrationAppService.insert(domainObject, bulkOperationclass, objectMap);
+ 						migrationAppService.insert(domainObject, bulkOperationclass, objectMap);
 					}
 					dataList.addStatusMessage(currentRowIndex, "Success", " ");
+					successCount++;
 				}
 				catch (BulkOperationException exp)
 				{
+					failureCount++;
 					insertReportInDatabase(currentRowIndex, failureCount, JobData.JOB_FAILED_STATUS);
 					throw new BulkOperationException(exp);
 				}
@@ -112,10 +115,10 @@ public class BulkOperationProcessor
 				}
 				if ((currentRowIndex % modValue) == 0)
 				{	
-					insertReportInDatabase(i,failureCount, JobData.JOB_IN_PROGRESS_STATUS);
+					insertReportInDatabase(successCount, failureCount, JobData.JOB_IN_PROGRESS_STATUS);
 				}
 			}
-			insertReportInDatabase(dataList.size(),failureCount, JobData.JOB_COMPLETED_STATUS);			
+			insertReportInDatabase(dataList.size(), failureCount, JobData.JOB_COMPLETED_STATUS);			
 		}
 		catch (Exception exp)
 		{
@@ -178,7 +181,7 @@ public class BulkOperationProcessor
 	 * @throws ClassNotFoundException 
 	 */
 	public void processObject(Object mainObj, BulkOperationClass migrationClass, String columnSuffix)
-			throws BulkOperationException
+			throws Exception
 	{
 		if (migrationClass.getAttributeCollection() != null
 				&& !migrationClass.getAttributeCollection().isEmpty())
@@ -376,7 +379,7 @@ public class BulkOperationProcessor
 	 * @throws BulkOperationException
 	 */
 	private void processAttributes(Object mainObj, BulkOperationClass mainMigrationClass,
-			String columnSuffix) throws BulkOperationException
+			String columnSuffix) throws Exception
 	{
 		try
 		{
@@ -414,7 +417,7 @@ public class BulkOperationProcessor
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			throw new Exception(e.getMessage(), e);
 		}
 	}
 }
