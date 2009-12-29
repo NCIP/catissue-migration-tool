@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -31,6 +30,7 @@ public class BulkOperationProcessor
 	ObjectIdentifierMap objectMap;
 	DataList dataList = null;
 	int counter = 0;
+	long timetaken = System.currentTimeMillis()/1000;
 	boolean isUpdateOperation = false;
 	int currentRowIndex = 0;
 	JobData jobData = null;
@@ -141,25 +141,11 @@ public class BulkOperationProcessor
 		String zipFilePath = CommonServiceLocator.getInstance().getAppHome()
 					+ System.getProperty("file.separator") + fileNames[0];
 		File zipFile = utility.createZip(file, zipFilePath);
-		Timestamp startedTime = jobData.getStartedTime();
-		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-		long timeTaken = 0L;
-		int hours = currentTime.getHours() - startedTime.getHours();
-		if(hours > 0 )
-		{
-			timeTaken = hours * 60 * 60; 
-		}
-		int minutes = currentTime.getMinutes() - startedTime.getHours();
-		if(minutes > 0)
-		{
-			timeTaken = timeTaken + (minutes * 60);
-		}
-		int seconds = currentTime.getMinutes() - startedTime.getHours();
-		timeTaken = timeTaken + seconds;
+		long localTimetaken = (System.currentTimeMillis()/1000) - timetaken;
 		Object[] keys = {JobData.LOG_FILE_KEY,
 				JobData.NO_OF_RECORDS_PROCESSED_KEY, JobData.NO_OF_FAILED_RECORDS_KEY,
 				JobData.TIME_TAKEN_KEY, JobData.NO_OF_TOTAL_RECORDS_KEY, JobData.LOG_FILE_NAME_KEY};
-		Object[] values = {zipFile, recordsProcessed, failureCount, timeTaken, dataList.size(), zipFile.getName()};
+		Object[] values = {zipFile, recordsProcessed, failureCount, localTimetaken, dataList.size(), zipFile.getName()};
 		jobData.updateJobStatus(keys, values, statusMessage);
 		zipFile.delete();
 	}
