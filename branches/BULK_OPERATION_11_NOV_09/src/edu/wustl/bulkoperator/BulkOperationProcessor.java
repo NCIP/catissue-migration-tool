@@ -118,7 +118,7 @@ public class BulkOperationProcessor
 					insertReportInDatabase(successCount, failureCount, JobData.JOB_IN_PROGRESS_STATUS);
 				}
 			}
-			insertReportInDatabase(dataList.size(), failureCount, JobData.JOB_COMPLETED_STATUS);			
+			insertReportInDatabase(successCount, failureCount, JobData.JOB_COMPLETED_STATUS);			
 		}
 		catch (Exception exp)
 		{
