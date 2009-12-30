@@ -1,6 +1,7 @@
 
 package edu.wustl.bulkoperator.jobmanager;
 
+import java.io.Serializable;
 import java.sql.Blob;
 import java.sql.Timestamp;
 
@@ -8,8 +9,12 @@ import java.sql.Timestamp;
 /**
  * The Class JobDetails.
  */
-public class JobDetails
+public class JobDetails implements Serializable
 {
+	/**
+	 * serialVersionUID.
+	 */
+	private static final long serialVersionUID = 2993040313453649560L;
 
 	/** The job id. */
 	private long id;
@@ -18,7 +23,7 @@ public class JobDetails
 	private String status;
 
 	/** The log file. */
-	private Blob logFile;
+	private transient Blob logFile;
 
 	/** The log file. */
 	private String logFileName;
@@ -43,6 +48,26 @@ public class JobDetails
 
 	/** The current records processed. */
 	private long currentRecordsProcessed;
+	/**
+	 * logFileBytes.
+	 */
+	private byte logFileBytes[];
+
+	/**
+	 * @return the arrayOfBytes
+	 */
+	public byte[] getLogFileBytes()
+	{
+		return logFileBytes;
+	}
+
+	/**
+	 * @param arrayOfBytes the arrayOfBytes to set
+	 */
+	public void setLogFilesBytes(byte[] arrayOfBytes)
+	{
+		this.logFileBytes = arrayOfBytes;
+	}
 
 	/**
 	 * Gets the job id.
