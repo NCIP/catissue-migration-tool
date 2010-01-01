@@ -23,11 +23,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.hibernate.Session;
 
-import edu.wustl.bulkoperator.appservice.CaCoreMigrationAppServiceImpl;
-import edu.wustl.bulkoperator.dao.SandBoxDao;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.common.lookup.DefaultLookupResult;
 import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperationUtility
@@ -161,42 +158,6 @@ public class BulkOperationUtility
 		return System.currentTimeMillis() / 1000;
 	}
 
-	public static boolean participantMatching(
-			CaCoreMigrationAppServiceImpl caCoreMigrationAppSerive, Object participant)
-			throws Exception
-	{
-		List list = caCoreMigrationAppSerive.getAppService().getParticipantMatchingObects(
-				participant);
-		List<Long> matchedParticipant = new ArrayList<Long>();
-		if (list != null && list.size() > 0)
-		{
-			Long particiapntId = (Long) participant.getClass().getMethod("getId", null).invoke(
-					participant, null);
-			Iterator<DefaultLookupResult> it = list.iterator();
-			while (it.hasNext())
-			{
-				DefaultLookupResult defaultLookupResult = it.next();
-				Object match = defaultLookupResult.getObject();
-				matchedParticipant.add((Long) match.getClass().getMethod("getId", null).invoke(
-						match, null));
-			}
-			storeMatchedParticipantRecords(particiapntId, matchedParticipant);
-			return true;
-		}
-		return false;
-	}
-
-	public static void storeMatchedParticipantRecords(Long id, List<Long> matchedParticipant)
-	{
-		for (int i = 0; i < matchedParticipant.size(); i++)
-		{
-			String query = "insert into  CONFLICTING_PARTICIPANT(SANDBOX_PARTICIPANT_ID,PRODUCTION_PARTICIPANT_ID) values("
-					+ id + "," + matchedParticipant.get(i) + ")";
-			modifyData(query, SandBoxDao.getInsertionSession());
-		}
-		//appendErrorLog(Participant.class.getName(), "domain.object.processor.ParticipantProcessor", id,"matching found with "+ matchedParticipant);
-	}
-
 	public static void modifyData(String query, Session session) //throws SQLException
 	{
 		Connection connection = session.connection();
@@ -243,7 +204,7 @@ public class BulkOperationUtility
 		try
 		{
 			FileInputStream propFile = new FileInputStream(
-					MigrationConstants.MIGRATION_INSTALL_PROPERTIES_FILE);
+					BulkOperationConstants.MIGRATION_INSTALL_PROPERTIES_FILE);
 			props.load(propFile);
 		}
 		catch (FileNotFoundException fnfException)
@@ -303,17 +264,49 @@ public class BulkOperationUtility
 		Format formatter = new SimpleDateFormat("dd-MM-yy");
 		return formatter.format(date);
 	}
-	/**
-	 * Get CatissueInstallProperties.
-	 * @return Properties.
-	 */
-	public static Properties getCatissueInstallProperties() throws BulkOperationException
+	public static Properties getBulkOperationProperties() throws BulkOperationException
 	{
 		Properties props = new Properties();
 		try
 		{
 			FileInputStream propFile = new FileInputStream(
-					MigrationConstants.CATISSUE_INTSALL_PROPERTIES_FILE);
+					BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
+			props.load(propFile);
+		}
+		catch (FileNotFoundException fnfException)
+		{
+			logger.debug("caTissueInstall.properties file not found.", fnfException);
+			throw new BulkOperationException("caTissueInstall.properties file not found.", fnfException);
+		}
+		catch (IOException ioException)
+		{
+			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
+			throw new BulkOperationException("Error while accessing caTissueInstall.properties file.",
+					ioException);
+		}
+		return props;
+	}
+	/**
+	 * 
+	 * @return
+	 * @throws BulkOperationException
+	 */
+	public static String getClassNameFromBulkOperationPropertiesFile() throws BulkOperationException
+	{
+		String fileName = System.getProperty("bulkoperator.appservice.class");
+		Properties properties = BulkOperationUtility.getPropertiesFile(fileName);
+		return properties.getProperty(BulkOperationConstants.BULK_OPERATION_APPSERVICE_CLASSNAME);		
+	}
+	/**
+	 * Get CatissueInstallProperties.
+	 * @return Properties.
+	 */
+	public static Properties getPropertiesFile(String propertiesFileName) throws BulkOperationException
+	{
+		Properties props = new Properties();
+		try
+		{
+			FileInputStream propFile = new FileInputStream(propertiesFileName);
 			props.load(propFile);
 		}
 		catch (FileNotFoundException fnfException)
@@ -335,7 +328,8 @@ public class BulkOperationUtility
 	 */
 	public static String getDatabaseType() throws BulkOperationException
 	{
-		Properties properties = getCatissueInstallProperties();
+		Properties properties = getPropertiesFile(
+				BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
 		return properties.getProperty("database.type");
 	}
 }

@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
-import edu.wustl.catissuecore.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 
 /**
@@ -28,7 +28,8 @@ public class DBManagerImpl
 	 */
 	public static Connection getConnection() throws BulkOperationException
 	{
-		Properties properties = BulkOperationUtility.getCatissueInstallProperties();
+		Properties properties = BulkOperationUtility.getPropertiesFile(
+				BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
 		return getConnection(properties);
 	}
 
@@ -52,12 +53,12 @@ public class DBManagerImpl
 			String databaseUsername = properties.getProperty("database.username");
 			String databasePassword = properties.getProperty("database.password");
 			String databaseURL = null;
-			if(Constants.ORACLE_DATABASE.equalsIgnoreCase(databaseType))
+			if(BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(databaseType))
 			{
 				databaseDriver = "oracle.jdbc.driver.OracleDriver";
 				databaseURL = "jdbc:oracle:thin:@"+databaseHost+":"+databasePort+":"+databaseName;
 			}
-			else if(Constants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
+			else if(BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
 			{
 				databaseDriver = "com.mysql.jdbc.Driver";
 				databaseURL = "jdbc:mysql://"+databaseHost+":"+databasePort+"/"+databaseName;

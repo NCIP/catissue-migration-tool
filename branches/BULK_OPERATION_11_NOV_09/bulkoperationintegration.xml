@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Ant Script to setup configuration files for test cases-->
+
+<project name="Bulk Operation">
+
+	<property name="suite.struts.config.file" value="struts-config.xml" />
+	<property name="suite.hibernate.config.file" value="hibernate.cfg.xml" />
+	<property name="suite.tiles.def.file" value="tiles-defs.xml" />
+	
+	<target name="bulkoperation_integrate_app" description="deploys the Bulk Operation module">
+		<copy todir="${deploy.temp.dir}/${war.dir}/WEB-INF" overwrite="true">
+			<fileset dir="${deploy.temp.dir}/bulkoperation">
+				<include name="bulkoperator-struts-config.xml" />
+				<include name="bulkoperator-tiles-defs.xml" />
+			</fileset>
+		</copy>
+		<!--Copying css files -->
+		<copy todir="${deploy.temp.dir}/${war.dir}/css" overwrite="false">
+			<fileset file="${deploy.temp.dir}/bulkoperation/css/catissue_suite.css" />
+		</copy>
+	
+		<!--Copying jss files -->
+		<copy todir="${deploy.temp.dir}/${war.dir}/jss" overwrite="false">
+			<fileset file="${deploy.temp.dir}/bulkoperation/jss/ajax.js" />
+			<fileset file="${deploy.temp.dir}/bulkoperation/jss/javaScript.js" />
+		</copy>
+		
+		<copy todir="${deploy.temp.dir}/${war.dir}/WEB-INF" overwrite="true">
+			<fileset file="${deploy.temp.dir}/bulkoperation/bulkoperation-struts-config.xml" />
+			<fileset file="${deploy.temp.dir}/bulkoperation/bulkoperation-tiles-defs.xml" />
+		</copy>
+		
+		<!--Copying JSP Pages -->
+		<copy todir="${deploy.temp.dir}/${war.dir}/pages/content/manageBioSpecimen/bulkOperations" overwrite="true">
+			<fileset file="${deploy.temp.dir}/bulkoperation/pages/BulkOperation.jsp" />
+			<fileset file="${deploy.temp.dir}/bulkoperation/pages/JobGridDashboard.jsp" />
+		</copy>		
+		<!--
+			Inject "/WEB-INF/bulkoperator-tiles-defs.xml" entry in suite
+			struts-config.xml
+		-->
+		<replace file="${deploy.temp.dir}/${war.dir}/WEB-INF/${suite.struts.config.file}">
+			<replacefilter token="/WEB-INF/${suite.tiles.def.file}" value="/WEB-INF/${suite.tiles.def.file}, /WEB-INF/bulkoperation-tiles-defs.xml" />
+		</replace>
+		
+		<!-- Inject advancequery-struts-config.xml entry in suite web.xml -->
+		<replace file="${deploy.temp.dir}/${war.dir}/WEB-INF/web.xml">
+			<replacefilter token="/WEB-INF/${suite.struts.config.file}" value="/WEB-INF/${suite.struts.config.file}, /WEB-INF/bulkoperation-struts-config.xml" />
+		</replace>
+		
+		<!--
+			Concatenating the AppplicationResource.properties file from
+			Bulk Opeartion to Suite AppplicationResource.properties file
+		-->
+		<echo message="Concatenating the Application Resources Properties file" />
+		<concat destfile="${deploy.temp.dir}/${war.dir}/WEB-INF/classes/ApplicationResources.properties" append="true" fixlastline="true">
+			<fileset file="${deploy.temp.dir}/bulkoperation/ApplicationResources.properties" />
+		</concat>
+	</target>
+	
+	<target name="copy_bulk_operation_mapping_file" description="Copies the bulk operation mapping.xml file in catissuecore-properties">
+		<copy todir="${jboss.server.url}/catissuecore-properties" overwrite="true">
+			<fileset dir="${deploy.temp.dir}/bulkoperation">
+				<include name="mapping.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${parent.base.dir}/catissuecore-properties" overwrite="true">
+			<fileset dir="${deploy.temp.dir}/bulkoperation">
+				<include name="mapping.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${jboss.server.url}/catissuecore-properties" overwrite="true">
+			<fileset file="${parent.base.dir}/bulkOperation.properties" />
+		</copy>
+	</target>
+	
+	<target name="create_tables_for_bulk_operation" description="creates the tables for Bulk Operation module">
+		<if>
+			<equals arg1="${database.type}" arg2="oracle"/>
+			<then>
+				<sql driver="${oracle.driver.string}" 
+					url="jdbc:oracle:thin:@${database.host}:${database.port}:${database.name}" 
+					userid="${database.username}" password="${database.password}" rdbms="oracle">>
+					<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/CREATE_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
+					<transaction>commit;</transaction>
+					<classpath>
+						<fileset dir="${lib.dir}">
+							<include name="*.jar" />
+						</fileset>
+					</classpath>
+				</sql>
+			</then>
+		<elseif>
+			<equals arg1="${database.type}" arg2="mysql"/>
+			<then>
+				<sql driver="${mysql.driver.string}"
+					url="jdbc:mysql://${database.host}:${database.port}/${database.name}" 
+						userid="${database.username}" password="${database.password}" >
+					<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/CREATE_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
+					<transaction>commit;</transaction>
+					<classpath>
+						<fileset dir="${lib.dir}">
+							<include name="*.jar" />
+						</fileset>
+					</classpath>
+				</sql>
+			</then>
+		</elseif>
+		</if>
+	</target>	
+	
+</project>

@@ -14,9 +14,9 @@ import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
-import edu.wustl.bulkoperator.util.MigrationConstants;
 import edu.wustl.common.exception.ApplicationException;
 import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
@@ -151,7 +151,7 @@ public class BulkOperator
 			BulkOperator bulkOperator = new BulkOperator(
 					xmlFileAbsolutePath, "mapping.xml");
 			bulkOperator.startProcess(operationName, userName, password, "1", dataList,
-					MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE, null);
+					BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE, null);
 		}
 		catch (ApplicationException e)
 		{

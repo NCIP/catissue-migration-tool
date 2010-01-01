@@ -31,10 +31,10 @@ import edu.wustl.bulkoperator.dao.DBManagerImpl;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.validator.TemplateValidator;
-import edu.wustl.catissuecore.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;
 
@@ -230,7 +230,7 @@ public class ImportBulkOperationTemplate
 		try
 		{
 			databaseType = BulkOperationUtility.getDatabaseType();
-			if (Constants.ORACLE_DATABASE.equalsIgnoreCase(databaseType))
+			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(databaseType))
 			{
 				String query = "update catissue_bulk_operation set OPERATION = ?, "
 						+ "CSV_TEMPLATE = ?, XML_TEMPALTE = ?,  DROPDOWN_NAME = ? "
@@ -244,7 +244,7 @@ public class ImportBulkOperationTemplate
 				preparedStatement.setString(5, operationName);
 				preparedStatement.setString(6, dropdownName);
 			}
-			else if (Constants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
+			else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
 			{
 				String query = "update catissue_bulk_operation set OPERATION = ?, "
 						+ "CSV_TEMPLATE = ?, XML_TEMPALTE = ?,  DROPDOWN_NAME = ? "
@@ -295,7 +295,7 @@ public class ImportBulkOperationTemplate
 		PreparedStatement preparedStatement = null;
 		try
 		{
-			if (Constants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType()))
+			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType()))
 			{
 				String sequenceQuery = "select CATISSUE_BULK_OPERATION_SEQ.NEXTVAL from dual";
 				Statement statement = connection.createStatement();
@@ -322,7 +322,7 @@ public class ImportBulkOperationTemplate
 				resultSet.close();
 				statement.close();
 			}
-			else if (Constants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility
+			else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility
 					.getDatabaseType()))
 			{
 				String query = "insert into catissue_bulk_operation (OPERATION, "
