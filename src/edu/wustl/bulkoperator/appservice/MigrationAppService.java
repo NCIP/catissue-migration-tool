@@ -5,8 +5,8 @@ import java.lang.reflect.Constructor;
 
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
-import edu.wustl.bulkoperator.util.MigrationConstants;
 
 public abstract class MigrationAppService
 {
@@ -30,7 +30,7 @@ public abstract class MigrationAppService
 	{
 		if(migrationAppClassName==null)
 		{
-			migrationAppClassName = MigrationConstants.CA_CORE_MIGRATION_APP_SERVICE;
+			migrationAppClassName = BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE;
 		}
 		MigrationAppService appService = null;
 		try

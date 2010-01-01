@@ -94,7 +94,7 @@
 		</if>    	 
     </target>
 
-	<target name="clean">
+	<target name="clean" description="cleans the previous complied java class files">
 		<delete includeemptydirs="true">
 			<fileset dir="${basedir}/bin">
 				<include name="**/*" />
@@ -102,7 +102,7 @@
 		</delete>
 	</target>
 
-	<target name="compile" depends="clean">
+	<target name="compile" depends="clean" description="java classes are compiled">
 		<echo message="Compling classes................" />
 		<javac destdir="${basedir}/bin" includes="**/*.*">
     		<src path="${basedir}/src"/>
@@ -115,6 +115,11 @@
             	</fileset>
             </classpath>
         </javac>
+		<copy todir="${basedir}/bin" overwrite="true">
+			<fileset dir="${basedir}/src" >
+				<include name="**/*.hbm.xml" />
+			</fileset>
+		</copy>
     </target>
 	
 	<property name="jbossHome" value="" />
@@ -123,7 +128,7 @@
 	<property name="operation" value="" />
 	<property name="csvFileName" value="" />
 	
-	<target name="run_bulk_operation" depends="compile">
+	<target name="run_bulk_operation" depends="compile" description="bulk operator API is started">
 		<echo message="Bulk Operation started....................." />
 		<java classname="edu.wustl.bulkoperator.BulkOperator" fork="true" maxmemory="1024m">
 			<arg value="${jbossHome}" />
@@ -138,55 +143,7 @@
 		</java>
 	</target>
 	
-	<target name="run_migration_tool_for_unmigrated_objects" depends="init,compile">
-		<echo message="Migration started....................." />
-		<java classname="edu.wustl.migrator.Migrator" fork="true" maxmemory="1024m">
-			<jvmarg value="-Xms128m"/>
-			<jvmarg value="-Xmx1024m"/>
-			<classpath>
-				<pathelement location="${basedir}/bin"/>
-			</classpath>
-			<classpath refid="cp"/>
-			<arg value="yes"/>
-		</java>
-	</target>
-	
-	<target name="create_tables_for_migration">
-		<if>
-			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
-			<then>
-				<sql driver="oracle.jdbc.driver.OracleDriver"
-					url="${sandbox.database.oracle.url}"
-					userid="${sandbox.database.username}" password="${sandbox.database.password}">
-					<transaction src="${basedir}/SQL/Oracle/CREATE_MIGRATION_MAPPING_TABLES_FOR_ORACLE.sql" />
-					<transaction>commit;</transaction>
-					<classpath>
-						<fileset dir="${basedir}/lib">
-		        			<include name="**/*.jar"/>
-		        	  	</fileset>
-					</classpath>
-				</sql>
-			</then>
-		<elseif>
-			<equals arg1="${sandbox.database.type}" arg2="mysql"/>
-			<then>
-				<sql driver="org.gjt.mm.mysql.Driver"
-					url="${sandbox.database.mysql.url}"
-					userid="${sandbox.database.username}" password="${sandbox.database.password}">
-					<transaction src="${basedir}/SQL/Oracle/CREATE_MIGRATION_MAPPING_TABLES_FOR_MYSQL.sql" />
-					<transaction>commit;</transaction>
-					<classpath>
-						<fileset dir="${basedir}/lib">
-		        			<include name="**/*.jar"/>
-		        	  	</fileset>
-					</classpath>
-				</sql>
-			</then>
-		</elseif>
-		</if>
-	</target>
-
-	<target name="create_bulkoperator_jar" depends="compile">
+	<target name="create_bulkoperator_jar" depends="compile" description="bulk operator jar is created">
 		<mkdir dir="${basedir}/bulkoperator_jar"/>
 		<jar destfile="${basedir}/bulkoperator_jar/bulkoperator.jar" basedir="${basedir}/bin">
             <manifest>
@@ -199,6 +156,42 @@
 			   	</section>   	   					
             </manifest>
         </jar>
+	</target>
+	
+	<target name="create_bulkoperator_zip" description="bulk operator zip file is created">
+		
+		<property name="zip.dir" value="${basedir}/bulkoperator_zip" />
+		<property name="zip.file" value="${basedir}/bulkoperator.zip" />
+		
+		<delete file="${zip.file}" />
+		<delete dir="${zip.dir}" />
+		<mkdir dir="${zip.dir}" />		
+		<copy todir="${zip.dir}" overwrite="true">
+			<fileset file="mapping.xml" />
+			<fileset file="${basedir}/src/ApplicationResources.properties" />
+			<fileset file="${basedir}/src/bulkoperation-struts-config.xml" />
+			<fileset file="${basedir}/src/bulkoperation-tiles-defs.xml" />
+			<fileset file="${basedir}/src/log4j.properties" />
+			<fileset file="${basedir}/bulkoperationintegration.xml" />
+		</copy>
+		<copy todir="${zip.dir}/css" overwrite="true">
+			<fileset dir="${basedir}/css" /> 
+		</copy>
+		<copy todir="${zip.dir}/SQL" overwrite="true">
+			<fileset dir="${basedir}/SQL" /> 
+		</copy>
+		<copy todir="${zip.dir}/jss" overwrite="true">
+			<fileset dir="${basedir}/jss" />
+		</copy>
+		<copy todir="${zip.dir}/pages" overwrite="true">
+			<fileset dir="${basedir}/pages" /> 
+		</copy>
+		<zip destfile="${zip.file}" basedir="${zip.dir}" />
+		<delete dir="${zip.dir}" />
+		<mkdir dir="${zip.dir}" />
+		<copy file="bulkoperator.zip" todir="${zip.dir}" overwrite="true" />
+		<delete file="bulkoperator.zip" />
+		
 	</target>
 	
 </project>
