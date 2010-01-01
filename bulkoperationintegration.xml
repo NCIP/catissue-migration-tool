@@ -78,13 +78,13 @@
 		<if>
 			<equals arg1="${database.type}" arg2="oracle"/>
 			<then>
-				<sql driver="${oracle.driver.string}" 
-					url="jdbc:oracle:thin:@${database.host}:${database.port}:${database.name}" 
+				<sql driver="${database.driver}" 
+					url="${database.url}" 
 					userid="${database.username}" password="${database.password}" rdbms="oracle">>
 					<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/CREATE_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
 					<transaction>commit;</transaction>
 					<classpath>
-						<fileset dir="${lib.dir}">
+						<fileset dir="${parent.base.dir}">
 							<include name="*.jar" />
 						</fileset>
 					</classpath>
@@ -93,13 +93,13 @@
 		<elseif>
 			<equals arg1="${database.type}" arg2="mysql"/>
 			<then>
-				<sql driver="${mysql.driver.string}"
-					url="jdbc:mysql://${database.host}:${database.port}/${database.name}" 
+				<sql driver="${database.driver}"
+					url="${database.url}" 
 						userid="${database.username}" password="${database.password}" >
 					<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/CREATE_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
 					<transaction>commit;</transaction>
 					<classpath>
-						<fileset dir="${lib.dir}">
+						<fileset dir="${parent.base.dir}">
 							<include name="*.jar" />
 						</fileset>
 					</classpath>
