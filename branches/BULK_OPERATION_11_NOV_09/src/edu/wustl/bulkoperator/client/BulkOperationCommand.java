@@ -91,20 +91,20 @@ public class BulkOperationCommand
 		BulkOperationCommand bulkOperationCommand = new BulkOperationCommand();
 		try
 		{
-			if(bulkOperationCommand.keyStoreLocation!=null)
+			if(validateAndCommandLineArguments(args))
 			{
-				System.setProperty("javax.net.ssl.trustStore",
-						bulkOperationCommand.keyStoreLocation);
-			}
-			bulkOperationCommand.csvFile = new File("BulkOperations/editSite.csv");
-			bulkOperationCommand.templateFile = new File("BulkOperations/editSite.xml");
-			bulkOperationCommand.url = "http://localhost:8380/catissuecore";
-			bulkOperationCommand.applicationUserName = "admin@admin.com";
-			bulkOperationCommand.applicationUserPassword = "Test123";
-			bulkOperationCommand.operationName = "editSite";
-			//if(validateAndCommandLineArguments(args))
-			{
-
+				bulkOperationCommand.operationName = args[0];
+				bulkOperationCommand.csvFile = new File(args[1]);
+				bulkOperationCommand.templateFile = new File(args[2]);
+				bulkOperationCommand.url = args[3];
+				bulkOperationCommand.applicationUserName = args[4];
+				bulkOperationCommand.applicationUserPassword = args[5];								
+				if(args[6] != null)
+				{
+					bulkOperationCommand.keyStoreLocation = args[6];
+					System.setProperty("javax.net.ssl.trustStore",
+							bulkOperationCommand.keyStoreLocation);
+				}	
 				BulkOperationService bulkOperationService =
 					new BulkOperationServiceImpl();
 				JobMessage jobMessage = bulkOperationService.login(
@@ -139,13 +139,13 @@ public class BulkOperationCommand
 								fileOutputStream.write(buf);
 								fileOutputStream.flush();
 								fileOutputStream.close();
-
+	
 							}
 						}
-					}while(checkStatus(jobDetails.getStatus()));
+					}
+					while(checkStatus(jobDetails.getStatus()));
 				}
 			}
-
 		}
 		catch (BulkOperationException exp)
 		{
