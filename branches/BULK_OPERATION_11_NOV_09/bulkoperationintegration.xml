@@ -80,7 +80,7 @@
 			<then>
 				<sql driver="${database.driver}" 
 					url="${database.url}" 
-					userid="${database.username}" password="${database.password}" rdbms="oracle">>
+					userid="${database.username}" password="${database.password}" rdbms="oracle">
 					<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/CREATE_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
 					<transaction>commit;</transaction>
 					<classpath>
