@@ -188,10 +188,6 @@
 		</copy>
 		<zip destfile="${zip.file}" basedir="${zip.dir}" />
 		<delete dir="${zip.dir}" />
-		<mkdir dir="${zip.dir}" />
-		<copy file="bulkoperator.zip" todir="${zip.dir}" overwrite="true" />
-		<delete file="bulkoperator.zip" />
-		
 	</target>
 	
 </project>

@@ -88,64 +88,10 @@ public class BulkOperationCommand
 	 */
 	public static void main(String[] args)
 	{
-		BulkOperationCommand bulkOperationCommand = new BulkOperationCommand();
+		BulkOperationCommand bulkOperationCommand  = new BulkOperationCommand();
 		try
 		{
-			if(validateAndCommandLineArguments(args))
-			{
-				bulkOperationCommand.operationName = args[0];
-				bulkOperationCommand.csvFile = new File(args[1]);
-				bulkOperationCommand.templateFile = new File(args[2]);
-				bulkOperationCommand.url = args[3];
-				bulkOperationCommand.applicationUserName = args[4];
-				bulkOperationCommand.applicationUserPassword = args[5];								
-				if(args[6] != null)
-				{
-					bulkOperationCommand.keyStoreLocation = args[6];
-					System.setProperty("javax.net.ssl.trustStore",
-							bulkOperationCommand.keyStoreLocation);
-				}	
-				BulkOperationService bulkOperationService =
-					new BulkOperationServiceImpl();
-				JobMessage jobMessage = bulkOperationService.login(
-						bulkOperationCommand.url,
-						bulkOperationCommand.applicationUserName,
-						bulkOperationCommand.applicationUserPassword,
-						bulkOperationCommand.keyStoreLocation);
-				logger.info(jobMessage.getMessages());
-				if(jobMessage.isOperationSuccessfull())
-				{
-					jobMessage = bulkOperationService.startbulkOperation(
-							bulkOperationCommand.operationName,
-							bulkOperationCommand.csvFile,
-							bulkOperationCommand.templateFile);
-					logger.info(jobMessage.getMessages());
-					JobDetails jobDetails = null;
-					do
-					{
-						JobMessage jobIdMessage = bulkOperationService.getJobDetails(
-								jobMessage.getJobId());
-						logger.info(jobIdMessage.getMessages());
-						if(jobIdMessage.getJobData()!=null)
-						{
-							jobDetails = (JobDetails)jobIdMessage.getJobData();
-							logger.info(getJobDetails(jobDetails));
-							final byte[] buf = jobDetails.getLogFileBytes();
-							if(buf != null)
-							{
-								String zipFileName = BULK_OUTPUT;
-								FileOutputStream fileOutputStream =
-								 new FileOutputStream(new File(zipFileName));
-								fileOutputStream.write(buf);
-								fileOutputStream.flush();
-								fileOutputStream.close();
-	
-							}
-						}
-					}
-					while(checkStatus(jobDetails.getStatus()));
-				}
-			}
+			bulkOperationCommand.startCommandLine(args, bulkOperationCommand);
 		}
 		catch (BulkOperationException exp)
 		{
@@ -158,6 +104,74 @@ public class BulkOperationCommand
 		catch (IOException fileExp)
 		{
 			logger.error(fileExp.getMessage(),fileExp);
+		}
+	}
+
+	/**
+	 * Method to start the bulk operation through command line.
+	 * @param args Array of String.
+	 * @param bulkOperationCommand BulkOperationCommand.
+	 * @throws BulkOperationException BulkOperationException.
+	 * @throws FileNotFoundException FileNotFoundException.
+	 * @throws IOException IOException.
+	 */
+	public void startCommandLine(String[] args, BulkOperationCommand bulkOperationCommand)
+		throws BulkOperationException, FileNotFoundException, IOException
+	{
+		if(validateAndCommandLineArguments(args))
+		{
+			bulkOperationCommand.operationName = args[0];
+			bulkOperationCommand.csvFile = new File(args[1]);
+			bulkOperationCommand.templateFile = new File(args[2]);
+			bulkOperationCommand.url = args[3];
+			bulkOperationCommand.applicationUserName = args[4];
+			bulkOperationCommand.applicationUserPassword = args[5];								
+			if(args[6] != null)
+			{
+				bulkOperationCommand.keyStoreLocation = args[6];
+				System.setProperty("javax.net.ssl.trustStore",
+						bulkOperationCommand.keyStoreLocation);
+			}	
+			BulkOperationService bulkOperationService =
+				new BulkOperationServiceImpl();
+			JobMessage jobMessage = bulkOperationService.login(
+					bulkOperationCommand.url,
+					bulkOperationCommand.applicationUserName,
+					bulkOperationCommand.applicationUserPassword,
+					bulkOperationCommand.keyStoreLocation);
+			logger.info(jobMessage.getMessages());
+			if(jobMessage.isOperationSuccessfull())
+			{
+				jobMessage = bulkOperationService.startbulkOperation(
+						bulkOperationCommand.operationName,
+						bulkOperationCommand.csvFile,
+						bulkOperationCommand.templateFile);
+				logger.info(jobMessage.getMessages());
+				JobDetails jobDetails = null;
+				do
+				{
+					JobMessage jobIdMessage = bulkOperationService.getJobDetails(
+							jobMessage.getJobId());
+					logger.info(jobIdMessage.getMessages());
+					if(jobIdMessage.getJobData()!=null)
+					{
+						jobDetails = (JobDetails)jobIdMessage.getJobData();
+						logger.info(getJobDetails(jobDetails));
+						final byte[] buf = jobDetails.getLogFileBytes();
+						if(buf != null)
+						{
+							String zipFileName = BULK_OUTPUT;
+							FileOutputStream fileOutputStream =
+							 new FileOutputStream(new File(zipFileName));
+							fileOutputStream.write(buf);
+							fileOutputStream.flush();
+							fileOutputStream.close();
+
+						}
+					}
+				}
+				while(checkStatus(jobDetails.getStatus()));
+			}
 		}
 	}
 

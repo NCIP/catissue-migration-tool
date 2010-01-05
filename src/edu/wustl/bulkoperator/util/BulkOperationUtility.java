@@ -106,6 +106,15 @@ public class BulkOperationUtility
 			List<String> subAttributeList = getAttributeList(containmentMigrationClass, suffix);
 			attributeList.addAll(subAttributeList);
 		}
+		
+		Iterator<BulkOperationClass> referenceItert = bulkOperationClass
+				.getReferenceAssociationCollection().iterator();
+		while (referenceItert.hasNext())
+		{
+			BulkOperationClass referenceMigrationClass = referenceItert.next();
+			List<String> subAttributeList = getAttributeList(referenceMigrationClass, suffix);
+			attributeList.addAll(subAttributeList);
+		}
 		return attributeList;
 	}
 	/**

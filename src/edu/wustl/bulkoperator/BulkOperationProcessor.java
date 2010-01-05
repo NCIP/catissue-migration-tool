@@ -260,25 +260,31 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && cardinality != "")
 				{
-					Object containmentObject = mainMigrationClass.invokeGetterMethod(
-							containmentMigrationClass.getRoleName(), null, mainObj, null);
-					if (containmentObject == null)
+					List<String> attributeList = BulkOperationUtility.getAttributeList(
+							containmentMigrationClass, columnSuffix);
+					if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+							attributeList))
 					{
-						Class klass = containmentMigrationClass.getClassObject();
-						Constructor constructor = klass.getConstructor(null);
-						containmentObject = constructor.newInstance();
+						Object containmentObject = mainMigrationClass.invokeGetterMethod(
+							containmentMigrationClass.getRoleName(), null, mainObj, null);										
+						if (containmentObject == null)
+						{
+							Class klass = containmentMigrationClass.getClassObject();
+							Constructor constructor = klass.getConstructor(null);
+							containmentObject = constructor.newInstance();
+						}
+						processObject(containmentObject, containmentMigrationClass, columnSuffix);
+						String roleName = containmentMigrationClass.getRoleName();
+						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject
+								.getClass()}, mainObj, containmentObject);
 					}
-					processObject(containmentObject, containmentMigrationClass, columnSuffix);
-					String roleName = containmentMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject
-							.getClass()}, mainObj, containmentObject);
 				}
 			}
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			exp.printStackTrace();
+			throw new BulkOperationException(exp.getMessage(), exp);
 		}
 	}
 
@@ -333,20 +339,25 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && cardinality != "")
 				{
-					Object associatedObject = mainMigrationClass.invokeGetterMethod(
-							associationMigrationClass.getRoleName(), null, mainObj, null);
-
-					if (associatedObject == null)
+					List<String> attributeList = BulkOperationUtility.getAttributeList(
+							associationMigrationClass, columnSuffix);
+					if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+							attributeList))
 					{
-						associatedObject = associationMigrationClass.getNewInstance();
+						Object associatedObject = mainMigrationClass.invokeGetterMethod(
+								associationMigrationClass.getRoleName(), null, mainObj, null);	
+						if (associatedObject == null)
+						{
+							associatedObject = associationMigrationClass.getNewInstance();
+						}
+						Collection<Attribute> attributes = associationMigrationClass
+								.getAttributeCollection();
+						//added for setting the old values to the object
+						processObject(associatedObject, associationMigrationClass, columnSuffix);
+						String roleName = associationMigrationClass.getRoleName();
+						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject
+								.getClass()}, mainObj, associatedObject);
 					}
-					Collection<Attribute> attributes = associationMigrationClass
-							.getAttributeCollection();
-					//added for setting the old values to the object
-					processObject(associatedObject, associationMigrationClass, columnSuffix);
-					String roleName = associationMigrationClass.getRoleName();
-					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject
-							.getClass()}, mainObj, associatedObject);
 				}
 			}
 		}
