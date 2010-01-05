@@ -76,12 +76,6 @@ function getCSVOutputReport()
 	%>
 }
 
-function showBulkOperationDashboard()
-{
-	document.forms[0].action="ShowBulkOperationDashboard.do";
-	document.forms[0].submit();
-}
-
 </SCRIPT>
 <head>
 	<LINK href="css/styleSheet.css" type="text/css" rel="stylesheet">
