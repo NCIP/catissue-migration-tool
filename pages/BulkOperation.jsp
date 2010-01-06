@@ -12,7 +12,55 @@
 <%@ page import="java.util.*"%>
 <%@ page import="javax.servlet.*"%>
 <script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
+<script>
+var refreshinterval=5;
+var displaycountdown="yes";
+var starttime;
+var nowtime;
+var reloadseconds=0;
+var secondssinceloaded=0;
+function starttime()
+	{
+		starttime=new Date();
+		starttime=starttime.getTime();
+		countdown();
+	}
+function startProcess()
+{
+	starttime=new Date();
+		starttime=starttime.getTime();
+		countdown();
+}
+function countdown()
+	{
+		nowtime= new Date();
+		nowtime=nowtime.getTime();
+		secondssinceloaded=(nowtime-starttime)/1000;
+		reloadseconds=Math.round(refreshinterval-secondssinceloaded);
+		if (refreshinterval>=secondssinceloaded)
+		{
+			var timer=setTimeout("countdown()",1000);
+			if (displaycountdown=="yes")
+			{
+				window.status="Page refreshing in "+reloadseconds+ " seconds";
+			}
+		}
+		else
+		{
+			clearTimeout(timer);
+			//alert('hell');
+			window.frames['bulkOperationDashoard'].getGridXml();
+			callStartTime();
 
+		}
+	}
+	function callStartTime()
+	{
+		startProcess();
+	}
+
+	window.onload=starttime;
+</script>
 
 <SCRIPT>
 function onDownLoadTemplate()
@@ -57,6 +105,7 @@ function onUploadClick()
 
 			//top.parent.frames['bulkOperationDashoard'].location=document.forms[0].action;*/
 			document.forms[0].submit();
+			document.getElementById('file').value="";
 		}
 	}
 }
@@ -76,6 +125,12 @@ function getCSVOutputReport()
 	%>
 }
 
+function showBulkOperationDashboard()
+{
+	document.forms[0].action="ShowBulkOperationDashboard.do";
+	document.forms[0].submit();
+}
+
 </SCRIPT>
 <head>
 	<LINK href="css/styleSheet.css" type="text/css" rel="stylesheet">
@@ -92,9 +147,7 @@ function getCSVOutputReport()
       </tr>
     </table>
       <table width="100%" height="94%" border="0" cellpadding="3" cellspacing="0" class="whitetable_bg">
-      <tr>
-        <td align="left" height="1%"><%@ include file="/pages/content/common/ActionErrors.jsp" %></td>
-      </tr>
+
 		<!--<c:if test="${requestScope.report != null }">
 		<tr>
 			<td >&nbsp;
@@ -107,54 +160,14 @@ function getCSVOutputReport()
       <tr height="2%">
         <td align="left" height="2%" class="tr_bg_blue1"><span class="blue_ar_b">&nbsp;<bean:message key="bulk.bulkoperations" /></span></td>
       </tr>
-      <tr height="30%">
+      <tr height="25%">
         <td align="left" valign="top" class="showhide">
 
 		<logic:empty name="noTemplates">
-		<table width="100%" border="0" cellpadding="3" cellspacing="0">
-		<html:form action="/FileUpload.do" method="post" enctype="multipart/form-data">
-              <tr>
-                <td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
-                <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
-                <td width="25%" align="left" valign="middle" class="black_new">
-					  <autocomplete:AutoCompleteTag
-						  property="operationName"
-						  optionsList = "<%=request.getAttribute(BulkOperationConstants.BULK_OPERATION_LIST)%>"
-						  initialValue="<%=request.getAttribute("dropdownName")%>"
-						  onChange="onTypeChange(this)"
-						  readOnly="false"
-						  size="31"
-						  styleClass="black_ar"
-					/>
-				</td>
-				<td colspan="2" width="54%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
-					<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
-									<bean:message key="bulk.button.download.template" />
-						</html:button>
-				</td>
-			  </tr>
+		<iframe id="bulkTemplate" name="bulkTemplate" src="BulkTemplate.do?pageOf=pageOfBulkOperation" scrolling="auto" frameborder="0" style="width:100%;height:100%;" marginheight='0' marginwidth='0' height="100%">
+			Your Browser doesn't support IFrames.
+		</iframe>
 
-			  <tr>
-                <td colspan="5" width="100%" height="20" align="center" class="black_ar"><span class="blue_ar_b"></span>
-				</td>
-			  </tr>
-              <tr>
-                <td align="center" class="black_ar"><span class="blue_ar_b"></span>
-				</td>
-                <td align="left" class="black_ar"><b><bean:message key="bulk.upload.file" /></b>
-				</td>
-                <td align="left" valign="middle" width="20%">
-					<input id="file" type="file" name="csvFile" value="Browse">
-					</input>
-				</td>
-				<td align="left" valign="left" colspan="2">
-						<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="">
-								<bean:message key="bulk.button.upload" />
-						</html:button>
-				</td>
-              </tr>
-              </html:form>
-        </table>
 		</logic:empty>
 		<logic:notEmpty name = "noTemplates">
 			<table width="100%" border="0" cellpadding="3" cellspacing="0" class="whitetable_bg">
@@ -176,6 +189,7 @@ function getCSVOutputReport()
       </tr>
 		<tr>
 		<td class="black_ar">
+
 		</td>
 	</tr>
 		  <tr height="100%">
