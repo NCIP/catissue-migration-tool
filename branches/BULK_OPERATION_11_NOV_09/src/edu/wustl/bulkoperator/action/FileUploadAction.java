@@ -18,6 +18,8 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
+import org.apache.struts.action.ActionMessages;
 import org.xml.sax.InputSource;
 
 import edu.wustl.bulkoperator.BulkOperator;
@@ -77,7 +79,6 @@ public class FileUploadAction extends SecureAction
 			BulkOperationBizLogic bulkOperationBizLogic = new BulkOperationBizLogic();
 			InputStream csvFileInputStream = bulkOperationForm.getCsvFile().getInputStream();
 			InputSource xmlTemplateInputSource= null;
-			
 			if(bulkOperationForm.getXmlTemplateFile()==null)
 			{
 				try
@@ -100,11 +101,10 @@ public class FileUploadAction extends SecureAction
 			{
 				forward = request.getParameter(BulkOperationConstants.PAGE_OF);
 				operationName = bulkOperationForm.getOperationName();
-			
+
 				String s = new String(bulkOperationForm.getXmlTemplateFile().getFileData());
-				
+
 				xmlTemplateInputSource= new InputSource(new StringReader(s));
-				
 			}
 			Properties properties = new Properties();
 			properties.put("inputStream", csvFileInputStream);
@@ -115,6 +115,13 @@ public class FileUploadAction extends SecureAction
 				validateBulkOperation(operationName,dataList,bulkOperator);
 				SessionDataBean sessionDataBean = this.getSessionData(request);
 				Long jobId = startBulkOperation(operationName, dataList, sessionDataBean.getUserName(), sessionDataBean.getUserId(), bulkOperator);
+				final ActionMessages msg = new ActionMessages();
+				final ActionMessage msgs = new ActionMessage("job.submitted");
+				msg.add(ActionErrors.GLOBAL_MESSAGE, msgs);
+				if (!msg.isEmpty())
+				{
+					saveMessages(request, msg);
+				}
 				request.setAttribute("jobId", jobId.toString());
 			}
 			else
@@ -153,8 +160,8 @@ public class FileUploadAction extends SecureAction
 		BulkOperator bulkOperator = new BulkOperator(templateInputSource, mappingFileInputSource);
 		return bulkOperator;
 	}
-	
-	private void validateBulkOperation(String operationName,DataList dataList, BulkOperator bulkOperator) 
+
+	private void validateBulkOperation(String operationName,DataList dataList, BulkOperator bulkOperator)
 	throws Exception, BulkOperationException
 	{
 		BulkOperationMetaData metaData = bulkOperator.getMetadata();
@@ -190,10 +197,10 @@ public class FileUploadAction extends SecureAction
 	 * @throws Exception
 	 * @throws BulkOperationException
 	 */
-	private Long startBulkOperation(String operationName, DataList dataList, 
+	private Long startBulkOperation(String operationName, DataList dataList,
 			String loginName, long userId, BulkOperator bulkOperator) throws Exception, BulkOperationException
 	{
-		JobStatusListener jobStatusListner = new DefaultJobStatusListner();		
+		JobStatusListener jobStatusListner = new DefaultJobStatusListner();
 		String bulkOperationClassName = BulkOperationUtility.getClassNameFromBulkOperationPropertiesFile();
 		BulkOperatorJob bulkOperatorJob = new BulkOperatorJob(operationName, loginName, null,
 				String.valueOf(userId), bulkOperator, dataList, bulkOperationClassName, jobStatusListner);

@@ -1,6 +1,7 @@
 
 package edu.wustl.bulkoperator.action;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.json.JSONObject;
 
 import edu.wustl.bulkoperator.util.AppUtility;
 import edu.wustl.bulkoperator.util.GridUtil;
@@ -47,7 +49,23 @@ public class ShowJobDashboardAction extends SecureAction
 		getDashboardDataXML(userId);
 		request.setAttribute(getXmlHeaderName(), gridXml);
 		request.setAttribute("columnsToDisplay", columnsToDisplay);
-		return mapping.findForward(Constants.SUCCESS);
+		String requestType=request.getParameter("requestType");
+		if(requestType != null && requestType.equals("ajax"))
+		{
+			JSONObject resultObject = new JSONObject();
+
+			resultObject.append("xmlGrid", gridXml);
+
+			response.setContentType("text/html");
+			response.setHeader("Cache-Control", "no-cache");
+			Writer writer = response.getWriter();
+			writer.write(new JSONObject().put("resultObject", resultObject).toString());
+			return null;
+		}
+		else
+		{
+			return mapping.findForward(Constants.SUCCESS);
+		}
 	}
 
 	/**
@@ -192,9 +210,9 @@ public class ShowJobDashboardAction extends SecureAction
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_INT));
 		headerXML.append(GridUtil.getColumnXML("20", GridUtil.CELL_TYPE_READ_ONLY, "Bulk Operation Name",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
-		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Start Time",
+		headerXML.append(GridUtil.getColumnXML("15", GridUtil.CELL_TYPE_READ_ONLY, "Start Time",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
-		headerXML.append(GridUtil.getColumnXML("15", GridUtil.CELL_TYPE_READ_ONLY, "Status",
+		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Status",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Total Records",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));

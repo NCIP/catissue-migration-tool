@@ -87,7 +87,7 @@ public class BulkOperationUtility
 		return hql.toString();
 	}
 
-	public static List getAttributeList(BulkOperationClass bulkOperationClass, String suffix)
+	public static List<String> getAttributeList(BulkOperationClass bulkOperationClass, String suffix)
 	{
 		List<String> attributeList = new ArrayList<String>();
 		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
