@@ -209,7 +209,6 @@ public class BulkOperationProcessor
 	private void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
 			String columnSuffix) throws BulkOperationException
 	{
-
 		try
 		{
 			Iterator<BulkOperationClass> containmentItert = mainMigrationClass
@@ -321,21 +320,41 @@ public class BulkOperationProcessor
 				if (cardinality != null && cardinality.equals("*") && cardinality != ""
 						&& mainObj != null)
 				{
-					Collection<Object> newAssociationCollection = new LinkedHashSet<Object>();
 					Collection associationObjectCollection = (Collection) mainMigrationClass
 							.invokeGetterMethod(associationMigrationClass.getRoleName(), null,
 									mainObj, null);
 					//getterForAssociation.invoke(mainObj, null);
 					if (associationObjectCollection == null)
 					{
-						associationObjectCollection = newAssociationCollection;
+						associationObjectCollection = new LinkedHashSet<Object>();
 					}
-					if (associationObjectCollection != null)
+					List sortedList = new ArrayList(associationObjectCollection);
+					//Collections.sort(sortedList, new SortObject());
+					associationObjectCollection = new LinkedHashSet(sortedList);
+
+					int maxNoOfRecords = associationMigrationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						String roleName = associationMigrationClass.getRoleName();
-						mainMigrationClass.invokeSetterMethod(roleName,
-								new Class[]{Collection.class}, mainObj, newAssociationCollection);
-					}
+						List<String> attributeList = BulkOperationUtility.getAttributeList(
+								associationMigrationClass, "#" + i);
+						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+								attributeList))
+						{
+							Object referenceObject = associationMigrationClass.getNewInstance();
+							processObject(referenceObject, associationMigrationClass, "#" + i);
+							associationObjectCollection.add(referenceObject);
+							String roleName = associationMigrationClass.getParentRoleName();
+							if (!Validator.isEmpty(roleName))
+							{
+								associationMigrationClass.invokeSetterMethod(roleName,
+										new Class[]{mainObj.getClass()},
+										referenceObject, mainObj);
+							}
+						}
+					}	
+					String roleName = associationMigrationClass.getRoleName();
+					mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
+							mainObj, associationObjectCollection);
 				}
 				else if (cardinality != null && cardinality.equals("1") && cardinality != "")
 				{
@@ -350,8 +369,6 @@ public class BulkOperationProcessor
 						{
 							associatedObject = associationMigrationClass.getNewInstance();
 						}
-						Collection<Attribute> attributes = associationMigrationClass
-								.getAttributeCollection();
 						//added for setting the old values to the object
 						processObject(associatedObject, associationMigrationClass, columnSuffix);
 						String roleName = associationMigrationClass.getRoleName();
