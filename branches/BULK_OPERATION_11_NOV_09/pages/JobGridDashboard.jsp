@@ -103,6 +103,34 @@
 			}
 		}
 	}
+
+
+	function getGridXml()
+	{
+		var url="JobDashboard.do?requestType=ajax";
+		var request=newXMLHTTPReq();
+		if(request == null)
+		{
+			alert ("Your browser does not support AJAX!");
+			return;
+		}
+		var handlerFunction = getReadyStateHandler(request,setGridXML,true);
+		request.onreadystatechange = handlerFunction;
+		request.open("POST",url,true);
+		request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+		request.send("");
+	}
+	function setGridXML(response)
+	{
+		var jsonResponse = eval('('+ response+')');
+		//alert("jsonResponse   "+jsonResponse);
+		if(jsonResponse.resultObject!=null)
+	    {
+			var xmlGrid=jsonResponse.resultObject.xmlGrid;
+			//alert("xmlGrid   "+xmlGrid);
+			mygrid.loadXMLString(xmlGrid);
+		}
+	}
 </script>
 <style>
 .even
@@ -151,7 +179,7 @@
 					mygrid.setRowTextStyle(row+1,"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
 				}
 
-				//mygrid.setSizes();
+				mygrid.setSizes();
 				function getIDColumns()
 				{
 					var hiddenColumnNumbers = new Array();
@@ -168,7 +196,7 @@
 					mygrid.setColumnHidden(hideCols[i],true);
 				}*/
 				initializeAjaxCall();
-			// Bug Fixed : - 12548  and 12552  ( added by amit_doshi @ 24 July 2009)
+
 			mygrid.objBox.style.overflowX = "hidden";
 		    mygrid.objBox.style.overflowY = "hidden";
 
@@ -181,5 +209,7 @@
 		</table>
 		</td>
 		</tr>
+
+	</tr>
 
 </table>
