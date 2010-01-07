@@ -195,7 +195,8 @@
 					mygrid.setHeaderCol(hideCols[i],"");
 					mygrid.setColumnHidden(hideCols[i],true);
 				}*/
-				initializeAjaxCall();
+				//Initializing ajax call to update individual cells of grid.
+				//initializeAjaxCall();
 
 			mygrid.objBox.style.overflowX = "hidden";
 		    mygrid.objBox.style.overflowY = "hidden";
