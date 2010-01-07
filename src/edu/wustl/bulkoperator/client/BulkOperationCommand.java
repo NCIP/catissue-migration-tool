@@ -95,6 +95,7 @@ public class BulkOperationCommand
 		}
 		catch (BulkOperationException exp)
 		{
+			logger.info(exp.getMessage());
 			logger.error(exp.getMessage(),exp);
 		}
 		catch (FileNotFoundException fileExp)
@@ -120,13 +121,24 @@ public class BulkOperationCommand
 	{
 		if(validateAndCommandLineArguments(args))
 		{
+			logger.info("No of arguments ::"+args.length);
 			bulkOperationCommand.operationName = args[0];
 			bulkOperationCommand.csvFile = new File(args[1]);
-			bulkOperationCommand.templateFile = new File(args[2]);
-			bulkOperationCommand.url = args[3];
-			bulkOperationCommand.applicationUserName = args[4];
-			bulkOperationCommand.applicationUserPassword = args[5];
-			logger.info("No of arguments ::"+args.length);
+			if(args.length == 5)
+			{
+				bulkOperationCommand.url = args[2];
+				bulkOperationCommand.applicationUserName = args[3];
+				bulkOperationCommand.applicationUserPassword = args[4];
+			}
+			else
+			{
+				bulkOperationCommand.templateFile = new File(args[2]);
+				bulkOperationCommand.url = args[3];
+				bulkOperationCommand.applicationUserName = args[4];
+				bulkOperationCommand.applicationUserPassword = args[5];
+				
+			}
+			
 			if(args.length == 7)
 			{
 				if(args[6] != null)
@@ -195,24 +207,24 @@ public class BulkOperationCommand
 		else
 		{
 			long waitingTime = 100000l;
-			logger.info("Current time start :"+System.currentTimeMillis());
+			logger.debug("Current time start :"+System.currentTimeMillis());
 			while(waitingTime > 0)
 			{
 				logger.debug("Waiting for 10 secs");
 				waitingTime = waitingTime - 1;
 			}
-			logger.info("Current time end:"+System.currentTimeMillis());
+			logger.debug("Current time end:"+System.currentTimeMillis());
 		}
 		return isSuccessOrFailure;
 	}
 	/**
 	 * Bulk parameters.
-	 */
+	 *//*
 	public static final String[] bulkParams = {"Operation","CSV file",
 		"Template file",
 		"Application URL",
 		"KeyStore location"
-	};
+	};*/
 
 	/**
 	 * Bulk Operation Name.
@@ -278,39 +290,27 @@ public class BulkOperationCommand
 	private static boolean validateAndCommandLineArguments(String args[])
 	{
 		boolean isValid = true;
-		/*if(args.length != 7)
-		{
-			logger.error("Error: Bulk parameters are either missing  or incorrect," +
-					" please check the below usage command.");
-			logger.info(USAGE_LOG.toString());
-			isValid = false;
-		}*/
 		for (int index=0; index < args.length ; index++)
 		{
 			if(Validator.isEmpty(args[index]))
 			{
-				logger.error("Error: Bulk parameters are either missing  or incorrect" +
-				bulkParams[index]+", please check the below usage command.");
+				logger.error("Error: Bulk parameters are either missing  or incorrect " +
+						args[index]+", please check the below usage command.");
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
 			}
-		}
-		File file = new File(args[1]);
-		if (!file.exists())
-		{
-			logger.error("Error: File is missing " +
-					bulkParams[1]+", please check the path.");
-					logger.info(USAGE_LOG.toString());
-					isValid = false;
-			
-		}
-		file = new File(args[2]);
-		if (!file.exists())
-		{
-			logger.error("Error: File is missing" +
-					bulkParams[2]+",  please check the path.");
-					logger.info(USAGE_LOG.toString());
-					isValid = false;
+			if (args[index].contains(".xml") ||args[index].contains(".csv"))
+			{
+				File file = new File(args[index]);
+				if(!file.exists())
+				{	
+					logger.error("Error: File is missing " +
+						args[index]+", please check the path.");
+						logger.info(USAGE_LOG.toString());
+						isValid = false;
+				}
+				
+			}
 		}
 		return isValid;
 	}
