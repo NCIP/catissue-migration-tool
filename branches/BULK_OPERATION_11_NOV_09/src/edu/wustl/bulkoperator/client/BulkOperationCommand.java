@@ -88,10 +88,9 @@ public class BulkOperationCommand
 	 */
 	public static void main(String[] args)
 	{
-		BulkOperationCommand bulkOperationCommand  = new BulkOperationCommand();
 		try
 		{
-			bulkOperationCommand.startCommandLine(args, bulkOperationCommand);
+			startCommandLine(args);
 		}
 		catch (BulkOperationException exp)
 		{
@@ -111,14 +110,14 @@ public class BulkOperationCommand
 	/**
 	 * Method to start the bulk operation through command line.
 	 * @param args Array of String.
-	 * @param bulkOperationCommand BulkOperationCommand.
 	 * @throws BulkOperationException BulkOperationException.
 	 * @throws FileNotFoundException FileNotFoundException.
 	 * @throws IOException IOException.
 	 */
-	public void startCommandLine(String[] args, BulkOperationCommand bulkOperationCommand)
-		throws BulkOperationException, FileNotFoundException, IOException
+	public static void startCommandLine(String[] args)
+	throws BulkOperationException, FileNotFoundException, IOException
 	{
+		BulkOperationCommand bulkOperationCommand  = new BulkOperationCommand();
 		if(validateAndCommandLineArguments(args))
 		{
 			logger.info("No of arguments ::"+args.length);
