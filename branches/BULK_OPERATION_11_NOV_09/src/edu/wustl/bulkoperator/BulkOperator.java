@@ -71,6 +71,7 @@ public class BulkOperator
 		}
 		catch (Exception ex)
 		{
+			logger.error(ex);
 			throw new BulkOperationException(ex.getMessage(), ex);
 		}
 	}

@@ -77,6 +77,11 @@ public class FileUploadAction extends SecureAction
 		String forward = BulkOperationConstants.SUCCESS;
 		try
 		{
+			if(request.getParameter(BulkOperationConstants.PAGE_OF) != null &&
+					!"".equals(request.getParameter(BulkOperationConstants.PAGE_OF)))
+			{
+				forward = request.getParameter(BulkOperationConstants.PAGE_OF);
+			}
 			BulkOperationBizLogic bulkOperationBizLogic = new BulkOperationBizLogic();
 			InputStream csvFileInputStream = bulkOperationForm.getCsvFile().getInputStream();
 			InputSource xmlTemplateInputSource= null;
@@ -104,7 +109,6 @@ public class FileUploadAction extends SecureAction
 			}
 			else
 			{
-				forward = request.getParameter(BulkOperationConstants.PAGE_OF);
 				operationName = bulkOperationForm.getOperationName();
 
 				String s = new String(bulkOperationForm.getXmlTemplateFile().getFileData());
