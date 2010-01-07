@@ -72,6 +72,7 @@ public class FileUploadAction extends SecureAction
 
 		BulkOperationForm bulkOperationForm = (BulkOperationForm) form;
 		String dropDownName = bulkOperationForm.getOperationName();
+		logger.info("operationName : "+dropDownName);
 		String operationName = null;
 		String forward = BulkOperationConstants.SUCCESS;
 		try
@@ -79,7 +80,9 @@ public class FileUploadAction extends SecureAction
 			BulkOperationBizLogic bulkOperationBizLogic = new BulkOperationBizLogic();
 			InputStream csvFileInputStream = bulkOperationForm.getCsvFile().getInputStream();
 			InputSource xmlTemplateInputSource= null;
-			if(bulkOperationForm.getXmlTemplateFile()==null)
+			logger.info("bulkOperationForm.getXmlTemplateFile() : "+bulkOperationForm.getXmlTemplateFile());
+			if(bulkOperationForm.getXmlTemplateFile()==null ||
+					bulkOperationForm.getXmlTemplateFile().toString().equalsIgnoreCase("noname"))
 			{
 				try
 				{
@@ -90,9 +93,11 @@ public class FileUploadAction extends SecureAction
 					}
 					operationName = list.get(0);
 					xmlTemplateInputSource = new InputSource(new StringReader(list.get(1)));
+					logger.info("xmlTemplateInputSource : "+xmlTemplateInputSource);
 				}
 				catch (Exception exp)
 				{
+					logger.error(exp);
 					throw new BulkOperationException("bulk.error.database.operation."
 							+ "reading.operation.name.xml.template");
 				}
@@ -156,6 +161,8 @@ public class FileUploadAction extends SecureAction
 	{
 		String mappingFilePath = CommonServiceLocator.getInstance().getPropDirPath()
 				+ File.separator + "mapping.xml";
+		logger.info(mappingFilePath);
+		logger.info("templateInputSource : "+templateInputSource);
 		InputSource mappingFileInputSource = new InputSource(mappingFilePath);
 		BulkOperator bulkOperator = new BulkOperator(templateInputSource, mappingFileInputSource);
 		return bulkOperator;
