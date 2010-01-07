@@ -55,12 +55,12 @@ public class BulkOperationCommand
 	/**
 	 * Bulk output ZIP file.
 	 */
-	public static final String BULK_OUTPUT = "bulkOutput.zip";
+	public static final StringBuilder BULK_OUTPUT = new StringBuilder();
 	/**
 	 * Usage log.
 	 */
 	private static StringBuilder USAGE_LOG = new StringBuilder(
-			"\nUsage:\nant runBulkOperation -DoperationName=<operationName>" +
+			"\nUsage:\nant -f deploy.xml runBulkOperation -DoperationName=<operationName>" +
 			" -DcsvFile=<csvFile> -DtemplateFile=<templateFile> -Durl=<url> " +
 			"\n-DapplicationUserName=<applicationUserName> " +
 			"-DapplicationUserPassword=<applicationUserPassword> " +
@@ -125,12 +125,16 @@ public class BulkOperationCommand
 			bulkOperationCommand.templateFile = new File(args[2]);
 			bulkOperationCommand.url = args[3];
 			bulkOperationCommand.applicationUserName = args[4];
-			bulkOperationCommand.applicationUserPassword = args[5];								
-			if(args[6] != null)
+			bulkOperationCommand.applicationUserPassword = args[5];
+			logger.info("No of arguments ::"+args.length);
+			if(args.length == 7)
 			{
-				bulkOperationCommand.keyStoreLocation = args[6];
-				System.setProperty("javax.net.ssl.trustStore",
+				if(args[6] != null)
+				{
+					bulkOperationCommand.keyStoreLocation = args[6];
+					System.setProperty("javax.net.ssl.trustStore",
 						bulkOperationCommand.keyStoreLocation);
+				}
 			}	
 			BulkOperationService bulkOperationService =
 				new BulkOperationServiceImpl();
@@ -146,6 +150,7 @@ public class BulkOperationCommand
 						bulkOperationCommand.operationName,
 						bulkOperationCommand.csvFile,
 						bulkOperationCommand.templateFile);
+				BULK_OUTPUT.append(bulkOperationCommand.operationName).append(jobMessage.getJobId()).append(".zip");
 				logger.info(jobMessage.getMessages());
 				JobDetails jobDetails = null;
 				do
@@ -160,7 +165,7 @@ public class BulkOperationCommand
 						final byte[] buf = jobDetails.getLogFileBytes();
 						if(buf != null)
 						{
-							String zipFileName = BULK_OUTPUT;
+							String zipFileName = BULK_OUTPUT.toString();
 							FileOutputStream fileOutputStream =
 							 new FileOutputStream(new File(zipFileName));
 							fileOutputStream.write(buf);
@@ -273,13 +278,13 @@ public class BulkOperationCommand
 	private static boolean validateAndCommandLineArguments(String args[])
 	{
 		boolean isValid = true;
-		if(args.length != 7)
+		/*if(args.length != 7)
 		{
 			logger.error("Error: Bulk parameters are either missing  or incorrect," +
 					" please check the below usage command.");
 			logger.info(USAGE_LOG.toString());
 			isValid = false;
-		}
+		}*/
 		for (int index=0; index < args.length ; index++)
 		{
 			if(Validator.isEmpty(args[index]))
@@ -289,6 +294,23 @@ public class BulkOperationCommand
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
 			}
+		}
+		File file = new File(args[1]);
+		if (!file.exists())
+		{
+			logger.error("Error: File is missing " +
+					bulkParams[1]+", please check the path.");
+					logger.info(USAGE_LOG.toString());
+					isValid = false;
+			
+		}
+		file = new File(args[2]);
+		if (!file.exists())
+		{
+			logger.error("Error: File is missing" +
+					bulkParams[2]+",  please check the path.");
+					logger.info(USAGE_LOG.toString());
+					isValid = false;
 		}
 		return isValid;
 	}
