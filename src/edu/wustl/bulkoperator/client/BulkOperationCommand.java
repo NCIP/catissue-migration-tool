@@ -53,6 +53,11 @@ public class BulkOperationCommand
 	private String keyStoreLocation;
 	
 	/**
+	 * Key store location.
+	 */
+	private String bulkArtifactsLocation;
+	
+	/**
 	 * Bulk output ZIP file.
 	 */
 	public static final StringBuilder BULK_OUTPUT = new StringBuilder();
@@ -64,7 +69,8 @@ public class BulkOperationCommand
 			" -DcsvFile=<csvFile> -DtemplateFile=<templateFile> -Durl=<url> " +
 			"\n-DapplicationUserName=<applicationUserName> " +
 			"-DapplicationUserPassword=<applicationUserPassword> " +
-			"-DkeyStoreLocation=<keyStoreLocation>\n\n Where,\n operationName =" +
+			"-DkeyStoreLocation=<keyStoreLocation>" +
+			"-DbulkArtifactsLocation=<bulkArtifactsLocation>\n\n Where,\n operationName =" +
 			"\t template name or operation name\n csvFile =\t Absolute path" +
 			" of CSV data file. This CSV file should be in format as per template\n" +
 			" templateFile[optional] =\t Absolute path of the XML template." +
@@ -75,7 +81,9 @@ public class BulkOperationCommand
 			" applicationUserPassword =\t Application user password \n" +
 			" keyStoreLocation[optional]=\t Absolute path of Keystore location," +
 			" if application is deployed as https(SSL).\n" +
-			" Keystore loaction is optional to give \n");
+			" Keystore loaction is optional to give \n"+
+			"bulkArtifactsLocation[optional]=\t Specify the path where u want " +
+			"to store bulk artifacts.\n");
 	/**
 	 * logger.
 	 */
@@ -85,8 +93,9 @@ public class BulkOperationCommand
 	/**
 	 * Bulk Client.
 	 * @param args args.
+	 * @throws IOException 
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		try
 		{
@@ -118,35 +127,33 @@ public class BulkOperationCommand
 	throws BulkOperationException, FileNotFoundException, IOException
 	{
 		BulkOperationCommand bulkOperationCommand  = new BulkOperationCommand();
+		logger.info("No of arguments ::"+args.length);
 		if(validateAndCommandLineArguments(args))
 		{
-			logger.info("No of arguments ::"+args.length);
 			bulkOperationCommand.operationName = args[0];
 			bulkOperationCommand.csvFile = new File(args[1]);
-			if(args.length == 5)
-			{
-				bulkOperationCommand.url = args[2];
-				bulkOperationCommand.applicationUserName = args[3];
-				bulkOperationCommand.applicationUserPassword = args[4];
-			}
-			else
-			{
-				bulkOperationCommand.templateFile = new File(args[2]);
-				bulkOperationCommand.url = args[3];
-				bulkOperationCommand.applicationUserName = args[4];
-				bulkOperationCommand.applicationUserPassword = args[5];
-				
-			}
+			bulkOperationCommand.url = args[2];
+			bulkOperationCommand.applicationUserName = args[3];
+			bulkOperationCommand.applicationUserPassword = args[4];
 			
-			if(args.length == 7)
+			for(int index=5; index<args.length ;index++)
 			{
-				if(args[6] != null)
+				if(args[index].contains(".keystore"))
 				{
-					bulkOperationCommand.keyStoreLocation = args[6];
+					bulkOperationCommand.keyStoreLocation = args[index];
 					System.setProperty("javax.net.ssl.trustStore",
 						bulkOperationCommand.keyStoreLocation);
 				}
-			}	
+				else if(new File(args[index]).isDirectory())
+				{
+					bulkOperationCommand.bulkArtifactsLocation = args[index];
+				}
+				else
+				{
+					bulkOperationCommand.templateFile = new File(args[index]);
+				}
+					
+			}
 			BulkOperationService bulkOperationService =
 				new BulkOperationServiceImpl();
 			JobMessage jobMessage = bulkOperationService.login(
@@ -161,7 +168,13 @@ public class BulkOperationCommand
 						bulkOperationCommand.operationName,
 						bulkOperationCommand.csvFile,
 						bulkOperationCommand.templateFile);
+				if(bulkOperationCommand.bulkArtifactsLocation != null && 
+						!"".equals(bulkOperationCommand.bulkArtifactsLocation))
+				{
+					BULK_OUTPUT.append(bulkOperationCommand.bulkArtifactsLocation ).append("\\");
+				}
 				BULK_OUTPUT.append(bulkOperationCommand.operationName).append(jobMessage.getJobId()).append(".zip");
+				
 				logger.info(jobMessage.getMessages());
 				JobDetails jobDetails = null;
 				do
@@ -172,7 +185,7 @@ public class BulkOperationCommand
 					if(jobIdMessage.getJobData()!=null)
 					{
 						jobDetails = (JobDetails)jobIdMessage.getJobData();
-						logger.info(getJobDetails(jobDetails));
+						logger.info(getJobDetails(jobDetails,bulkOperationCommand));
 						final byte[] buf = jobDetails.getLogFileBytes();
 						if(buf != null)
 						{
@@ -267,7 +280,7 @@ public class BulkOperationCommand
 	 * @param jobDetails Job details.
 	 * @return Job details.
 	 */
-	private static String getJobDetails(JobDetails jobDetails)
+	private static String getJobDetails(JobDetails jobDetails,BulkOperationCommand bulkOperationCommand)
 	{
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(NEW_LINE).append(BULK_OPERATION_NAME).append(jobDetails.getJobName())
@@ -276,9 +289,20 @@ public class BulkOperationCommand
 		.append(NEW_LINE).append(TOTAL_RECORDS).append(jobDetails.getTotalRecordsCount())
 		.append(NEW_LINE).append(PROCESSED_RECORDS).append(jobDetails.getCurrentRecordsProcessed())
 		.append(NEW_LINE).append(FAILED_RECORDS).append(jobDetails.getFailedRecordsCount())
-		.append(NEW_LINE).append(TIME_TAKEN).append(jobDetails.getTimeTaken())
-		.append(NEW_LINE).append(REPORT).append(System.getProperty("user.dir"))
-		.append("\\").append(BULK_OUTPUT);
+		.append(NEW_LINE).append(TIME_TAKEN).append(jobDetails.getTimeTaken());
+
+		if(bulkOperationCommand.bulkArtifactsLocation != null && 
+						!"".equals(bulkOperationCommand.bulkArtifactsLocation))
+		{
+			stringBuilder.append(NEW_LINE).append(REPORT).append(BULK_OUTPUT);
+		}
+		else
+		{
+			stringBuilder.append(NEW_LINE).append(REPORT).append(System.getProperty("user.dir"))
+			.append("\\").append(BULK_OUTPUT);
+		}
+		
+		
 		return stringBuilder.toString();
 	}
 
@@ -309,6 +333,20 @@ public class BulkOperationCommand
 						isValid = false;
 				}
 				
+			}
+		}
+		
+		if(args.length > 5)
+		{
+			for(int index=5; index<args.length ;index++)
+			{
+				if(!args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
+				{
+					logger.error("Error: Path specified to store bulk artifacts should be a directory   " +
+							args[index]+", please check the path.");
+					logger.info(USAGE_LOG.toString());
+					isValid = false;
+				}
 			}
 		}
 		return isValid;
