@@ -22,12 +22,17 @@ public class BulkOperationForm extends AbstractActionForm implements Serializabl
 	 * operationName.
 	 */
 	private String operationName = "";
-	
+	/**
+	 * dropdownName.
+	 */
+	private String dropdownName = "";	
 	/**
 	 * file.
 	 */
 	private FormFile csvFile;
-	
+	/**
+	 * xmlTemplateFile.
+	 */
 	private FormFile xmlTemplateFile;
 	/**
 	 * @return the xmlTemplateFile
@@ -58,6 +63,22 @@ public class BulkOperationForm extends AbstractActionForm implements Serializabl
 	public void setOperationName(String operationName)
 	{
 		this.operationName = operationName;
+	}
+	/**
+	 * Get DropdownName.
+	 * @return String.
+	 */
+	public String getDropdownName()
+	{
+		return dropdownName;
+	}
+	/**
+	 * Set DropdownName.
+	 * @param dropdownName String.
+	 */
+	public void setDropdownName(String dropdownName)
+	{
+		this.dropdownName = dropdownName;
 	}
 	/**
 	 * Get File.

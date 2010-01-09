@@ -69,7 +69,7 @@ public class BulkOperationAction extends SecureAction
 				request.setAttribute("dropdownName", initialDropdownValue);
 				File file = (File) request.getAttribute("resultFile");
 				String dropdownNameFromUI = (String) request.getParameter("dropdownName");
-				String dropdownName = bulkOperationForm.getOperationName();
+				String dropdownName = bulkOperationForm.getDropdownName();
 
 				if ((dropdownName != null && !"".equals(dropdownName))
 						|| (dropdownNameFromUI != null && !"".equals(dropdownNameFromUI)))
@@ -84,7 +84,7 @@ public class BulkOperationAction extends SecureAction
 
 						HttpSession session = request.getSession();
 						session.setAttribute("resultFile", file);
-						request.setAttribute("dropdownName", bulkOperationForm.getOperationName());
+						request.setAttribute("dropdownName", bulkOperationForm.getDropdownName());
 						request.setAttribute(Constants.SUCCESS, Constants.SUCCESS);
 						request.setAttribute("report", "report");
 						mappingForward = BulkOperationConstants.PAGE_OF_BULK_OPERATION;
@@ -92,7 +92,7 @@ public class BulkOperationAction extends SecureAction
 					else if (request.getParameter(BulkOperationConstants.PAGE_OF) == null && file == null
 							&& (dropdownNameFromUI == null && !"".equals(dropdownNameFromUI)))
 					{
-						request.setAttribute("dropdownName", bulkOperationForm.getOperationName());
+						request.setAttribute("dropdownName", bulkOperationForm.getDropdownName());
 						mappingForward = BulkOperationConstants.PAGE_OF_BULK_OPERATION;
 					}
 					else

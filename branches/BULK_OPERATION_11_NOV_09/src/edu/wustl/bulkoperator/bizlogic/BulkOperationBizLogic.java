@@ -155,15 +155,25 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @throws BulkOperationException BulkOperationException.
 	 * @throws ApplicationException ApplicationException.
 	 */
-	public List<String> getOperationNameAndXml(String dropdownName)
+	public List<String> getOperationNameAndXml(String dropdownName, String operationName)
 		throws BulkOperationException, ApplicationException
 	{
 		List<String> returnList = new ArrayList<String>();
 		try
 		{
-			String query = "select operation, xml_tempalte from " +
-					"catissue_bulk_operation " +
-					"where DROPDOWN_NAME like '" + dropdownName + "'";
+			String query = null;
+			if(dropdownName != null && !"".equals(dropdownName))
+			{
+				query = "select operation, xml_tempalte from " +
+				"catissue_bulk_operation " +
+				"where DROPDOWN_NAME = '" + dropdownName + "'";
+			}
+			else
+			{
+				query = "select operation, xml_tempalte from " +
+				"catissue_bulk_operation " +
+				"where OPERATION = '" + operationName + "'";
+			}			
 			List list = AppUtility.executeSQLQuery(query);
 			if(!list.isEmpty())
 			{
