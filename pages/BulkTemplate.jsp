@@ -17,7 +17,7 @@
 <script>
 function onDownLoadTemplate()
 {
-	var dropdownName =	document.getElementById('operationName').value;
+	var dropdownName =	document.getElementById('dropdownName').value;
 	if (dropdownName == null || dropdownName == 'undefined' || dropdownName == "")
 	{
 		alert("Incorrect Template Name.");
@@ -32,7 +32,7 @@ function onDownLoadTemplate()
 
 function onUploadClick()
 {
-	var dropdownName =	document.getElementById('operationName').value;
+	var dropdownName =	document.getElementById('dropdownName').value;
 	if (dropdownName == null || dropdownName == 'undefined' || dropdownName == "")
 	{
 		alert("Please select a Template Name.");
@@ -98,7 +98,7 @@ function getCSVOutputReport()
                 <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
                 <td width="25%" align="left" valign="middle" class="black_new">
 					  <autocomplete:AutoCompleteTag
-						  property="operationName"
+						  property="dropdownName"
 						  optionsList = "<%=request.getAttribute(BulkOperationConstants.BULK_OPERATION_LIST)%>"
 						  initialValue="<%=request.getAttribute("dropdownName")%>"
 						  onChange="onTypeChange(this)"

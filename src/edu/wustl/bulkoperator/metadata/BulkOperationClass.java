@@ -6,9 +6,12 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.hibernate.proxy.HibernateProxy;
+
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.util.logger.Logger;
+import edu.wustl.dao.util.HibernateMetaData;
 
 public class BulkOperationClass
 {
@@ -247,6 +250,10 @@ public class BulkOperationClass
 			String functionName = BulkOperationUtility.getGetterFunctionName(roleName);
 			returnObject = Class.forName(className).getMethod(functionName, parameterTypes).invoke(
 					objectOnWhichMethodToInvoke, args);
+			if(returnObject instanceof HibernateProxy)
+			{
+				returnObject = HibernateMetaData.getProxyObjectImpl(returnObject);
+			}
 		}
 		catch (Exception e)
 		{

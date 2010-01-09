@@ -80,10 +80,10 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-//			String operationName = "editSpecimen";
-//			String dropdownName = "Edit Specimen";
-//			String csvFile = "G:/createSpecimen.csv";
-//			String xmlFile = "G:/createSpecimen.xml";
+//			String operationName = "createParticipantRegistration";
+//			String dropdownName = "createParticipantRegistration";
+//			String csvFile = "D:/createParticipantRegistration.csv";
+//			String xmlFile = "D:/createParticipantRegistration.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];

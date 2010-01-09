@@ -40,6 +40,7 @@ import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
 
@@ -71,9 +72,10 @@ public class FileUploadAction extends SecureAction
 	{
 
 		BulkOperationForm bulkOperationForm = (BulkOperationForm) form;
-		String dropDownName = bulkOperationForm.getOperationName();
+		String dropDownName = bulkOperationForm.getDropdownName();
+		String operationName = bulkOperationForm.getOperationName();
 		logger.info("operationName : "+dropDownName);
-		String operationName = null;
+		String retrievedOperationName = null;
 		String forward = BulkOperationConstants.SUCCESS;
 		try
 		{
@@ -91,12 +93,13 @@ public class FileUploadAction extends SecureAction
 			{
 				try
 				{
-					List<String> list = bulkOperationBizLogic.getOperationNameAndXml(dropDownName);
+					List<String> list = bulkOperationBizLogic.getOperationNameAndXml
+								(dropDownName, operationName);
 					if (list.isEmpty())
 					{
 						throw new BulkOperationException("bulk.error.incorrect.operation.name");
 					}
-					operationName = list.get(0);
+					retrievedOperationName = list.get(0);
 					xmlTemplateInputSource = new InputSource(new StringReader(list.get(1)));
 					logger.info("xmlTemplateInputSource : "+xmlTemplateInputSource);
 				}
@@ -109,7 +112,7 @@ public class FileUploadAction extends SecureAction
 			}
 			else
 			{
-				operationName = bulkOperationForm.getOperationName();
+				retrievedOperationName = bulkOperationForm.getOperationName();
 
 				String s = new String(bulkOperationForm.getXmlTemplateFile().getFileData());
 
@@ -120,10 +123,10 @@ public class FileUploadAction extends SecureAction
 			DataList dataList = DataReader.getNewDataReaderInstance(properties).readData();
 			if (dataList != null)
 			{
-				BulkOperator bulkOperator = readCsvAndgetBulkOperator(operationName, xmlTemplateInputSource, dataList);
-				validateBulkOperation(operationName,dataList,bulkOperator);
+				BulkOperator bulkOperator = readCsvAndgetBulkOperator(retrievedOperationName, xmlTemplateInputSource, dataList);
+				validateBulkOperation(retrievedOperationName,dataList,bulkOperator);
 				SessionDataBean sessionDataBean = this.getSessionData(request);
-				Long jobId = startBulkOperation(operationName, dataList, sessionDataBean.getUserName(), sessionDataBean.getUserId(), bulkOperator);
+				Long jobId = startBulkOperation(retrievedOperationName, dataList, sessionDataBean.getUserName(), sessionDataBean.getUserId(), bulkOperator);
 				final ActionMessages msg = new ActionMessages();
 				final ActionMessage msgs = new ActionMessage("job.submitted");
 				msg.add(ActionErrors.GLOBAL_MESSAGE, msgs);
@@ -144,7 +147,15 @@ public class FileUploadAction extends SecureAction
 			if (errors == null)
 			{
 				errors = new ActionErrors();
-				errors.add(ActionErrors.GLOBAL_ERROR, new ActionError(exp.getMessage()));
+				if(dropDownName != null || !"".equals(dropDownName))
+				{
+					errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item",
+							ApplicationProperties.getValue("bulk.error.csv.column.name.change")));
+				}
+				else
+				{
+					errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item", exp.getMessage()));
+				}
 			}
 			this.saveErrors(request, errors);
 			logger.error(exp.getMessage(), exp);
