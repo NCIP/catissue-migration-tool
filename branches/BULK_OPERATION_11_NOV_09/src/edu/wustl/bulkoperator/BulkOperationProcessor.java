@@ -110,7 +110,7 @@ public class BulkOperationProcessor
 				}
 				catch (Exception exp)
 				{
-					dataList.addStatusMessage(currentRowIndex, "Failure", ""+exp.getMessage());
+					dataList.addStatusMessage(currentRowIndex, "Failure", " "+exp.getMessage());
 					failureCount++;
 				}
 				if ((currentRowIndex % modValue) == 0)
