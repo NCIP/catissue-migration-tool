@@ -1,8 +1,11 @@
 package edu.wustl.bulkoperator.client;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -14,6 +17,7 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import edu.wustl.bulkoperator.action.JobMessage;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.ApplicationProperties;
 
 
 /**
@@ -195,11 +199,19 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		//	Object object1 = ois.readObject();
 			jobMessage = (JobMessage)object;
 		}
-		catch (Exception exp)
+		catch (IOException e)
 		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.client.error");
-			throw new BulkOperationException(errorkey,exp,
-					url+":"+applicationUserName+":"+applicationUserPassword);
+			List<String> listOfArguments = new ArrayList<String>();
+			listOfArguments.add(url);
+			listOfArguments.add(applicationUserName);
+			listOfArguments.add(applicationUserPassword);
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+		}
+		catch (ClassNotFoundException e)
+		{
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("clz.not.found.error"));
 		}
 		finally
 		{
@@ -240,11 +252,19 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			jobMessage = (JobMessage)object;
 			isLoggedIn = true;
 		}
-		catch (Exception exp)
+		catch (IOException e)
 		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.client.error");
-			throw new BulkOperationException(errorkey,exp,
-					url+":"+applicationUserName+":"+applicationUserPassword);
+			List<String> listOfArguments = new ArrayList<String>();
+			listOfArguments.add(url);
+			listOfArguments.add(applicationUserName);
+			listOfArguments.add(applicationUserPassword);
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+		}
+		catch (ClassNotFoundException e)
+		{
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("clz.not.found.error"));
 		}
 		finally
 		{
@@ -289,14 +309,25 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		}
 		catch (FileNotFoundException exp)
 		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.file.not.found");
-			throw new BulkOperationException(errorkey,exp,xmlTemplateFile+":"+csvFile);
+			List<String> listOfArguments = new ArrayList<String>();
+			listOfArguments.add(xmlTemplateFile.getName());
+			listOfArguments.add(csvFile.getName());
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.file.not.found", listOfArguments));
 		}
-		catch (Exception exp)
+		catch (IOException e)
 		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.client.error");
-			throw new BulkOperationException(errorkey,exp,
-					url+":"+applicationUserName+":"+applicationUserPassword);
+			List<String> listOfArguments = new ArrayList<String>();
+			listOfArguments.add(url);
+			listOfArguments.add(applicationUserName);
+			listOfArguments.add(applicationUserPassword);
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+		}
+		catch (ClassNotFoundException e)
+		{
+			jobMessage = new JobMessage();
+			jobMessage.addMessage(ApplicationProperties.getValue("clz.not.found.error"));
 		}
 		finally
 		{
