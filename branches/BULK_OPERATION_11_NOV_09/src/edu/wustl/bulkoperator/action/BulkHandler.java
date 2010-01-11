@@ -24,6 +24,7 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessage;
 import org.apache.struts.upload.FormFile;
 
 import edu.wustl.bulkoperator.actionForm.BulkOperationForm;
@@ -156,7 +157,7 @@ public class BulkHandler extends Action
 			if (errors == null)
 			{
 				errors = new ActionErrors();
-				errors.add(ActionErrors.GLOBAL_ERROR, new ActionError(exp.getMessage()));
+				errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item",exp.getMessage()));
 			}
 			this.saveErrors(request, errors);
 			logger.error(exp.getMessage(), exp);
@@ -190,8 +191,13 @@ public class BulkHandler extends Action
 			Iterator<ActionError> it = errors.get();
 			while(it.hasNext())
 			{
-				ActionError message = (ActionError)it.next();
-				jobMessage.addMessage(message.getKey());
+				ActionError actionError = (ActionError)it.next();
+				Object[] values = actionError.getValues();
+				for(int index=0 ; index<values.length ; index++)
+				{
+					logger.info(values[index].toString());
+					jobMessage.addMessage(values[index].toString());
+				}
 			}
 			BULK_LOG.append(jobMessage.getOperationCalled()).append(FAILED);
 			jobMessage.addMessage(BULK_LOG.toString());
@@ -199,7 +205,17 @@ public class BulkHandler extends Action
 		else
 		{
 			BULK_LOG.append("\n").append(STATUS_MESSAGE).
-			append(":").append(jobMessage.getOperationCalled()).append(SUCCESS);
+			append(":").append(jobMessage.getOperationCalled());
+			
+			if(jobMessage.getJobData() != null)
+			{
+				BULK_LOG.append(" "+jobMessage.getJobData().getStatus());
+			}
+			else
+			{
+				BULK_LOG.append(SUCCESS);
+			}
+			
 			jobMessage.setOperationSuccessfull(true);
 			if(fromAction != null && fromAction.equals(fromAction.FILEUPLOAD))
 			{

@@ -141,20 +141,22 @@ public class FileUploadAction extends SecureAction
 				throw new BulkOperationException("bulk.error.reading.csv.file");
 			}
 		}
-		catch (Exception exp)
+		catch (BulkOperationException exp)
 		{
 			ActionErrors errors = (ActionErrors) request.getAttribute(Globals.ERROR_KEY);
 			if (errors == null)
 			{
 				errors = new ActionErrors();
-				if(dropDownName != null || !"".equals(dropDownName))
+				if(dropDownName == null || "".equals(dropDownName))
 				{
-					errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item",
-							ApplicationProperties.getValue("bulk.error.csv.column.name.change")));
+					errors.add(ActionErrors.GLOBAL_ERROR,
+					 new ActionError("errors.item",exp.getMessage()));
+
 				}
 				else
 				{
-					errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item", exp.getMessage()));
+					errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item",
+							ApplicationProperties.getValue("bulk.error.csv.column.name.change")));
 				}
 			}
 			this.saveErrors(request, errors);

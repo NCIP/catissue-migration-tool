@@ -159,6 +159,7 @@ public class BulkOperationAction extends SecureAction
 		}
 		catch (Exception exception)
 		{
+			logger.error(exception);
 			throw new BulkOperationException(exception);
 		}
 	}
