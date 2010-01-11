@@ -101,10 +101,10 @@
 			</fileset>
 		</delete>
 	</target>
-
+ 
 	<target name="compile" depends="clean" description="java classes are compiled">
 		<echo message="Compling classes................" />
-		<javac destdir="${basedir}/bin" includes="**/*.*">
+		<javac destdir="${basedir}/bin" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5">
     		<src path="${basedir}/src"/>
             <classpath>
        			<fileset dir="${basedir}/lib">
