@@ -115,7 +115,7 @@ public class BulkOperationAction extends SecureAction
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 		}
 		return mapping.findForward(mappingForward);
 	}
@@ -160,7 +160,7 @@ public class BulkOperationAction extends SecureAction
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp);
+			logger.error(exp);
 			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorKey, exp, exp.getMessage());
 		}

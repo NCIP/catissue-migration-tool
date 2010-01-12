@@ -128,7 +128,7 @@ public class BulkOperationProcessor
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
@@ -160,7 +160,7 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
 	}
@@ -292,12 +292,12 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.debug(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMsgValues(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
@@ -389,12 +389,12 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.debug(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMsgValues(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
@@ -446,12 +446,12 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.debug(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMsgValues(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}

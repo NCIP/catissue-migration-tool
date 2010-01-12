@@ -267,13 +267,13 @@ public class BulkOperationUtility
 		}
 		catch (FileNotFoundException fnfExp)
 		{
-			logger.debug("Error while creating ouput report zip file.", fnfExp);
+			logger.error("Error while creating ouput report zip file.", fnfExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.zip.file");
 			throw new BulkOperationException(errorkey, fnfExp, "");
 		}
 		catch (IOException ioExp)
 		{
-			logger.debug("Error while creating ouput report zip file.", ioExp);
+			logger.error("Error while creating ouput report zip file.", ioExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.zip.file");
 			throw new BulkOperationException(errorkey, ioExp, "");
 		}
