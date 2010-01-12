@@ -7,6 +7,7 @@ import java.io.IOException;
 import edu.wustl.bulkoperator.action.JobMessage;
 import edu.wustl.bulkoperator.jobmanager.JobDetails;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;
@@ -99,6 +100,8 @@ public class BulkOperationCommand
 	{
 		try
 		{
+			ApplicationProperties
+			.initBundle("ApplicationResources");
 			startCommandLine(args);
 		}
 		catch (BulkOperationException exp)
