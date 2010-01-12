@@ -25,7 +25,7 @@ public class DefaultJobStatusListner implements JobStatusListener
 	/**
 	 * LOGGER Logger - Generic LOGGER.
 	 */
-	private static final Logger LOGGER = Logger.getCommonLogger(DefaultJobStatusListner.class);
+	private static final Logger logger = Logger.getCommonLogger(DefaultJobStatusListner.class);
 
 	/* (non-Javadoc)
 	 * @see edu.wustl.common.jobManager.JobStatusListener#jobStatusCreated
@@ -53,7 +53,7 @@ public class DefaultJobStatusListner implements JobStatusListener
 		}
 		catch (final DAOException daoExp)
 		{
-			LOGGER.error(daoExp.getMessage(), daoExp);
+			logger.debug(daoExp.getMessage(), daoExp);
 		}
 		finally
 		{
@@ -66,7 +66,7 @@ public class DefaultJobStatusListner implements JobStatusListener
 			}
 			catch (final DAOException daoExp)
 			{
-				LOGGER.error(daoExp.getMessage(), daoExp);
+				logger.debug(daoExp.getMessage(), daoExp);
 			}
 		}
 
@@ -116,15 +116,15 @@ public class DefaultJobStatusListner implements JobStatusListener
 		}
 		catch (FileNotFoundException ex)
 		{
-			LOGGER.error(ex.getMessage(), ex);
+			logger.debug(ex.getMessage(), ex);
 		}
 		catch (IOException ex)
 		{
-			LOGGER.error(ex.getMessage(), ex);
+			logger.debug(ex.getMessage(), ex);
 		}
 		catch (DAOException ex)
 		{
-			LOGGER.error(ex.getMessage(), ex);
+			logger.debug(ex.getMessage(), ex);
 		}
 		finally
 		{
@@ -137,7 +137,7 @@ public class DefaultJobStatusListner implements JobStatusListener
 			}
 			catch (final DAOException daoExp)
 			{
-				LOGGER.error(daoExp.getMessage(), daoExp);
+				logger.debug(daoExp.getMessage(), daoExp);
 			}
 		}
 

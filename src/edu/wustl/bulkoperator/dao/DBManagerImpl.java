@@ -8,6 +8,7 @@ import java.util.Properties;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 
 /**
@@ -71,13 +72,14 @@ public class DBManagerImpl
 		{
 			logger.debug("Error in creating database connection." +
 					" Please check the database driver.", cnfExp);
-			throw new BulkOperationException("Error in creating database connection." +
-					" Please check the database driver.", cnfExp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error.driver");
+			throw new BulkOperationException(errorkey, cnfExp, "");			
 		}
 		catch (SQLException sqlExp)
 		{
 			logger.debug("Error in creating database connection.", sqlExp);
-			throw new BulkOperationException("Error in creating database connection.", sqlExp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error");
+			throw new BulkOperationException(errorkey, sqlExp, "");
 		}
 		catch (Exception exp)
 		{
@@ -85,9 +87,8 @@ public class DBManagerImpl
 				" Please check the database driver or the caTissueInstall.properties have some " +
 				"missing database properties.", 
 					exp);
-			throw new BulkOperationException("Error in creating database connection." +
-					" Please check the database driver or the caTissueInstall.properties have some " +
-					"missing database properties.", exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error.driver.msg");
+			throw new BulkOperationException(errorkey, exp, "");
 		}
 		return connection;
 	}

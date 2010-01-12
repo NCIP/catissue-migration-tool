@@ -77,7 +77,7 @@ public class DownloadJobReportFileAction extends SecureAction
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
 		}
 		finally
 		{
@@ -90,7 +90,7 @@ public class DownloadJobReportFileAction extends SecureAction
 			}
 			catch (final DAOException daoExp)
 			{
-				logger.error(daoExp);
+				logger.debug(daoExp);
 			}
 		}
 		return null;

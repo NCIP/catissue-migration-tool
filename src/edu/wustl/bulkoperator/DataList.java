@@ -7,9 +7,17 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.logger.Logger;
+
 
 public class DataList
 {
+	/**
+	 * logger Logger - Generic logger.
+	 */
+	private static final Logger logger = Logger.getCommonLogger(DataList.class);
 	private List<String>headerList = new ArrayList<String>();
 	private List<Hashtable<String, String>>valueList = new ArrayList<Hashtable<String,String>>();
 	private static final String STATUS_KEY="Status";
@@ -107,34 +115,58 @@ public class DataList
 	 * @return
 	 * @throws IOException
 	 */
-	public File createCSVReportFile(String csvFileName) throws IOException
+	public File createCSVReportFile(String csvFileName) throws BulkOperationException
 	{
-		File file = new File(csvFileName + ".csv");
-		file.createNewFile();
-		FileWriter writer = new FileWriter(file);
-		int headerListSize = headerList.size();
-		int valueListSize = valueList.size();
-		StringBuffer line = new StringBuffer(); 
-		for(int j=0;j<headerListSize;j++)
+		File file = null;
+		FileWriter writer = null;
+		try
 		{
-			line.append(headerList.get(j)+",");			
-		}
-		line.deleteCharAt(line.length()-1);
-		writer.write(line.append("\n").toString());
-		for(int i=0;i<valueListSize;i++)
-		{
-			line.setLength(0);
-			Hashtable<String,String> valueTable = valueList.get(i);
-			
+			file = new File(csvFileName + ".csv");
+			file.createNewFile();
+			writer = new FileWriter(file);
+			int headerListSize = headerList.size();
+			int valueListSize = valueList.size();
+			StringBuffer line = new StringBuffer(); 
 			for(int j=0;j<headerListSize;j++)
 			{
-				line.append(valueTable.get(headerList.get(j))+",");
+				line.append(headerList.get(j)+",");			
 			}
 			line.deleteCharAt(line.length()-1);
-			line.append("\n");
-			writer.write(line.toString());
+			writer.write(line.append("\n").toString());
+			for(int i=0;i<valueListSize;i++)
+			{
+				line.setLength(0);
+				Hashtable<String,String> valueTable = valueList.get(i);
+				
+				for(int j=0;j<headerListSize;j++)
+				{
+					line.append(valueTable.get(headerList.get(j))+",");
+				}
+				line.deleteCharAt(line.length()-1);
+				line.append("\n");
+				writer.write(line.toString());
+			}
 		}
-		writer.close();
+		catch (IOException ioExp)
+		{
+			logger.debug(ioExp.getMessage(), ioExp);
+			logger.debug("Error while creating ouput report csv file.", ioExp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file");
+			throw new BulkOperationException(errorkey, ioExp, "");
+			
+		}
+		finally
+		{
+			try
+			{
+				writer.close();
+			}
+			catch (IOException exp)
+			{
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			}
+		}
 		return file;
 	}
 	/**

@@ -14,6 +14,8 @@ import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.logger.Logger;
 
 public class TemplateValidator
@@ -39,16 +41,31 @@ public class TemplateValidator
 	 * @throws Exception Exception.
 	 */
 	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass,
-			String operationName, DataList dataList) throws Exception
+			String operationName, DataList dataList) throws BulkOperationException
 	{
 		validateBulkOperationClass(bulkOperationClass, operationName, dataList.getHeaderList(), 0);
 		if (errorList.isEmpty())
 		{
 			BulkOperationProcessor bulkOperationProcessor = new BulkOperationProcessor(
 					bulkOperationClass, null, dataList, null);
-			Object domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
-					null);
-			bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "");
+			Object domainObject = null;
+			try
+			{
+				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
+						null);
+				bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "", true);
+			}
+			catch (BulkOperationException bulkExp)
+			{
+				logger.debug(bulkExp.getMessage(), bulkExp);
+				throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
+			}
+			catch (Exception exp)
+			{
+				logger.debug(exp.getMessage(), exp);
+				ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorKey, exp, exp.getMessage());
+			}			
 		}
 		Set<String> errorSet = new HashSet<String>(errorList);
 		return errorSet;
@@ -62,7 +79,7 @@ public class TemplateValidator
 	 * @throws Exception Exception.
 	 */
 	private void validateBulkOperationClass(BulkOperationClass bulkOperationClass,
-			String operationName, List<String> csvColumnNames, int maxRowNumbers) throws Exception
+			String operationName, List<String> csvColumnNames, int maxRowNumbers) throws BulkOperationException
 	{
 		try
 		{
@@ -84,14 +101,14 @@ public class TemplateValidator
 		{
 			logger.debug("The keyword 'className' is either missing or incorrectly "
 					+ "written in the XML for the main class tag.", exp);
-			throw new BulkOperationException("The keyword 'className' is either missing "
-					+ "or incorrectly written in the XML for the main class tag.", exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.missing.name");
+			throw new BulkOperationException(errorkey, exp, "className");
 		}
 		catch (Exception exp)
 		{
 			logger.debug("The 'className' value mentioned is incorrect for the main XML tag.", exp);
-			throw new BulkOperationException("The 'className' value mentioned is incorrect"
-					+ " for the main XML tag.", exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.incorrect.name");
+			throw new BulkOperationException(errorkey, exp, "className");
 		}
 		try
 		{
@@ -109,10 +126,10 @@ public class TemplateValidator
 				validateAssociations(bulkOperationClass, operationName, csvColumnNames, 0);
 			}
 		}
-		catch (Exception exp)
+		catch (BulkOperationException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			throw new Exception(exp.getMessage(), exp);
+			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
 	}
 
@@ -169,7 +186,7 @@ public class TemplateValidator
 		else if (String.valueOf(bulkOperationClass.getBatchSize()) != null && batchSize < 0)
 		{
 			logger
-					.debug("The 'batchSize' value mentioned for " + bulkOperationClass.getClassName()
+					.error("The 'batchSize' value mentioned for " + bulkOperationClass.getClassName()
 						+ " is incorrect. The value should be greater than equal to '0'. If you enter " +
 						"the value as '0' it refers the default value '100' set in the application.");
 			errorList.add("The 'batchSize' value mentioned for " + bulkOperationClass.getClassName()
@@ -260,15 +277,15 @@ public class TemplateValidator
 			{
 				logger.debug("The keyword 'className' is either missing or incorrectly "
 						+ "written for a XML inner class tag.", exp);
-				throw new BulkOperationException("The keyword 'className' is either missing "
-						+ "or incorrectly written for a XML inner class tag.", exp);
+				ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.xml.missing.name");
+				throw new BulkOperationException(errorKey, exp, "className");
 			}
 			catch (Exception exp)
 			{
 				logger.debug("The 'className' value mentioned is incorrect in the XML class tag.",
 						exp);
-				throw new BulkOperationException("The 'className' value mentioned is incorrect "
-						+ "in the XML class tag.", exp);
+				ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.xml.incorrect.name");
+				throw new BulkOperationException(errorKey, exp, "className");
 			}
 		}
 	}
@@ -454,7 +471,7 @@ public class TemplateValidator
 		if (Boolean.toString(updateBasedOn) == null || "".equals(Boolean.toString(updateBasedOn)))
 		{
 			logger
-					.debug("The keyword 'updateBasedOn' is either missing or incorrectly "
+					.error("The keyword 'updateBasedOn' is either missing or incorrectly "
 							+ "written in the XML for " + bulkOperationClass.getClassName()
 							+ " class tag.");
 			errorList
@@ -580,12 +597,8 @@ public class TemplateValidator
 						&& !"main".equals(relationShipType.trim()) && !"association"
 						.equals(relationShipType.trim())))
 		{
-			logger.debug("The 'relationShipType' value mentioned for "
-					+ bulkOperationClass.getClassName() + " is incorrect. "
-					+ "Valid values are 'main', 'association' and 'containment' only.");
-			errorList.add("The 'relationShipType' value mentioned for "
-					+ bulkOperationClass.getClassName() + " is incorrect. "
-					+ "Valid values are 'main', 'association' and 'containment' only.");
+			logger.debug(ApplicationProperties.getValue("bulk.error.xml.incorrect.relationshiptype"));
+			errorList.add(ApplicationProperties.getValue("bulk.error.xml.incorrect.relationshiptype"));
 		}
 	}
 

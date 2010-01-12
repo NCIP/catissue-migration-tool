@@ -25,6 +25,7 @@ import org.hibernate.Session;
 
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperationUtility
@@ -234,34 +235,49 @@ public class BulkOperationUtility
 	 * @return
 	 * @throws IOException
 	 */
-	public File createZip(File csvFile, String zipFileName) throws IOException
-	{	
-		if (!csvFile.exists())
-		{
-			throw new FileNotFoundException("CSV File Not Found");
+	public File createZip(File csvFile, String zipFileName) throws BulkOperationException
+	{
+		File zipFile = null;
+		try
+		{		
+			if (!csvFile.exists())
+			{
+				throw new FileNotFoundException("CSV File Not Found");
+			}
+			byte[] buffer = new byte[18024];
+			 zipFile = new File(zipFileName + ".zip");
+			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
+			out.setLevel(Deflater.DEFAULT_COMPRESSION);
+			FileInputStream in = new FileInputStream(csvFile);
+			ZipEntry zipEntry = new ZipEntry(csvFile.getName());
+			out.putNextEntry(zipEntry);
+			int len;
+			while ((len = in.read(buffer)) > 0)
+			{
+				out.write(buffer, 0, len);
+			}
+			out.closeEntry();
+			in.close();
+			out.close();
+			csvFile.delete();
+			if (csvFile.delete())
+			{
+				logger.info("CSV DELETED....");
+			}
 		}
-		byte[] buffer = new byte[18024];
-		File zipFile = new File(zipFileName + ".zip");
-		ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
-		out.setLevel(Deflater.DEFAULT_COMPRESSION);
-		FileInputStream in = new FileInputStream(csvFile);
-		ZipEntry zipEntry = new ZipEntry(csvFile.getName());
-		out.putNextEntry(zipEntry);
-		int len;
-		while ((len = in.read(buffer)) > 0)
+		catch (FileNotFoundException fnfExp)
 		{
-			out.write(buffer, 0, len);
+			logger.debug("Error while creating ouput report zip file.", fnfExp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.zip.file");
+			throw new BulkOperationException(errorkey, fnfExp, "");
 		}
-		out.closeEntry();
-		in.close();
-		out.close();
-		csvFile.delete();
-		if (csvFile.delete())
+		catch (IOException ioExp)
 		{
-			//Logger.out.info("CSV DELETED....");
+			logger.debug("Error while creating ouput report zip file.", ioExp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.zip.file");
+			throw new BulkOperationException(errorkey, ioExp, "");
 		}
 		return zipFile;
-		//Logger.out.info("ZIP FILE GENERATED....");
 	}
 	/**
 	 * 
@@ -284,14 +300,15 @@ public class BulkOperationUtility
 		}
 		catch (FileNotFoundException fnfException)
 		{
-			logger.debug("caTissueInstall.properties file not found.", fnfException);
-			throw new BulkOperationException("caTissueInstall.properties file not found.", fnfException);
+			logger.debug("Error while accessing caTissueInstall.properties file.", fnfException);
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.file.not.found");
+			throw new BulkOperationException(errorKey, fnfException, "caTissueInstall.properties");
 		}
 		catch (IOException ioException)
-		{
+		{			
 			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
-			throw new BulkOperationException("Error while accessing caTissueInstall.properties file.",
-					ioException);
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.file.reading.error");
+			throw new BulkOperationException(errorKey, ioException, "caTissueInstall.properties");
 		}
 		return props;
 	}
@@ -321,13 +338,14 @@ public class BulkOperationUtility
 		catch (FileNotFoundException fnfException)
 		{
 			logger.debug("caTissueInstall.properties file not found.", fnfException);
-			throw new BulkOperationException("caTissueInstall.properties file not found.", fnfException);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.not.found");
+			throw new BulkOperationException(errorkey, null, "caTissueInstall.properties");
 		}
 		catch (IOException ioException)
-		{
+		{			
 			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
-			throw new BulkOperationException("Error while accessing caTissueInstall.properties file.",
-					ioException);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
+			throw new BulkOperationException(errorkey, null, "caTissueInstall.properties");
 		}
 		return props;
 	}

@@ -33,9 +33,12 @@ public class BulkOperator
 		LoggerConfig.configureLogger(System.getProperty("user.dir") + "/conf");
 	}
 	/**
-	 * 
+	 * logger.
 	 */
 	private static Logger logger = Logger.getCommonLogger(BulkOperator.class);
+	/**
+	 * metadata.
+	 */
 	BulkOperationMetaData metadata;
 	
 	/**
@@ -55,9 +58,10 @@ public class BulkOperator
 			this.metadata = bulkOperationMetadataUtil.unmarshall(xmlTemplateFilePath,
 					mappingFilePath);
 		}
-		catch (Exception ex)
+		catch (BulkOperationException exp)
 		{
-			throw new BulkOperationException(ex.getMessage(), ex);
+			logger.debug(exp.getMessage(), exp);
+			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
 	}
 
@@ -69,10 +73,10 @@ public class BulkOperator
 			BulkOperationMetadataUtil bulkOperationMetadataUtil = new BulkOperationMetadataUtil();
 			this.metadata = bulkOperationMetadataUtil.unmarshall(xmlTemplate, mappingFile);
 		}
-		catch (Exception ex)
+		catch (BulkOperationException exp)
 		{
-			logger.error(ex);
-			throw new BulkOperationException(ex.getMessage(), ex);
+			logger.debug(exp.getMessage(), exp);
+			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
 	}
 

@@ -78,7 +78,7 @@ public class JobGridAjaxAction extends SecureAction
 		}
 		catch (JSONException jsonExp)
 		{
-			logger.error(jsonExp.getMessage(), jsonExp);
+			logger.debug(jsonExp.getMessage(), jsonExp);
 		}
 		finally
 		{
@@ -91,7 +91,7 @@ public class JobGridAjaxAction extends SecureAction
 			}
 			catch (final DAOException daoExp)
 			{
-				logger.error(daoExp);
+				logger.debug(daoExp);
 			}
 		}
 		return null;

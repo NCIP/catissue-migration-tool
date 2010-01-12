@@ -120,6 +120,11 @@
 				<include name="**/*.hbm.xml" />
 			</fileset>
 		</copy>
+		<copy todir="${basedir}/bin" overwrite="true">
+			<fileset dir="${basedir}/src" >
+				<include name="ApplicationResources.properties" />
+			</fileset>
+		</copy>
     </target>
 	
 	<property name="jbossHome" value="" />

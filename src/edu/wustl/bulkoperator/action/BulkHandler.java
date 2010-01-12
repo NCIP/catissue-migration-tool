@@ -24,7 +24,6 @@ import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
 import org.apache.struts.upload.FormFile;
 
 import edu.wustl.bulkoperator.actionForm.BulkOperationForm;
@@ -160,7 +159,7 @@ public class BulkHandler extends Action
 				errors.add(ActionErrors.GLOBAL_ERROR, new ActionError("errors.item",exp.getMessage()));
 			}
 			this.saveErrors(request, errors);
-			logger.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
 			getJobMessage(request, response,null);
 		}
 		return null;

@@ -10,6 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.dao.util.HibernateMetaData;
 
@@ -168,7 +169,7 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(Hashtable<String, String> valueList) throws Exception
+	public Object getClassDiscriminator(Hashtable<String, String> valueList) throws BulkOperationException
 	{
 		Object object = null;
 		try
@@ -202,15 +203,15 @@ public class BulkOperationClass
 		}
 		catch (Exception exp)
 		{
-			logger.debug("Error in Discriminator Object Instantiation.", exp);
-			throw new Exception("Error in Discriminator Object Instantiation.", exp);
+			logger.debug("Error in Discriminator Object Instantiation." + exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.discriminator");
+			throw new BulkOperationException(errorkey, exp, "");
 		}
 		return object;
 	}
 
 	public Class getClassObject() throws BulkOperationException
 	{
-
 		try
 		{
 			if (klass == null)
@@ -218,10 +219,11 @@ public class BulkOperationClass
 				klass = Class.forName(className);
 			}
 		}
-		catch (ClassNotFoundException e)
+		catch (ClassNotFoundException exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return klass;
 	}
@@ -233,10 +235,11 @@ public class BulkOperationClass
 		{
 			returnObject = Class.forName(className).newInstance();
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return returnObject;
 	}
@@ -255,10 +258,11 @@ public class BulkOperationClass
 				returnObject = HibernateMetaData.getProxyObjectImpl(returnObject);
 			}
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return returnObject;
 	}
@@ -266,7 +270,6 @@ public class BulkOperationClass
 	public void invokeSetterMethod(String roleName, Class[] parameterTypes,
 			Object objectOnWhichMethodToInvoke, Object... args) throws BulkOperationException
 	{
-		Object returnObject = null;
 		String functionName = BulkOperationUtility.getSetterFunctionName(roleName);
 		try
 		{
@@ -290,52 +293,23 @@ public class BulkOperationClass
 				}
 				catch (Exception e2)
 				{
-					e2.printStackTrace();
-					throw new BulkOperationException(e.getMessage(), e);
+					logger.debug(e2.getMessage(), e2);
+					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+					throw new BulkOperationException(errorkey, e, e2.getMessage());
 				}
-
 			}
 			catch (Exception e4)
 			{
-				e4.printStackTrace();
-				throw new BulkOperationException(e.getMessage(), e);
+				logger.debug(e4.getMessage(), e4);
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorkey, e, e4.getMessage());
 			}
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
-	}
-
-	public Long invokeGetIdMethod(Object objectOnWhichMethodToInvoke) throws BulkOperationException
-	{
-		Long id = null;
-		try
-		{
-			id = (Long) Class.forName(className).getMethod("getId", null).invoke(
-					objectOnWhichMethodToInvoke, null);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
-		}
-		return id;
-	}
-
-	public void invokeSetIdMethod(Object objectOnWhichMethodToInvoke, Long id)
-			throws BulkOperationException
-	{
-		try
-		{
-			Class.forName(className).getMethod("setId", Long.class).invoke(
-					objectOnWhichMethodToInvoke, id);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			throw new BulkOperationException(e.getMessage(), e);
-		}
-	}
+	}	
 }
