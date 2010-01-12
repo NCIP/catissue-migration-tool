@@ -168,38 +168,42 @@ public class BulkOperationCommand
 						bulkOperationCommand.operationName,
 						bulkOperationCommand.csvFile,
 						bulkOperationCommand.templateFile);
-				if(bulkOperationCommand.bulkArtifactsLocation != null && 
-						!"".equals(bulkOperationCommand.bulkArtifactsLocation))
-				{
-					BULK_OUTPUT.append(bulkOperationCommand.bulkArtifactsLocation ).append("\\");
-				}
-				BULK_OUTPUT.append(bulkOperationCommand.operationName).append(jobMessage.getJobId()).append(".zip");
-				
 				logger.info(jobMessage.getMessages());
-				JobDetails jobDetails = null;
-				do
+				if(jobMessage.isOperationSuccessfull())
 				{
-					JobMessage jobIdMessage = bulkOperationService.getJobDetails(
-							jobMessage.getJobId());
-					logger.info(jobIdMessage.getMessages());
-					if(jobIdMessage.getJobData()!=null)
+					if(bulkOperationCommand.bulkArtifactsLocation != null && 
+							!"".equals(bulkOperationCommand.bulkArtifactsLocation))
 					{
-						jobDetails = (JobDetails)jobIdMessage.getJobData();
-						logger.info(getJobDetails(jobDetails,bulkOperationCommand));
-						final byte[] buf = jobDetails.getLogFileBytes();
-						if(buf != null)
-						{
-							String zipFileName = BULK_OUTPUT.toString();
-							FileOutputStream fileOutputStream =
-							 new FileOutputStream(new File(zipFileName));
-							fileOutputStream.write(buf);
-							fileOutputStream.flush();
-							fileOutputStream.close();
+						BULK_OUTPUT.append(bulkOperationCommand.bulkArtifactsLocation ).append("\\");
+					}
+					BULK_OUTPUT.append(bulkOperationCommand.operationName).append(jobMessage.getJobId()).append(".zip");
 
+					JobDetails jobDetails = null;
+
+					do
+					{
+						JobMessage jobIdMessage = bulkOperationService.getJobDetails(
+								jobMessage.getJobId());
+						logger.info(jobIdMessage.getMessages());
+						if(jobIdMessage.getJobData()!=null)
+						{
+							jobDetails = (JobDetails)jobIdMessage.getJobData();
+							logger.info(getJobDetails(jobDetails,bulkOperationCommand));
+							final byte[] buf = jobDetails.getLogFileBytes();
+							if(buf != null)
+							{
+								String zipFileName = BULK_OUTPUT.toString();
+								FileOutputStream fileOutputStream =
+									new FileOutputStream(new File(zipFileName));
+								fileOutputStream.write(buf);
+								fileOutputStream.flush();
+								fileOutputStream.close();
+
+							}
 						}
 					}
+					while(checkStatus(jobDetails.getStatus()));
 				}
-				while(checkStatus(jobDetails.getStatus()));
 			}
 		}
 	}
