@@ -43,33 +43,38 @@ public class BulkOperationMetadataUtil
 		catch (MarshalException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage());
+			//logger.info(exp.getMessage());
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (ValidationException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (IOException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (MappingException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		return bulkOperationMetaData;
 	}
@@ -93,27 +98,31 @@ public class BulkOperationMetadataUtil
 		catch (MarshalException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage());
+			//logger.info(exp.getMessage());
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (ValidationException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (MappingException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
+			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}	
 		return bulkOperationMetaData;
 	}
