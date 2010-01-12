@@ -324,7 +324,7 @@ public class BulkOperationCommand
 		{
 			if(Validator.isEmpty(args[index]))
 			{
-				logger.debug("Error: Bulk parameters are either missing  or incorrect " +
+				logger.info("Error: Bulk parameters are either missing  or incorrect " +
 						args[index]+", please check the below usage command.");
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
@@ -334,7 +334,7 @@ public class BulkOperationCommand
 				File file = new File(args[index]);
 				if(!file.exists())
 				{	
-					logger.debug("Error: File is missing " +
+					logger.info("Error: File is missing " +
 						args[index]+", please check the path.");
 						logger.info(USAGE_LOG.toString());
 						isValid = false;
@@ -349,7 +349,7 @@ public class BulkOperationCommand
 			{
 				if(!args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
 				{
-					logger.debug("Error: Path specified to store bulk artifacts should be a directory   " +
+					logger.info("Error: Path specified to store bulk artifacts should be a directory   " +
 							args[index]+", please check the path.");
 					logger.info(USAGE_LOG.toString());
 					isValid = false;
