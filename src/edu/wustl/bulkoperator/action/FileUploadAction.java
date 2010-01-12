@@ -208,7 +208,7 @@ public class FileUploadAction extends SecureAction
 			{
 				strBuffer.append(errorIterator.next());
 			}
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.errors");
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, null, strBuffer.toString());
 		}
 	}
