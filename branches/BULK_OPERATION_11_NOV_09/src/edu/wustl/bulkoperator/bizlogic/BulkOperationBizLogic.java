@@ -24,6 +24,7 @@ import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.beans.NameValueBean;
 import edu.wustl.common.bizlogic.DefaultBizLogic;
 import edu.wustl.common.exception.ApplicationException;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.dao.JDBCDAO;
@@ -68,9 +69,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
-			throw new BulkOperationException("Error in retrieving data from" +
-					"database for populating dropdown values."); 
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.dropdown");
+			throw new BulkOperationException(errorKey, exp, ""); 
 		}
 		finally
 		{
@@ -106,7 +107,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		finally
 		{
@@ -138,8 +141,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (IOException exp)
 		{
-			logger.error(exp.getMessage(), exp);
-			throw new BulkOperationException("\nError in writing the CSV Template File.");
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.writing");
+			throw new BulkOperationException(errorkey, exp, "");
 		}
 		finally
 		{
@@ -203,9 +207,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
-			throw new BulkOperationException("Error in retrieving operation " +
-					"name from drop down name."); 
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return returnList;
 	}
@@ -233,8 +237,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
-			throw new BulkOperationException("bulk.error.loading.bulk.metadata.xml.file");
+			logger.debug(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return bulkOperationMetaData;
 	}

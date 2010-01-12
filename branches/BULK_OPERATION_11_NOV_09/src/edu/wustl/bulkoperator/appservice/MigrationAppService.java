@@ -7,6 +7,7 @@ import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.exception.ErrorKey;
 
 public abstract class MigrationAppService
 {
@@ -44,9 +45,10 @@ public abstract class MigrationAppService
 					.getDeclaredConstructor(constructorParameters);
 			appService = (MigrationAppService) constructor.newInstance(isAuthenticationRequired, userName, password);
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			throw new BulkOperationException("Invalid User Name or Password.");
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.invalid.username.password");
+			throw new BulkOperationException(errorKey, exp, "");
 		}
 		return appService;
 	}

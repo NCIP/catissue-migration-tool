@@ -23,6 +23,7 @@ import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.beans.NameValueBean;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 
@@ -114,7 +115,7 @@ public class BulkOperationAction extends SecureAction
 		}
 		catch (Exception exp)
 		{
-			logger.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
 		}
 		return mapping.findForward(mappingForward);
 	}
@@ -157,10 +158,11 @@ public class BulkOperationAction extends SecureAction
 			outStream.flush();
 			inputStream.close();
 		}
-		catch (Exception exception)
+		catch (Exception exp)
 		{
-			logger.error(exception);
-			throw new BulkOperationException(exception);
+			logger.debug(exp);
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorKey, exp, exp.getMessage());
 		}
 	}
 }

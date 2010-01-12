@@ -4,6 +4,9 @@ package edu.wustl.bulkoperator.metadata;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.exception.ErrorKey;
+
 public class Attribute
 {
 
@@ -83,18 +86,21 @@ public class Attribute
 		this.name = name;
 	}
 
-	public Object getValueOfDataType(String value) throws Exception
+	public Object getValueOfDataType(String value, boolean validate) throws BulkOperationException
 	{
 		Object valueObject = null;
 		try
 		{
-			valueObject = Class.forName(dataType).getConstructor(String.class).newInstance(value);
+			if(!validate)
+			{
+				valueObject = Class.forName(dataType).getConstructor(String.class).newInstance(value);
+			}			
 		}
 		catch (Exception ex)
 		{
-			throw new Exception("Excpetion in initializing value Of correct DataType", ex);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
+			throw new BulkOperationException(errorkey, null, value);
 		}
 		return valueObject;
 	}
-
 }

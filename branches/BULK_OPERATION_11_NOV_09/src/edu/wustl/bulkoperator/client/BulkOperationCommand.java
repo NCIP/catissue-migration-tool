@@ -104,15 +104,15 @@ public class BulkOperationCommand
 		catch (BulkOperationException exp)
 		{
 			logger.info(exp.getMessage());
-			logger.error(exp.getMessage(),exp);
+			logger.debug(exp.getMessage(),exp);
 		}
 		catch (FileNotFoundException fileExp)
 		{
-			logger.error(fileExp.getMessage(),fileExp);
+			logger.debug(fileExp.getMessage(),fileExp);
 		}
 		catch (IOException fileExp)
 		{
-			logger.error(fileExp.getMessage(),fileExp);
+			logger.debug(fileExp.getMessage(),fileExp);
 		}
 	}
 
@@ -317,7 +317,7 @@ public class BulkOperationCommand
 		{
 			if(Validator.isEmpty(args[index]))
 			{
-				logger.error("Error: Bulk parameters are either missing  or incorrect " +
+				logger.debug("Error: Bulk parameters are either missing  or incorrect " +
 						args[index]+", please check the below usage command.");
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
@@ -327,7 +327,7 @@ public class BulkOperationCommand
 				File file = new File(args[index]);
 				if(!file.exists())
 				{	
-					logger.error("Error: File is missing " +
+					logger.debug("Error: File is missing " +
 						args[index]+", please check the path.");
 						logger.info(USAGE_LOG.toString());
 						isValid = false;
@@ -342,7 +342,7 @@ public class BulkOperationCommand
 			{
 				if(!args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
 				{
-					logger.error("Error: Path specified to store bulk artifacts should be a directory   " +
+					logger.debug("Error: Path specified to store bulk artifacts should be a directory   " +
 							args[index]+", please check the path.");
 					logger.info(USAGE_LOG.toString());
 					isValid = false;

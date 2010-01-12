@@ -13,7 +13,8 @@
 <%@ page import="javax.servlet.*"%>
 <script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
 <LINK href="css/styleSheet.css" type="text/css" rel="stylesheet">
-	<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
+<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
+
 <script>
 function onDownLoadTemplate()
 {
@@ -48,14 +49,6 @@ function onUploadClick()
 		}
 		else
 		{
-			/*window.frames[0].document.getElementById('operationName').value=document.getElementById('operationName').value;
-			alert(window.frames[0].document.getElementById('file').value);
-			window.frames[0].document.getElementById('file').value=document.getElementById('file').value;
-			alert(window.frames[0].document.getElementById('operationName').value);
-			alert(window.frames[0].document.getElementById('file').value);
-			//alert(document.frames("bulkOperationDashoard").document.forms[0].elements("operationName").value);
-
-			//top.parent.frames['bulkOperationDashoard'].location=document.forms[0].action;*/
 			document.forms[0].submit();
 			document.getElementById('file').value="";
 		}
@@ -78,60 +71,50 @@ function getCSVOutputReport()
 }
 </script>
 <table width="100%" border="0" cellpadding="3" cellspacing="0">
-		<tr>
+	<tr>
 		<td colspan="4" align="left" height="10"><%@ include file="/pages/content/common/ActionErrors.jsp" %>
-	 <!-- <iframe id="errorFrame" name="errorFrame" src="/pages/content/common/ActionErrors.jsp" style="width:10;height:10;border:0px solid;">
-
-
-			<table>
-				<tr>
-					<td align="left" height="1%"><%@ include file="/pages/content/common/ActionErrors.jsp" %></td>
-				</tr>
-			</table>
-			  </iframe>-->
-
         </td>
-      </tr>
-		<html:form action="/FileUpload.do" method="post" enctype="multipart/form-data" target="bulkTemplate">
-              <tr>
-                <td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
-                <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
-                <td width="25%" align="left" valign="middle" class="black_new">
-					  <autocomplete:AutoCompleteTag
-						  property="dropdownName"
-						  optionsList = "<%=request.getAttribute(BulkOperationConstants.BULK_OPERATION_LIST)%>"
-						  initialValue="<%=request.getAttribute("dropdownName")%>"
-						  onChange="onTypeChange(this)"
-						  readOnly="false"
-						  size="31"
-						  styleClass="black_ar"
-					/>
-				</td>
-				<td colspan="2" width="54%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
-					<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
-									<bean:message key="bulk.button.download.template" />
-						</html:button>
-				</td>
-			  </tr>
-
-			  <tr>
-                <td colspan="5" width="100%" height="20" align="center" class="black_ar"><span class="blue_ar_b"></span>
-				</td>
-			  </tr>
-              <tr>
-                <td align="center" class="black_ar"><span class="blue_ar_b"></span>
-				</td>
-                <td align="left" class="black_ar"><b><bean:message key="bulk.upload.file" /></b>
-				</td>
-                <td align="left" valign="middle" width="20%">
-					<input id="file" type="file" name="csvFile" value="Browse">
-					</input>
-				</td>
-				<td align="left" valign="left" colspan="2">
-						<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="">
-								<bean:message key="bulk.button.upload" />
-						</html:button>
-				</td>
-              </tr>
-              </html:form>
-        </table>
+	</tr>
+	<html:form action="/FileUpload.do" method="post" enctype="multipart/form-data" target="bulkTemplate">
+		<tr>
+			<td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
+            <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
+            <td width="25%" align="left" valign="middle" class="black_new">
+				<autocomplete:AutoCompleteTag
+					property="dropdownName"
+					optionsList = "<%=request.getAttribute(BulkOperationConstants.BULK_OPERATION_LIST)%>"
+					initialValue="<%=request.getAttribute("dropdownName")%>"
+					onChange="onTypeChange(this)"
+					readOnly="false"
+					size="31"
+					styleClass="black_ar"
+					numberOfResults="2"
+				/>
+			</td>
+			<td colspan="2" width="54%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
+				<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
+								<bean:message key="bulk.button.download.template" />
+					</html:button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" width="100%" height="20" align="center" class="black_ar"><span class="blue_ar_b"></span>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" class="black_ar"><span class="blue_ar_b"></span>
+			</td>
+			<td align="left" class="black_ar"><b><bean:message key="bulk.upload.file" /></b>
+			</td>
+			<td align="left" valign="middle" width="20%">
+				<input id="file" type="file" name="csvFile" value="Browse">
+				</input>
+			</td>
+			<td align="left" valign="left" colspan="2">
+				<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="">
+						<bean:message key="bulk.button.upload" />
+				</html:button>
+			</td>
+		</tr>
+	</html:form>
+</table>

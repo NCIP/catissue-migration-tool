@@ -105,9 +105,10 @@ public class FileUploadAction extends SecureAction
 				}
 				catch (Exception exp)
 				{
-					logger.error(exp);
-					throw new BulkOperationException("bulk.error.database.operation."
+					logger.debug(exp.getMessage(), exp);
+					ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.database.operation."
 							+ "reading.operation.name.xml.template");
+					throw new BulkOperationException(errorKey, null, "");
 				}
 			}
 			else
@@ -138,7 +139,8 @@ public class FileUploadAction extends SecureAction
 			}
 			else
 			{
-				throw new BulkOperationException("bulk.error.reading.csv.file");
+				ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.reading.csv.file");
+				throw new BulkOperationException(errorKey, null, "");
 			}
 		}
 		catch (BulkOperationException exp)
@@ -160,7 +162,7 @@ public class FileUploadAction extends SecureAction
 				}
 			}
 			this.saveErrors(request, errors);
-			logger.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
 		}
 		return mapping.findForward(forward);
 	}
@@ -191,7 +193,8 @@ public class FileUploadAction extends SecureAction
 		BulkOperationMetaData metaData = bulkOperator.getMetadata();
 		if (metaData != null && metaData.getBulkOperationClass().isEmpty())
 		{
-			throw new BulkOperationException("bulk.error.bulk.metadata.xml.file");
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.bulk.metadata.xml.file");
+			throw new BulkOperationException(errorKey, null, "");
 		}
 		BulkOperationClass bulkOperationClass = metaData.getBulkOperationClass().iterator().next();
 		TemplateValidator templateValidator = new TemplateValidator();
@@ -206,7 +209,7 @@ public class FileUploadAction extends SecureAction
 				strBuffer.append(errorIterator.next());
 			}
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.errors");
-			throw new BulkOperationException(errorkey,null,strBuffer.toString());
+			throw new BulkOperationException(errorkey, null, strBuffer.toString());
 		}
 	}
 

@@ -33,7 +33,7 @@ public class AppUtility
 		}
 		catch (final DAOException daoExp)
 		{
-			AppUtility.logger.error(daoExp.getMessage(), daoExp);
+			AppUtility.logger.debug(daoExp.getMessage(), daoExp);
 			daoExp.printStackTrace();
 			throw getApplicationException(daoExp, daoExp.getErrorKeyName(), daoExp
 					.getErrorKeyName());
@@ -52,7 +52,7 @@ public class AppUtility
 		}
 		catch (final DAOException daoExp)
 		{
-			AppUtility.logger.error(daoExp.getMessage(), daoExp);
+			AppUtility.logger.debug(daoExp.getMessage(), daoExp);
 			daoExp.printStackTrace();
 			throw getApplicationException(daoExp, daoExp.getErrorKeyName(), daoExp.getMsgValues());
 		}

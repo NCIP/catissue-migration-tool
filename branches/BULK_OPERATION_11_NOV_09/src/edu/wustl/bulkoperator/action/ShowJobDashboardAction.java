@@ -32,7 +32,7 @@ public class ShowJobDashboardAction extends SecureAction
 	/**
 	 * logger.
 	 */
-	private static final Logger LOGGER = Logger.getCommonLogger(ShowJobDashboardAction.class);
+	private static final Logger logger = Logger.getCommonLogger(ShowJobDashboardAction.class);
 
 	/* (non-Javadoc)
 	 * @see edu.wustl.common.action.SecureAction#executeSecureAction(org.apache.struts.action.ActionMapping, org.apache.struts.action.ActionForm, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -157,7 +157,7 @@ public class ShowJobDashboardAction extends SecureAction
 		}
 		catch (Exception exp)
 		{
-			LOGGER.error(exp.getMessage(), exp);
+			logger.debug(exp.getMessage(), exp);
 		}
 		finally
 		{

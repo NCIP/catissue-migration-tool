@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.common.exception.ErrorKey;
 
 
 public class DataReader
@@ -76,15 +77,15 @@ public class DataReader
 				}
 			}
 		}
-		catch (FileNotFoundException e)
+		catch (FileNotFoundException fnfExpp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException("\nCSV File Not Found at the specified path.");
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.not.found");
+			throw new BulkOperationException(errorkey, fnfExpp, "");
 		}
-		catch (IOException e)
+		catch (IOException ioExpp)
 		{
-			e.printStackTrace();
-			throw new BulkOperationException("\nError in reading the CSV File.");
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.reading");
+			throw new BulkOperationException(errorkey, ioExpp, "");
 		}
 		return dataList;
 	}
