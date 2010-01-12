@@ -149,8 +149,8 @@ public class DataList
 		}
 		catch (IOException ioExp)
 		{
-			logger.debug(ioExp.getMessage(), ioExp);
-			logger.debug("Error while creating ouput report csv file.", ioExp);
+			logger.error(ioExp.getMessage(), ioExp);
+			logger.error("Error while creating ouput report csv file.", ioExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file");
 			throw new BulkOperationException(errorkey, ioExp, "");
 			

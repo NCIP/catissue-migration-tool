@@ -105,7 +105,7 @@ public class FileUploadAction extends SecureAction
 				}
 				catch (Exception exp)
 				{
-					logger.debug(exp.getMessage(), exp);
+					logger.error(exp.getMessage(), exp);
 					ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.database.operation."
 							+ "reading.operation.name.xml.template");
 					throw new BulkOperationException(errorKey, null, "");
@@ -162,7 +162,7 @@ public class FileUploadAction extends SecureAction
 				}
 			}
 			this.saveErrors(request, errors);
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 		}
 		return mapping.findForward(forward);
 	}

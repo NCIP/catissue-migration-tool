@@ -69,7 +69,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.dropdown");
 			throw new BulkOperationException(errorKey, exp, ""); 
 		}
@@ -107,7 +107,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
@@ -141,7 +141,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (IOException exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.writing");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
@@ -207,7 +207,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
@@ -237,7 +237,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}

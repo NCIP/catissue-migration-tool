@@ -41,7 +41,7 @@ public class BulkOperatorJob extends Job
 		}
 		catch (Exception exp)
 		{
-			logger.debug(exp.getMessage(), exp);
+			logger.error(exp.getMessage(), exp);
 		}
 	}
 }
