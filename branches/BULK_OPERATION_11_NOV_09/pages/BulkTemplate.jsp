@@ -69,6 +69,8 @@ function getCSVOutputReport()
 		}
 	%>
 }
+
+
 </script>
 <table width="100%" border="0" cellpadding="3" cellspacing="0">
 	<tr>
@@ -80,16 +82,24 @@ function getCSVOutputReport()
 			<td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
             <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
             <td width="25%" align="left" valign="middle" class="black_new">
-				<autocomplete:AutoCompleteTag
-					property="dropdownName"
-					optionsList = "<%=request.getAttribute(BulkOperationConstants.BULK_OPERATION_LIST)%>"
-					initialValue="<%=request.getAttribute("dropdownName")%>"
-					onChange="onTypeChange(this)"
-					readOnly="false"
-					size="31"
-					styleClass="black_ar"
-					numberOfResults="2"
-				/>
+			<html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" >
+
+
+				<logic:iterate id="element" name="<%=BulkOperationConstants.BULK_OPERATION_LIST%>">
+								<logic:equal name="dropdownName" value="${element.value}">
+								<option title="${element.name}" value="${element.value}" selected>
+										${element.name}
+								</option>
+								</logic:equal>
+							<logic:notEqual name="dropdownName" value="${element.name}">
+								<option title="${element.name}" value="${element.value}">
+										${element.name}
+								</option>
+							</logic:notEqual>
+							</logic:iterate>
+			</html:select>
+
+
 			</td>
 			<td colspan="2" width="54%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
 				<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
