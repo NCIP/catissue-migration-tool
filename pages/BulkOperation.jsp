@@ -70,7 +70,7 @@ window.onload=starttime;
 	<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body>	
+<body>
 	<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0" class="maintable">
 		<tr height="100%">
 			<td class="tablepadding" height="100%" valign="top">
@@ -86,7 +86,7 @@ window.onload=starttime;
 					<tr height="25%">
 						<td align="left" valign="top" class="showhide">
 							<logic:empty name="noTemplates">
-								<iframe id="bulkTemplate" name="bulkTemplate" src="BulkTemplate.do?pageOf=pageOfBulkOperation" scrolling="auto" frameborder="0" style="width:100%;height:100%;" marginheight='0' marginwidth='0' height="100%">
+								<iframe id="bulkTemplate" name="bulkTemplate" src="BulkTemplate.do?pageOf=pageOfBulkOperation" scrolling="no" frameborder="0" style="width:100%;height:100%;" marginheight='0' marginwidth='0' height="100%">
 									Your Browser doesn't support IFrames.
 								</iframe>
 							</logic:empty>
