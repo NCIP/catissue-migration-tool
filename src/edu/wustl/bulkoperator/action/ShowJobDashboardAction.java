@@ -1,9 +1,11 @@
 
 package edu.wustl.bulkoperator.action;
 
+import java.io.File;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,10 +16,12 @@ import org.apache.struts.action.ActionMapping;
 import org.json.JSONObject;
 
 import edu.wustl.bulkoperator.util.AppUtility;
+import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.GridUtil;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ApplicationException;
+import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.dao.JDBCDAO;
@@ -53,9 +57,13 @@ public class ShowJobDashboardAction extends SecureAction
 		if(requestType != null && requestType.equals("ajax"))
 		{
 			JSONObject resultObject = new JSONObject();
+			//for reading the jobGrid.refresh.time from the bulkOperation.properties file
+			String filePath=CommonServiceLocator.getInstance().getPropDirPath()+ File.separator + "bulkOperation.properties";
+			Properties properties = BulkOperationUtility.getPropertiesFile(filePath);
+			String gridRefreshTime=properties.getProperty("jobGrid.refresh.timeInterval");
 
 			resultObject.append("xmlGrid", gridXml);
-
+			resultObject.append("gridRefreshTime",gridRefreshTime);
 			response.setContentType("text/html");
 			response.setHeader("Cache-Control", "no-cache");
 			Writer writer = response.getWriter();

@@ -13,8 +13,15 @@
 <%@ page import="javax.servlet.*"%>
 <script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
 <script type="text/javascript" src="jss/wz_tooltip.js"></script>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <script>
+var interval=${requestScope.gridRefreshTime};
 var refreshinterval=5;
+if(interval != null && interval != 0)
+{
+	refreshinterval=interval;
+}
+
 var displaycountdown="yes";
 var starttime;
 var nowtime;
