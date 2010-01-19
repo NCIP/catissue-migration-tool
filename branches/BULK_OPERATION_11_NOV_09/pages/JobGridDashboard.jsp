@@ -129,7 +129,16 @@
 			var xmlGrid=jsonResponse.resultObject.xmlGrid;
 			//alert("xmlGrid   "+xmlGrid);
 			mygrid.loadXMLString(xmlGrid);
+			//alert(jsonResponse.resultObject.gridRefreshTime);
+			var refreshTimeInterval=jsonResponse.resultObject.gridRefreshTime;
+			if(refreshTimeInterval != null && refreshTimeInterval != 0 )
+			{
+				parent.refreshinterval=refreshTimeInterval;
+			}
 		}
+		//alert("refreshinterval"+parent.refreshinterval);
+		//parent.refreshinterval=10;
+		//alert("refreshinterval"+parent.refreshinterval);
 	}
 </script>
 <style>
@@ -173,6 +182,7 @@
 				mygrid.loadXMLString(xmlString);
 				mygrid.enableResizing(xmlString);
 				//mygrid.setOnRowSelectHandler(funcName);
+				//mygrid.selectRow(mygrid.getRowIndex(actualRowCount),false,false,true);
 
 				for(var row=0;row<mygrid.getRowsNum();row++)
 				{

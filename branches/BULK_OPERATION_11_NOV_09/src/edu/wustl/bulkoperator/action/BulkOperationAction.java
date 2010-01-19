@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,9 +22,11 @@ import edu.wustl.bulkoperator.actionForm.BulkOperationForm;
 import edu.wustl.bulkoperator.bizlogic.BulkOperationBizLogic;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.beans.NameValueBean;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 
@@ -57,6 +60,13 @@ public class BulkOperationAction extends SecureAction
 				File resultFile = (File) session.getAttribute("resultFile");
 				createResponse(response, resultFile);
 			}
+			//for reading the jobGrid.refresh.time from the bulkOperation.properties file
+			String filePath=CommonServiceLocator.getInstance().getPropDirPath()+ File.separator + "bulkOperation.properties";
+			Properties properties = BulkOperationUtility.getPropertiesFile(filePath);
+			String gridRefreshTime=properties.getProperty("jobGrid.refresh.timeInterval");
+
+			request.setAttribute("gridRefreshTime", gridRefreshTime);
+
 			BulkOperationForm bulkOperationForm = (BulkOperationForm) form;
 			BulkOperationBizLogic bulkOperationBizLogic = new BulkOperationBizLogic();
 			List<NameValueBean> bulkOperationList = bulkOperationBizLogic
