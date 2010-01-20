@@ -52,12 +52,12 @@ public class BulkOperationCommand
 	 * Key store location.
 	 */
 	private String keyStoreLocation;
-	
+
 	/**
 	 * Key store location.
 	 */
 	private String bulkArtifactsLocation;
-	
+
 	/**
 	 * Bulk output ZIP file.
 	 */
@@ -94,7 +94,7 @@ public class BulkOperationCommand
 	/**
 	 * Bulk Client.
 	 * @param args args.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException
 	{
@@ -138,7 +138,7 @@ public class BulkOperationCommand
 			bulkOperationCommand.url = args[2];
 			bulkOperationCommand.applicationUserName = args[3];
 			bulkOperationCommand.applicationUserPassword = args[4];
-			
+
 			for(int index=5; index<args.length ;index++)
 			{
 				if(args[index].contains(".keystore"))
@@ -151,11 +151,11 @@ public class BulkOperationCommand
 				{
 					bulkOperationCommand.bulkArtifactsLocation = args[index];
 				}
-				else
+				else if(new File(args[index]).isFile())
 				{
 					bulkOperationCommand.templateFile = new File(args[index]);
 				}
-					
+
 			}
 			BulkOperationService bulkOperationService =
 				new BulkOperationServiceImpl();
@@ -174,10 +174,11 @@ public class BulkOperationCommand
 				logger.info(jobMessage.getMessages());
 				if(jobMessage.isOperationSuccessfull())
 				{
-					if(bulkOperationCommand.bulkArtifactsLocation != null && 
+					if(bulkOperationCommand.bulkArtifactsLocation != null &&
 							!"".equals(bulkOperationCommand.bulkArtifactsLocation))
 					{
-						BULK_OUTPUT.append(bulkOperationCommand.bulkArtifactsLocation ).append("\\");
+						bulkOperationCommand.bulkArtifactsLocation=bulkOperationCommand.bulkArtifactsLocation.replace("\\", "/");
+						BULK_OUTPUT.append(bulkOperationCommand.bulkArtifactsLocation ).append("/");
 					}
 					BULK_OUTPUT.append(bulkOperationCommand.operationName).append(jobMessage.getJobId()).append(".zip");
 
@@ -298,7 +299,7 @@ public class BulkOperationCommand
 		.append(NEW_LINE).append(FAILED_RECORDS).append(jobDetails.getFailedRecordsCount())
 		.append(NEW_LINE).append(TIME_TAKEN).append(jobDetails.getTimeTaken());
 
-		if(bulkOperationCommand.bulkArtifactsLocation != null && 
+		if(bulkOperationCommand.bulkArtifactsLocation != null &&
 						!"".equals(bulkOperationCommand.bulkArtifactsLocation))
 		{
 			stringBuilder.append(NEW_LINE).append(REPORT).append(BULK_OUTPUT);
@@ -306,10 +307,10 @@ public class BulkOperationCommand
 		else
 		{
 			stringBuilder.append(NEW_LINE).append(REPORT).append(System.getProperty("user.dir"))
-			.append("\\").append(BULK_OUTPUT);
+			.append("/").append(BULK_OUTPUT);
 		}
-		
-		
+
+
 		return stringBuilder.toString();
 	}
 
@@ -319,8 +320,9 @@ public class BulkOperationCommand
 	 */
 	private static boolean validateAndCommandLineArguments(String args[])
 	{
+
 		boolean isValid = true;
-		for (int index=0; index < args.length ; index++)
+		for (int index=0; index < 5 ; index++)
 		{
 			if(Validator.isEmpty(args[index]))
 			{
@@ -333,21 +335,28 @@ public class BulkOperationCommand
 			{
 				File file = new File(args[index]);
 				if(!file.exists())
-				{	
+				{
 					logger.info("Error: File is missing " +
 						args[index]+", please check the path.");
 						logger.info(USAGE_LOG.toString());
 						isValid = false;
 				}
-				
+
 			}
 		}
-		
+
 		if(args.length > 5)
 		{
 			for(int index=5; index<args.length ;index++)
 			{
-				if(!args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
+				if(Validator.isEmpty(args[index]) && index!=7)
+				{
+					logger.info("Error: Bulk parameters are either missing  or incorrect " +
+							args[index]+", please check the below usage command.");
+					logger.info(USAGE_LOG.toString());
+					isValid = false;
+				}
+				if(!Validator.isEmpty(args[index]) && !args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
 				{
 					logger.info("Error: Path specified to store bulk artifacts should be a directory   " +
 							args[index]+", please check the path.");
