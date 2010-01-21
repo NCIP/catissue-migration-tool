@@ -83,7 +83,7 @@ public class BulkOperationCommand
 			" keyStoreLocation[optional]=\t Absolute path of Keystore location," +
 			" if application is deployed as https(SSL).\n" +
 			" Keystore loaction is optional to give \n"+
-			"bulkArtifactsLocation[optional]=\t Specify the path where u want " +
+			"bulkArtifactsLocation[optional]=\t Specify the path where you want " +
 			"to store bulk artifacts.\n");
 	/**
 	 * logger.
