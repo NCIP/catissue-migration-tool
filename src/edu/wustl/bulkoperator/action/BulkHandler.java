@@ -274,7 +274,7 @@ public class BulkHandler extends Action
 			ServletFileUpload fu = new ServletFileUpload(factory);
 
 		    // If file size exceeds, a FileUploadException will be thrown
-		    fu.setSizeMax(1000000);
+		    fu.setSizeMax(10000*1000*100*10);
 		    List<FileItem> fileItems;
 				fileItems = fu.parseRequest(request);
 		    Iterator<FileItem> itr = fileItems.iterator();
@@ -308,7 +308,7 @@ public class BulkHandler extends Action
 		catch (Exception exp)
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.request.param.error");
-			throw new BulkOperationException(errorkey,exp,"");
+			throw new BulkOperationException(errorkey,exp,exp.getMessage());
 		}
 	}
 	/**
