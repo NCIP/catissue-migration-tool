@@ -533,22 +533,22 @@ public class TemplateValidator
 		{
 			checkForNullData(bulkOperationClass, "csvColumnName");
 		}
-		if (maxRowNumbers != 0)
-		{
-			csvColumnName = attribute.getCsvColumnName() + "#" + maxRowNumbers;
-		}
-		if (csvColumnName != null && !csvColumnNames.contains(csvColumnName)
-				&& !csvColumnName.contains("null#"))
-		{
-			logger.debug("The column name '" + csvColumnName + "' of attribute name '"
-					+ attribute.getName() + "' in " + bulkOperationClass.getClassName()
-					+ " class tag mismatches with the column name specified in "
-					+ "the CSV template.");
-			errorList.add("The column name '" + csvColumnName + "' of attribute name '"
-					+ attribute.getName() + "' in " + bulkOperationClass.getClassName()
-					+ " class tag mismatches with the column name specified in "
-					+ "the CSV template.");
-		}
+//		if (maxRowNumbers != 0)
+//		{
+//			csvColumnName = attribute.getCsvColumnName() + "#" + maxRowNumbers;
+//		}
+//		if (csvColumnName != null && !csvColumnNames.contains(csvColumnName)
+//				&& !csvColumnName.contains("null#"))
+//		{
+//			logger.debug("The column name '" + csvColumnName + "' of attribute name '"
+//					+ attribute.getName() + "' in " + bulkOperationClass.getClassName()
+//					+ " class tag mismatches with the column name specified in "
+//					+ "the CSV template.");
+//			errorList.add("The column name '" + csvColumnName + "' of attribute name '"
+//					+ attribute.getName() + "' in " + bulkOperationClass.getClassName()
+//					+ " class tag mismatches with the column name specified in "
+//					+ "the CSV template.");
+//		}
 	}
 
 	/**

@@ -96,7 +96,7 @@ public class BulkOperationProcessor
 					}
 					else
 					{
-						Object domainObject = bulkOperationclass.getClassDiscriminator(valueTable);
+						Object domainObject = bulkOperationclass.getClassDiscriminator(valueTable, "");
 						if(domainObject == null)
 						{
 							domainObject = bulkOperationclass.getNewInstance();
@@ -247,12 +247,17 @@ public class BulkOperationProcessor
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 						List<String> attributeList = BulkOperationUtility.getAttributeList(
-								containmentMigrationClass, "#" + i);
+								containmentMigrationClass, columnSuffix + "#" + i);
 						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList) || validate)
 						{
-							Object containmentObject = containmentMigrationClass.getNewInstance();
-							processObject(containmentObject, containmentMigrationClass, "#" + i, validate);
+							Object containmentObject = containmentMigrationClass.getClassDiscriminator(
+									dataList.getValue(currentRowIndex), columnSuffix + "#" + i);//getNewInstance();
+							if(containmentObject == null)
+							{
+								containmentObject = containmentMigrationClass.getNewInstance();
+							}
+							processObject(containmentObject, containmentMigrationClass, columnSuffix + "#" + i, validate);
 							containmentObjectCollection.add(containmentObject);
 							String roleName = containmentMigrationClass.getParentRoleName();
 							if (!Validator.isEmpty(roleName))
@@ -278,6 +283,11 @@ public class BulkOperationProcessor
 							containmentMigrationClass.getRoleName(), null, mainObj, null);										
 						if (containmentObject == null)
 						{
+							containmentObject = containmentMigrationClass.getClassDiscriminator(
+									dataList.getValue(currentRowIndex), columnSuffix);
+						}
+						if (containmentObject == null)
+						{
 							Class klass = containmentMigrationClass.getClassObject();
 							Constructor constructor = klass.getConstructor(null);
 							containmentObject = constructor.newInstance();
@@ -292,7 +302,7 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.error(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMessage(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
@@ -346,12 +356,17 @@ public class BulkOperationProcessor
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 						List<String> attributeList = BulkOperationUtility.getAttributeList(
-								associationMigrationClass, "#" + i);
+								associationMigrationClass, columnSuffix + "#" + i);
 						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList) || validate)
 						{
-							Object referenceObject = associationMigrationClass.getNewInstance();
-							processObject(referenceObject, associationMigrationClass, "#" + i, validate);
+							Object referenceObject = associationMigrationClass.getClassDiscriminator(
+									dataList.getValue(currentRowIndex), columnSuffix + "#" + i);//getNewInstance();
+							if(referenceObject == null)
+							{
+								referenceObject = associationMigrationClass.getNewInstance();
+							}
+							processObject(referenceObject, associationMigrationClass, columnSuffix + "#" + i, validate);
 							associationObjectCollection.add(referenceObject);
 							String roleName = associationMigrationClass.getParentRoleName();
 							if (!Validator.isEmpty(roleName))
@@ -377,7 +392,14 @@ public class BulkOperationProcessor
 								associationMigrationClass.getRoleName(), null, mainObj, null);	
 						if (associatedObject == null)
 						{
-							associatedObject = associationMigrationClass.getNewInstance();
+							associatedObject = associationMigrationClass.getClassDiscriminator(
+									dataList.getValue(currentRowIndex), columnSuffix);
+						}
+						if (associatedObject == null)
+						{
+							Class klass = associationMigrationClass.getClassObject();
+							Constructor constructor = klass.getConstructor(null);
+							associatedObject = constructor.newInstance();
 						}
 						processObject(associatedObject, associationMigrationClass, columnSuffix, validate);
 						String roleName = associationMigrationClass.getRoleName();
@@ -389,7 +411,7 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.error(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMessage(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
@@ -423,7 +445,8 @@ public class BulkOperationProcessor
 					if(String.valueOf(mainObj.getClass()).contains(attribute.getBelongsTo()))
 					{
 						Class dataTypeClass = Class.forName(attribute.getDataType());
-						if (!Validator.isEmpty(attribute.getCsvColumnName() + columnSuffix))
+						if (valueTable.get(attribute.getCsvColumnName()
+								+ columnSuffix) != null)
 						{
 							if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
 									+ columnSuffix)))
@@ -437,8 +460,17 @@ public class BulkOperationProcessor
 						}
 						else
 						{
-							ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
-							throw new BulkOperationException(errorkey, null, "");
+							if(validate)
+							{
+								ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change.validation");
+								throw new BulkOperationException(errorkey, null, 
+									attribute.getCsvColumnName() + ":" + attribute.getName() + ":" + mainMigrationClass.getClassName());
+							}
+							else
+							{
+								ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
+								throw new BulkOperationException(errorkey, null, "");
+							}
 						}
 					}
 				}
@@ -446,7 +478,7 @@ public class BulkOperationProcessor
 		}
 		catch (BulkOperationException bulkExp)
 		{
-			logger.error(bulkExp.getMsgValues(), bulkExp);
+			logger.error(bulkExp.getMessage(), bulkExp);
 			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
 		}
 		catch (Exception exp)
