@@ -169,7 +169,7 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(Hashtable<String, String> valueList) throws BulkOperationException
+	public Object getClassDiscriminator(Hashtable<String, String> valueList, String columnSuffix) throws BulkOperationException
 	{
 		Object object = null;
 		try
@@ -189,7 +189,7 @@ public class BulkOperationClass
 					{
 						AttributeDiscriminator attributeDiscriminator = attributeDiscriminatorItertor
 								.next();
-						String value = valueList.get(attribute.getCsvColumnName());
+						String value = valueList.get(attribute.getCsvColumnName() + columnSuffix);
 						if (attributeDiscriminator.getName().equalsIgnoreCase(value))
 						{
 							String discriminatorValue = attributeDiscriminator.getValue();

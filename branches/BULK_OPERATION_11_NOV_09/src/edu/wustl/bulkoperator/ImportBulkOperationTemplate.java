@@ -89,10 +89,10 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-//			String operationName = "createParticipantRegistration";
-//			String dropdownName = "createParticipantRegistration";
-//			String csvFile = "D:\\NewXML\\createParticipantRegistrationData.csv";
-//			String xmlFile = "D:\\NewXML\\addParticipant.xml";
+//			String operationName = "addCP";
+//			String dropdownName = "add Coll Prot";
+//			String csvFile = "D:\\NewXML\\addCP.csv";
+//			String xmlFile = "D:\\NewXML\\addCP.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -114,7 +114,14 @@ public class ImportBulkOperationTemplate
 			logger.debug(exp.getMessage(), exp);
 			logger.info(exp.getMessage()+ "\n");
 			logger.info("------------------------ERROR:--------------------------------");
-		}		
+		}
+		catch (Exception exp)
+		{
+			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.debug(exp.getMessage(), exp);
+			logger.info(exp.getMessage()+ "\n");
+			logger.info("------------------------ERROR:--------------------------------");
+		}
 	}
 
 	/**
