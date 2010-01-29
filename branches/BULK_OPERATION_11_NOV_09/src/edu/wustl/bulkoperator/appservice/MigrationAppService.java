@@ -67,7 +67,7 @@ public abstract class MigrationAppService
 		}
 		catch (Exception appExp)
 		{
-			throw new Exception(appExp.getMessage(), appExp);
+			throw appExp;
 		}
 	}
 
@@ -80,7 +80,7 @@ public abstract class MigrationAppService
 		}
 		catch (Exception appExp)
 		{
-			throw new Exception(appExp.getMessage(), appExp);
+			throw appExp;
 		}
 		return newObj;
 	}

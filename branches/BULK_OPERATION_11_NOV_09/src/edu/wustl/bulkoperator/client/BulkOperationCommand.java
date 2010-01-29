@@ -331,8 +331,9 @@ public class BulkOperationCommand
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
 			}
-			if (args[index].contains(".xml") ||args[index].contains(".csv"))
+			if (!Validator.isEmpty(args[index]) && args[index].contains(".xml") ||args[index].contains(".csv"))
 			{
+				
 				File file = new File(args[index]);
 				if(!file.exists())
 				{
@@ -341,7 +342,6 @@ public class BulkOperationCommand
 						logger.info(USAGE_LOG.toString());
 						isValid = false;
 				}
-
 			}
 		}
 
@@ -349,7 +349,7 @@ public class BulkOperationCommand
 		{
 			for(int index=5; index<args.length ;index++)
 			{
-				if(Validator.isEmpty(args[index]) && index!=7)
+				if(Validator.isEmpty(args[index]) && index!=7 && index!=5)
 				{
 					logger.info("Error: Bulk parameters are either missing  or incorrect " +
 							args[index]+", please check the below usage command.");
