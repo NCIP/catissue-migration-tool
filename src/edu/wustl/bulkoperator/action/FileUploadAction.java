@@ -84,7 +84,8 @@ public class FileUploadAction extends SecureAction
 								(dropDownName, operationName);
 					if (list.isEmpty())
 					{
-						throw new BulkOperationException("bulk.error.incorrect.operation.name");
+						ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.incorrect.operation.name");
+						throw new BulkOperationException(errorkey, null, "");
 					}
 					retrievedOperationName = list.get(0);
 					xmlTemplateInputSource = new InputSource(new StringReader(list.get(1)));
