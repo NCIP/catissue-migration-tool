@@ -17,8 +17,6 @@ import org.json.JSONObject;
 import edu.wustl.bulkoperator.util.AppUtility;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.util.logger.Logger;
-import edu.wustl.dao.JDBCDAO;
-import edu.wustl.dao.exception.DAOException;
 
 // TODO: Auto-generated Javadoc
 
@@ -45,15 +43,13 @@ public class JobGridAjaxAction extends SecureAction
 		String index = request.getParameter("index");
 		String jobId = request.getParameter("jobId");
 		List<ArrayList> list = null;
-		JDBCDAO dao = null;
 		try
 		{
-			dao = AppUtility.openJDBCSession();
 			String query = "Select IDENTIFIER, JOB_NAME, JOB_STATUS, TOTAL_RECORDS_COUNT, "
 					+ "CURRENT_RECORDS_PROCESSED, FAILED_RECORDS_COUNT, TIME_TAKEN,JOB_STARTED_BY from "
 					+ "JOB_DETAILS where IDENTIFIER = " + jobId;
-			dao = AppUtility.openJDBCSession();
-			list = dao.executeQuery(query);
+
+			list = AppUtility.executeSQLQuery(query);
 			JSONObject resultObject = new JSONObject();
 			if (!list.isEmpty())
 			{
@@ -79,20 +75,6 @@ public class JobGridAjaxAction extends SecureAction
 		catch (JSONException jsonExp)
 		{
 			logger.debug(jsonExp.getMessage(), jsonExp);
-		}
-		finally
-		{
-			try
-			{
-				if (dao != null)
-				{
-					AppUtility.closeJDBCSession(dao);
-				}
-			}
-			catch (final DAOException daoExp)
-			{
-				logger.debug(daoExp);
-			}
 		}
 		return null;
 	}
