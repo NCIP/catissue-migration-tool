@@ -18,7 +18,7 @@
 
 <script>
 	var xmlString='${requestScope.msgBoardXml}';
-
+	var latestRowId='';
 	function rowClick(id)
 	{
 		var colid ='${requestScope.identifierFieldIndex}';
@@ -45,15 +45,33 @@
 	function initializeAjaxCall()
 	{
 		var noOfRows=mygrid.getRowsNum();
-		for(var i=1;i<=noOfRows;i++)
+		if(noOfRows != 0 && noOfRows != null && noOfRows != '')
 		{
-			var jobId=mygrid.cells(i,0).getValue();
-			var status=mygrid.cells(i,3).getValue();
-			if(status!="Completed"&&status!="Failed")
+			for(var i=1;i<=noOfRows;i++)
 			{
-				statusUpdateAjaxCall(jobId,i);
+				var jobId=mygrid.cells(i,0).getValue();
+				var status=mygrid.cells(i,3).getValue();
+				if(status!="Completed"&&status!="Failed")
+				{
+					statusUpdateAjaxCall(jobId,i);
+				}
 			}
 		}
+	}
+
+	function initiateAjaxForNewRows(id)
+	{
+		var rowIndex=mygrid.getRowIndex(id);
+		//alert("rowIndex   "+rowIndex);
+		var jobId=mygrid.cells(id,0).getValue();
+		//alert("jobId   "+jobId);
+				//alert("Id   "+id);
+		var status=mygrid.cells(id,3).getValue()
+			//alert("status   "+status);
+		if(status!="Completed"&&status!="Failed")
+			{
+				statusUpdateAjaxCall(jobId,id);
+			}
 	}
 
 	function statusUpdateAjaxCall(jobId, index)
@@ -99,7 +117,7 @@
 			mygrid.cells(index,7).setCValue(timeTaken);
 			if(jobStatus!="Completed"&&jobStatus!="Failed")
 			{
-				statusUpdateAjaxCall(jobId,index);
+				//statusUpdateAjaxCall(jobId,index);
 			}
 		}
 	}
@@ -107,18 +125,29 @@
 
 	function getGridXml()
 	{
-		var url="JobDashboard.do?requestType=ajax";
-		var request=newXMLHTTPReq();
-		if(request == null)
+		if(latestRowId != null && latestRowId != '' && latestRowId != 'undefined')
 		{
-			alert ("Your browser does not support AJAX!");
-			return;
+			var jobID=latestRowId;
 		}
-		var handlerFunction = getReadyStateHandler(request,setGridXML,true);
-		request.onreadystatechange = handlerFunction;
-		request.open("POST",url,true);
-		request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-		request.send("");
+		else
+		{
+			var jobID=mygrid.cells(1,0).getValue();
+		}
+		if(jobID != null && jobID != '' && jobID != 'undefined')
+		{
+			var url="JobDashboard.do?requestType=ajax&jobId="+jobID;
+			var request=newXMLHTTPReq();
+			if(request == null)
+			{
+				alert ("Your browser does not support AJAX!");
+				return;
+			}
+			var handlerFunction = getReadyStateHandler(request,setGridXML,true);
+			request.onreadystatechange = handlerFunction;
+			request.open("POST",url,true);
+			request.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+			request.send("");
+		}
 	}
 	function setGridXML(response)
 	{
@@ -127,8 +156,37 @@
 		if(jsonResponse.resultObject!=null)
 	    {
 			var xmlGrid=jsonResponse.resultObject.xmlGrid;
+			var contentList=new String(jsonResponse.resultObject.contentList);
+			if(contentList != null && contentList != 'undefined')
+			{
+				//alert("contentList   "+contentList);
+				latestRowId=jsonResponse.resultObject.latestId;
+				var rowsList=contentList.split("#");
+				//alert("latestRowId   "+latestRowId);
+				for(var i=0;i<rowsList.length;i++)
+				{
+					var rowList=rowsList[i].split(",");
+					//alert("rowList   "+rowList);
+					var content=rowList[0]+","+rowList[1]+","+rowList[2]+","+rowList[3]+","+rowList[4]+","+rowList[5]+","+rowList[6]+","+rowList[7]+","+rowList[8];
+					//alert("content   "+content);
+					//alert(mygrid.getRowsNum());
+					mygrid.addRow(mygrid.getRowsNum()+1,content,0);
+					//mygrid.setRowTextStyle(mygrid.getRowsNum(),"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
+					var newRowId=mygrid.getRowId(0);
+					//alert(newRowId);
+					initiateAjaxForNewRows(newRowId);
+					//alert(mygrid.getRowsNum());
+
+				}
+				/*for(var row=0;row<=mygrid.getRowsNum();row++)
+				{
+					mygrid.setRowTextStyle(row+1,"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
+				}*/
+			}
+			//alert(mygrid.getRowsNum());
+
 			//alert("xmlGrid   "+xmlGrid);
-			mygrid.loadXMLString(xmlGrid);
+			//mygrid.loadXMLString(xmlGrid);
 			//alert(jsonResponse.resultObject.gridRefreshTime);
 			var refreshTimeInterval=jsonResponse.resultObject.gridRefreshTime;
 			if(refreshTimeInterval != null && refreshTimeInterval != 0 )
@@ -139,6 +197,10 @@
 		//alert("refreshinterval"+parent.refreshinterval);
 		//parent.refreshinterval=10;
 		//alert("refreshinterval"+parent.refreshinterval);
+		for(var row=0;row<=mygrid.getRowsNum();row++)
+				{
+					mygrid.setRowTextStyle(row+1,"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
+				}
 	}
 </script>
 <style>
@@ -206,7 +268,7 @@
 					mygrid.setColumnHidden(hideCols[i],true);
 				}*/
 				//Initializing ajax call to update individual cells of grid.
-				//initializeAjaxCall();
+				initializeAjaxCall();
 
 			mygrid.objBox.style.overflowX = "hidden";
 		    mygrid.objBox.style.overflowY = "hidden";

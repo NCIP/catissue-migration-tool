@@ -60,6 +60,7 @@ function countdown()
 	{
 		clearTimeout(timer);
 		window.frames['bulkOperationDashoard'].getGridXml();
+		window.frames['bulkOperationDashoard'].initializeAjaxCall();
 		callStartTime();
 	}
 }

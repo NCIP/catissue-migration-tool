@@ -57,6 +57,46 @@ public class ShowJobDashboardAction extends SecureAction
 		if(requestType != null && requestType.equals("ajax"))
 		{
 			JSONObject resultObject = new JSONObject();
+			String index = request.getParameter("index");
+			String jobId = request.getParameter("jobId");
+			List<ArrayList> list = null;
+
+				String query = "Select IDENTIFIER, JOB_NAME,START_TIME, JOB_STATUS, TOTAL_RECORDS_COUNT, "
+						+ "CURRENT_RECORDS_PROCESSED, FAILED_RECORDS_COUNT, TIME_TAKEN from "
+						+ "JOB_DETAILS where IDENTIFIER > " + jobId +"  and JOB_STARTED_BY="+userId;
+				list = AppUtility.executeSQLQuery(query);
+				StringBuffer buffer = new StringBuffer();
+				if(!list.isEmpty())
+				{
+					String latestId = null;
+					for(int i=0;i<list.size();i++)
+					{
+						List contentList=list.get(i);
+
+						for(int j=0;j<contentList.size();j++)
+						{
+							if(j != 0)
+							{
+								buffer.append(',');
+							}
+							buffer.append(contentList.get(j));
+						}
+
+						buffer.append(",<a href='javascript:showAttachment("+contentList.get(0)+")'>Download</a>");
+						if(i<list.size()-1)
+						{
+							buffer.append("#");
+						}
+
+						latestId=contentList.get(0).toString();
+					}
+					resultObject.append("contentList",buffer);
+					resultObject.append("latestId",latestId);
+
+
+				}
+
+
 			//for reading the jobGrid.refresh.time from the bulkOperation.properties file
 			String filePath=CommonServiceLocator.getInstance().getPropDirPath()+ File.separator + "bulkOperation.properties";
 			Properties properties = BulkOperationUtility.getPropertiesFile(filePath);
