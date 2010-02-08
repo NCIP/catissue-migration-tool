@@ -77,7 +77,7 @@ public class BulkOperationCommand
 			" templateFile[optional] =\t Absolute path of the XML template." +
 			" Template file is optional to give.\n url=\t Application URL " +
 			"e.g. http://localhost:8080/catissuecore\n" +
-			" applicationUserName[optional] =\t Application user Login name." +
+			" applicationUserName =\t Application user Login name." +
 			" Application user name file is optional to give.\n" +
 			" applicationUserPassword =\t Application user password \n" +
 			" keyStoreLocation[optional]=\t Absolute path of Keystore location," +
@@ -213,6 +213,28 @@ public class BulkOperationCommand
 	}
 
 	/**
+	 * This method will be called to remove extra path separator.
+	 * @param url : application URL
+	 * @return URL having no path separator in the end. 
+	 *//*
+	private String removeExtraSeparatorFromURL(String url)
+	{
+		String updatedURL = url;
+		if(url.charAt(url.length()-1) == '/' ||url.charAt(url.length()-1) == '\\')
+		{
+			char[] array = new char[100];
+			url.getChars(0, url.length()-1, array, 0);
+			updatedURL = updatedURL.copyValueOf(array);
+			removeExtraSeparatorFromURL(updatedURL);
+			
+		}
+		logger.info("URL :"+updatedURL);
+		return updatedURL;
+	}*/
+	
+	
+	
+	/**
 	 * This method will be called to check the status.
 	 * @param status Job status
 	 * @return return false if status completed or failed.
@@ -322,7 +344,7 @@ public class BulkOperationCommand
 	{
 
 		boolean isValid = true;
-		for (int index=0; index < 5 ; index++)
+		for (int index=0; index < 5 ; index++) // To validate first 5 fields.
 		{
 			if(Validator.isEmpty(args[index]))
 			{
@@ -330,8 +352,9 @@ public class BulkOperationCommand
 						args[index]+", please check the below usage command.");
 				logger.info(USAGE_LOG.toString());
 				isValid = false;
+				break;
 			}
-			if (!Validator.isEmpty(args[index]) && args[index].contains(".xml") ||args[index].contains(".csv"))
+			if (!Validator.isEmpty(args[index]) && args[index].contains(".csv"))
 			{
 				
 				File file = new File(args[index]);
@@ -341,27 +364,35 @@ public class BulkOperationCommand
 						args[index]+", please check the path.");
 						logger.info(USAGE_LOG.toString());
 						isValid = false;
+						break;
 				}
 			}
 		}
 
-		if(args.length > 5)
+		if(args.length > 5) // for optional fields.
 		{
 			for(int index=5; index<args.length ;index++)
 			{
-				if(Validator.isEmpty(args[index]) && index!=7 && index!=5)
+				if(!Validator.isEmpty(args[index]) && (args[index].contains(".keystore") ||args[index].contains(".xml")))
 				{
-					logger.info("Error: Bulk parameters are either missing  or incorrect " +
-							args[index]+", please check the below usage command.");
-					logger.info(USAGE_LOG.toString());
-					isValid = false;
+					File file = new File(args[index]);
+					if(!file.exists())
+					{
+						logger.info("Error: File is missing " +
+								args[index]+", please check the path.");
+						logger.info(USAGE_LOG.toString());
+						isValid = false;
+						break;
+					}
 				}
-				if(!Validator.isEmpty(args[index]) && !args[index].contains(".keystore") && !args[index].contains(".xml") && !new File(args[index]).isDirectory())
+				else if(!Validator.isEmpty(args[index]) && !new File(args[index]).isDirectory())
 				{
 					logger.info("Error: Path specified to store bulk artifacts should be a directory   " +
 							args[index]+", please check the path.");
 					logger.info(USAGE_LOG.toString());
 					isValid = false;
+					break;
+					
 				}
 			}
 		}

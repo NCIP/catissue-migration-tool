@@ -204,12 +204,11 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		catch (IOException e)
 		{
 			List<String> listOfArguments = new ArrayList<String>();
-			listOfArguments.add(url);
-			listOfArguments.add(applicationUserName);
-			listOfArguments.add(applicationUserPassword);
+			listOfArguments.add("Template file");
+			listOfArguments.add("CSV file");
 			jobMessage = new JobMessage();
 			jobMessage.setOperationSuccessfull(false);
-			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.file.not.found",listOfArguments));
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -258,13 +257,9 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		}
 		catch (IOException e)
 		{
-			List<String> listOfArguments = new ArrayList<String>();
-			listOfArguments.add(url);
-			listOfArguments.add(applicationUserName);
-			listOfArguments.add(applicationUserPassword);
 			jobMessage = new JobMessage();
 			jobMessage.setOperationSuccessfull(false);
-			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error"));
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -323,17 +318,16 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			listOfArguments.add(csvFile.getName());
 			jobMessage = new JobMessage();
 			jobMessage.setOperationSuccessfull(false);
-			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.file.not.found", listOfArguments));
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.file.not.found",listOfArguments));
 		}
 		catch (IOException e)
 		{
 			List<String> listOfArguments = new ArrayList<String>();
-			listOfArguments.add(url);
-			listOfArguments.add(applicationUserName);
-			listOfArguments.add(applicationUserPassword);
+			listOfArguments.add(xmlTemplateFile.getName());
+			listOfArguments.add(csvFile.getName());
 			jobMessage = new JobMessage();
 			jobMessage.setOperationSuccessfull(false);
-			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.client.error", listOfArguments));
+			jobMessage.addMessage(ApplicationProperties.getValue("bulk.operation.file.not.found",listOfArguments));
 		}
 		catch (ClassNotFoundException e)
 		{
