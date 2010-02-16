@@ -263,13 +263,13 @@ public class ShowJobDashboardAction extends SecureAction
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Status",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Total Records",
-				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
+				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_INT));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY,
-				"Processed Records", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
+				"Processed Records", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_INT));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY,
-				"Failed Records", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
+				"Failed Records", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_INT));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY,
-				"Time taken(sec)", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
+				"Time taken(sec)", GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_INT));
 		headerXML.append(GridUtil.getColumnXML("10", GridUtil.CELL_TYPE_READ_ONLY, "Report",
 				GridUtil.ALIGN_LEFT, GridUtil.CELL_SORT_STR));
 
