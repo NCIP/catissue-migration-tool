@@ -25,8 +25,13 @@ import org.hibernate.Session;
 
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
+import edu.wustl.dao.JDBCDAO;
+import edu.wustl.dao.daofactory.DAOConfigFactory;
+import edu.wustl.dao.exception.DAOException;
 
 public class BulkOperationUtility
 {
@@ -358,5 +363,31 @@ public class BulkOperationUtility
 		Properties properties = getPropertiesFile(
 				BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
 		return properties.getProperty("database.type");
+	}
+	/**
+	 * This method will change the Bulk Operation status from In Progress
+	 * to Failed. The method should be called whenever the application 
+	 * server and stops.
+	 * @param sessionData SessionDataBean
+	 */
+	public static void changeBulkOperationStatusToFailed() throws DAOException
+	{
+		try
+		{
+			final String appName = CommonServiceLocator.getInstance().getAppName();
+			final JDBCDAO jdbcDao = DAOConfigFactory.getInstance().getDAOFactory(appName)
+					.getJDBCDAO();
+			jdbcDao.openSession(null);
+			jdbcDao.executeUpdate("update job_details set job_status = 'Failed' where job_status = 'In Progress'");
+			jdbcDao.commit();
+			jdbcDao.closeSession();
+		}
+		catch (final DAOException daoExp)
+		{
+			logger.error("Could not update the table Job Details with the " +
+				"status column value from inprogess to failed." + daoExp.getMessage(), daoExp);
+			daoExp.printStackTrace();
+			throw daoExp;
+		}
 	}
 }
