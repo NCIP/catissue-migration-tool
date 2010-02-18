@@ -1,6 +1,10 @@
 
 package edu.wustl.bulkoperator.action;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.ResultSet;
@@ -14,6 +18,7 @@ import org.apache.struts.action.ActionMapping;
 
 import edu.wustl.bulkoperator.util.AppUtility;
 import edu.wustl.common.action.SecureAction;
+import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Constants;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.dao.JDBCDAO;
@@ -48,32 +53,48 @@ public class DownloadJobReportFileAction extends SecureAction
 			ResultSet dblist = dao
 					.getQueryResultSet("select LOG_FILE, LOG_FILE_NAME from JOB_DETAILS where IDENTIFIER = "
 							+ fileId);
+
 			if (dblist.next())
 			{
 				InputStream inputStream = dblist.getBinaryStream(1);
+
 				String zipFileName = dblist.getString(2);
-				int count, writeCount;
-				long length = 0L;
-				final byte[] buf = new byte[4096];
-				count = inputStream.read(buf);
-				writeCount = count;
-				while (count > -1)
-				{
-					length += count;
-					count = inputStream.read(buf);
-				}
-				response.setContentLength((int) length);
-				response.setHeader("Content-Disposition", "attachment;filename=\"" + zipFileName
-						+ "\";");
-				final OutputStream outStream = response.getOutputStream();
-				while (writeCount > -1)
-				{
-					outStream.write(buf, 0, writeCount);
-					writeCount = inputStream.read(buf);
-				}
-				outStream.flush();
+
+				String tempDirFilePath = CommonServiceLocator.getInstance().getAppHome();
+				File file = new File(tempDirFilePath + "/" + zipFileName);
+				OutputStream out = new FileOutputStream(file);
+				byte buff[] = new byte[1024];
+				int len;
+				while ((len = inputStream.read(buff)) > 0)
+					out.write(buff, 0, len);
+				out.close();
 				inputStream.close();
+
+				if (file.exists())
+				{
+					response.setContentType("application/download");
+					response.setHeader("Content-Disposition", "attachment;filename=\""
+							+ zipFileName + "\";");
+					response.setContentLength((int) file.length());
+
+					OutputStream os = response.getOutputStream();
+					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+					int count;
+					byte buf[] = new byte[4096];
+					while ((count = bis.read(buf)) > -1)
+					{
+						os.write(buf, 0, count);
+					}
+					os.flush();
+					bis.close();
+				}
+				else
+				{
+					throw new Exception("An Exception has occured....");
+				}
+				file.delete();
 			}
+
 		}
 		catch (Exception exp)
 		{
@@ -86,6 +107,7 @@ public class DownloadJobReportFileAction extends SecureAction
 				if (dao != null)
 				{
 					dao.closeSession();
+
 				}
 			}
 			catch (final DAOException daoExp)
