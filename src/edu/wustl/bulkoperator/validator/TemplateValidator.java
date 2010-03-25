@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -53,7 +54,7 @@ public class TemplateValidator
 			{
 				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
 						null);
-				bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "", true);
+				bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "", true, false);
 			}
 			catch (BulkOperationException bulkExp)
 			{
@@ -361,11 +362,42 @@ public class TemplateValidator
 				validateColumnName(bulkOperationClass, attribute, csvColumnNames, maxRowNumbers);
 				validateDataType(bulkOperationClass, attribute, field, attributeName);
 				validateUpdateBasedOn(bulkOperationClass, attribute);
+				validateAttributeContRef(bulkOperationClass, attribute, csvColumnNames, maxRowNumbers);
 			}
 			catch (Exception exp)
 			{
 				logger.debug(exp.getMessage(), exp);
 				errorList.add(exp.getMessage());
+			}
+		}
+	}
+
+	private void validateAttributeContRef(BulkOperationClass bulkOperationClass,
+		Attribute attribute, List<String> csvColumnNames, int maxRowNumbers)
+		throws BulkOperationException
+	{
+		if(attribute.getReferenceAssociationCollection() != null &&
+				!attribute.getReferenceAssociationCollection().isEmpty())
+		{
+			Iterator<BulkOperationClass> contRefItert = attribute
+					.getReferenceAssociationCollection().iterator();
+			while (contRefItert.hasNext())
+			{
+				BulkOperationClass contRefMigrationClass = contRefItert.next();
+				validateContainmentReference(bulkOperationClass.getTemplateName(),
+						attribute.getReferenceAssociationCollection(), csvColumnNames, maxRowNumbers);
+			}
+		}
+		else if(attribute.getContainmentAssociationCollection() != null &&
+				!attribute.getContainmentAssociationCollection().isEmpty())
+		{
+			Iterator<BulkOperationClass> contRefItert = attribute
+				.getContainmentAssociationCollection().iterator();
+			while (contRefItert.hasNext())
+			{
+				BulkOperationClass contRefMigrationClass = contRefItert.next();
+				validateContainmentReference(bulkOperationClass.getTemplateName(),
+					attribute.getContainmentAssociationCollection(), csvColumnNames, maxRowNumbers);
 			}
 		}
 	}
@@ -503,10 +535,13 @@ public class TemplateValidator
 				Class fieldDataType = field.getType();
 				if (!fieldDataType.toString().equals("class " + dataType.trim()))
 				{
-					logger.debug("The fieldDataType value " + dataType + " is for "
-							+ bulkOperationClass.getClassName() + " is incorrect.");
-					errorList.add("The fieldDataType value " + dataType + " is for "
-							+ bulkOperationClass.getClassName() + " is incorrect.");
+					if (!fieldDataType.toString().equals("interface " + dataType.trim()))
+					{						
+						logger.debug("The fieldDataType value " + dataType + " is for "
+								+ bulkOperationClass.getClassName() + " is incorrect.");
+						errorList.add("The fieldDataType value " + dataType + " is for "
+								+ bulkOperationClass.getClassName() + " is incorrect.");
+					}
 				}
 			}
 		}

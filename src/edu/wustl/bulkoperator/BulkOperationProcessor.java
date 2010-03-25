@@ -90,7 +90,7 @@ public class BulkOperationProcessor
 						}
 						else
 						{
-							processObject(searchedObject, bulkOperationclass, "", false);
+							processObject(searchedObject, bulkOperationclass, "", false, false);
 							migrationAppService.update(searchedObject);
 						}
 					}
@@ -101,7 +101,7 @@ public class BulkOperationProcessor
 						{
 							domainObject = bulkOperationclass.getNewInstance();
 						}
-						processObject(domainObject, bulkOperationclass, "", false);
+						processObject(domainObject, bulkOperationclass, "", false, false);
  						migrationAppService.insert(domainObject, bulkOperationclass, objectMap);
 					}
 					dataList.addStatusMessage(currentRowIndex, "Success", " ");
@@ -182,24 +182,24 @@ public class BulkOperationProcessor
 	 * @throws ClassNotFoundException 
 	 */
 	public void processObject(Object mainObj, BulkOperationClass migrationClass,
-			String columnSuffix, boolean validate) throws BulkOperationException
+			String columnSuffix, boolean validate, boolean hasAttributesDetail) throws BulkOperationException
 	{
 		if (migrationClass.getAttributeCollection() != null
 				&& !migrationClass.getAttributeCollection().isEmpty())
 		{
-			processAttributes(mainObj, migrationClass, columnSuffix, validate);
+			processAttributes(mainObj, migrationClass, columnSuffix, validate, hasAttributesDetail);
 		}
 
 		if (migrationClass.getContainmentAssociationCollection() != null
 				&& !migrationClass.getContainmentAssociationCollection().isEmpty())
 		{
-			processContainments(mainObj, migrationClass, columnSuffix, validate);
+			processContainments(mainObj, migrationClass, columnSuffix, validate, hasAttributesDetail);
 		}
 
 		if (migrationClass.getReferenceAssociationCollection() != null
 				&& !migrationClass.getReferenceAssociationCollection().isEmpty())
 		{
-			processAssociations(mainObj, migrationClass, columnSuffix, validate);
+			processAssociations(mainObj, migrationClass, columnSuffix, validate, hasAttributesDetail);
 		}
 
 	}
@@ -222,7 +222,8 @@ public class BulkOperationProcessor
 	 * @throws ClassNotFoundException 
 	 */
 	private void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
-			String columnSuffix, boolean validate) throws BulkOperationException
+		String columnSuffix, boolean validate, boolean hasAttributesDetail)
+		throws BulkOperationException
 	{
 		try
 		{
@@ -257,7 +258,8 @@ public class BulkOperationProcessor
 							{
 								containmentObject = containmentMigrationClass.getNewInstance();
 							}
-							processObject(containmentObject, containmentMigrationClass, columnSuffix + "#" + i, validate);
+							processObject(containmentObject, containmentMigrationClass,
+									columnSuffix + "#" + i, validate, hasAttributesDetail);
 							containmentObjectCollection.add(containmentObject);
 							String roleName = containmentMigrationClass.getParentRoleName();
 							if (!Validator.isEmpty(roleName))
@@ -292,7 +294,8 @@ public class BulkOperationProcessor
 							Constructor constructor = klass.getConstructor(null);
 							containmentObject = constructor.newInstance();
 						}
-						processObject(containmentObject, containmentMigrationClass, columnSuffix, validate);
+						processObject(containmentObject, containmentMigrationClass,
+								columnSuffix, validate, hasAttributesDetail);
 						String roleName = containmentMigrationClass.getRoleName();
 						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{containmentObject
 								.getClass()}, mainObj, containmentObject);
@@ -330,7 +333,8 @@ public class BulkOperationProcessor
 	 * @throws InstantiationException
 	 */
 	private void processAssociations(Object mainObj, BulkOperationClass mainMigrationClass,
-			String columnSuffix, boolean validate) throws BulkOperationException
+		String columnSuffix, boolean validate, boolean hasAttributesDetail)
+		throws BulkOperationException
 	{
 		try
 		{
@@ -366,7 +370,8 @@ public class BulkOperationProcessor
 							{
 								referenceObject = associationMigrationClass.getNewInstance();
 							}
-							processObject(referenceObject, associationMigrationClass, columnSuffix + "#" + i, validate);
+							processObject(referenceObject, associationMigrationClass,
+									columnSuffix + "#" + i, validate, hasAttributesDetail);
 							associationObjectCollection.add(referenceObject);
 							String roleName = associationMigrationClass.getParentRoleName();
 							if (!Validator.isEmpty(roleName))
@@ -401,7 +406,8 @@ public class BulkOperationProcessor
 							Constructor constructor = klass.getConstructor(null);
 							associatedObject = constructor.newInstance();
 						}
-						processObject(associatedObject, associationMigrationClass, columnSuffix, validate);
+						processObject(associatedObject, associationMigrationClass,
+								columnSuffix, validate, hasAttributesDetail);
 						String roleName = associationMigrationClass.getRoleName();
 						mainMigrationClass.invokeSetterMethod(roleName, new Class[]{associatedObject
 								.getClass()}, mainObj, associatedObject);
@@ -430,46 +436,63 @@ public class BulkOperationProcessor
 	 * @throws BulkOperationException
 	 */
 	private void processAttributes(Object mainObj, BulkOperationClass mainMigrationClass,
-			String columnSuffix, boolean validate) throws BulkOperationException
+			String columnSuffix, boolean validate, boolean hasAttributesDetail) throws BulkOperationException
 	{
 		try
 		{
+			boolean hasContainmentReferenceDetail = false;
 			Iterator<Attribute> attributeItertor = mainMigrationClass.getAttributeCollection()
 					.iterator();
 			Hashtable<String, String> valueTable = dataList.getValue(currentRowIndex);
 			while (attributeItertor.hasNext())
 			{
 				Attribute attribute = attributeItertor.next();
-				if (attribute.getDataType() != null && !"".equals(attribute.getDataType()))
+				if(attribute.getReferenceAssociationCollection() != null &&
+						!attribute.getReferenceAssociationCollection().isEmpty())
 				{
-					if(String.valueOf(mainObj.getClass()).contains(attribute.getBelongsTo()))
+					hasAttributesDetail = true;
+					Iterator<BulkOperationClass> referenceIterator = attribute
+							.getReferenceAssociationCollection().iterator();
+					hasContainmentReferenceDetail = processAttributesForContainmentAndReference(
+							mainObj, mainMigrationClass, columnSuffix, validate,
+							hasAttributesDetail, hasContainmentReferenceDetail, valueTable,
+							attribute, referenceIterator);
+				}
+				else if(attribute.getContainmentAssociationCollection() != null &&
+								!attribute.getContainmentAssociationCollection().isEmpty())
+				{
+					hasAttributesDetail = true;
+					Iterator<BulkOperationClass> containmentItert = attribute
+							.getContainmentAssociationCollection().iterator();
+					hasContainmentReferenceDetail = processAttributesForContainmentAndReference(
+							mainObj, mainMigrationClass, columnSuffix, validate,
+							hasAttributesDetail, hasContainmentReferenceDetail, valueTable,
+							attribute, containmentItert);
+				}
+				else
+				{					
+					if (attribute.getDataType() != null && !"".equals(attribute.getDataType()))
 					{
-						Class dataTypeClass = Class.forName(attribute.getDataType());
-						if (valueTable.get(attribute.getCsvColumnName()
-								+ columnSuffix) != null)
+						if(String.valueOf(mainObj.getClass()).contains(attribute.getBelongsTo()))
 						{
-							if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
-									+ columnSuffix)))
+							Class dataTypeClass = Class.forName(attribute.getDataType());
+							if (valueTable.get(attribute.getCsvColumnName()
+									+ columnSuffix) != null)
 							{
-								String csvData = valueTable.get(attribute.getCsvColumnName()
-										+ columnSuffix);
-								Object attributeValue = attribute.getValueOfDataType(csvData, validate);
-								mainMigrationClass.invokeSetterMethod(attribute.getName(),
-										new Class[]{dataTypeClass}, mainObj, attributeValue);
-							}
-						}
-						else
-						{
-							if(validate)
-							{
-								ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change.validation");
-								throw new BulkOperationException(errorkey, null, 
-									attribute.getCsvColumnName() + ":" + attribute.getName() + ":" + mainMigrationClass.getClassName());
+								if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
+										+ columnSuffix)))
+								{
+									String csvData = valueTable.get(attribute.getCsvColumnName()
+											+ columnSuffix);
+									Object attributeValue = attribute.getValueOfDataType(csvData, validate);
+									mainMigrationClass.invokeSetterMethod(attribute.getName(),
+											new Class[]{dataTypeClass}, mainObj, attributeValue);
+								}
 							}
 							else
 							{
-								ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
-								throw new BulkOperationException(errorkey, null, "");
+								throwExceptionForColumnNameNotFound(mainMigrationClass, validate,
+										attribute);
 							}
 						}
 					}
@@ -487,5 +510,117 @@ public class BulkOperationProcessor
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
+	}
+
+	/**
+	 * @param mainMigrationClass
+	 * @param validate
+	 * @param attribute
+	 * @throws BulkOperationException
+	 */
+	private void throwExceptionForColumnNameNotFound(BulkOperationClass mainMigrationClass,
+			boolean validate, Attribute attribute) throws BulkOperationException
+	{
+		if(validate)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change.validation");
+			throw new BulkOperationException(errorkey, null, 
+				attribute.getCsvColumnName() + ":" + attribute.getName() + ":" + mainMigrationClass.getClassName());
+		}
+		else
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
+			throw new BulkOperationException(errorkey, null, "");
+		}
+	}
+
+	/**
+	 * @param mainObj
+	 * @param mainMigrationClass
+	 * @param columnSuffix
+	 * @param validate
+	 * @param hasAttributesDetail
+	 * @param hasContainmentReferenceDetail
+	 * @param valueTable
+	 * @param attribute
+	 * @param contRefItert
+	 * @return
+	 * @throws BulkOperationException
+	 */
+	private boolean processAttributesForContainmentAndReference(Object mainObj,
+			BulkOperationClass mainMigrationClass, String columnSuffix, boolean validate,
+			boolean hasAttributesDetail, boolean hasContainmentReferenceDetail,
+			Hashtable<String, String> valueTable, Attribute attribute,
+			Iterator<BulkOperationClass> contRefItert) throws BulkOperationException
+	{
+		while (contRefItert.hasNext())
+		{
+			BulkOperationClass contRefMigrationClass = contRefItert.next();
+			Collection contRefObjectCollection = (Collection) mainMigrationClass
+					.invokeGetterMethod(contRefMigrationClass.getRoleName(), null,
+						mainObj, null);
+			if (contRefObjectCollection == null)
+			{
+				contRefObjectCollection = new LinkedHashSet();
+			}
+			List sortedList = new ArrayList(contRefObjectCollection);
+			contRefObjectCollection = new LinkedHashSet(sortedList);
+			int maxNoOfRecords = contRefMigrationClass.getMaxNoOfRecords().intValue();
+			for (int i = 1; i <= maxNoOfRecords; i++)
+			{
+				List<String> attributeList = BulkOperationUtility.getAttributeList(
+						contRefMigrationClass, columnSuffix + "#" + i);
+				if(attributeList.isEmpty() && hasAttributesDetail)
+				{
+					if(valueTable.get(attribute.getCsvColumnName()
+							+ columnSuffix + "#" + i) != null)
+					{
+						attributeList.add(attribute.getCsvColumnName() + columnSuffix + "#" + i);
+						hasContainmentReferenceDetail = true;
+					}
+					else
+					{
+						throwExceptionForColumnNameNotFound(mainMigrationClass, validate,
+								attribute);
+					}
+				}
+				if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+						attributeList) || validate)
+				{
+					Object containmentObject = contRefMigrationClass.getClassDiscriminator(
+							valueTable, columnSuffix + "#" + i);//getNewInstance();
+					if(containmentObject == null)
+					{
+						containmentObject = contRefMigrationClass.getNewInstance();
+					}
+					if("java.lang.String".equals(attribute.getDataType()) ||
+							"java.lang.Long".equals(attribute.getDataType()) ||
+							"java.lang.Double".equals(attribute.getDataType()) ||
+							"java.lang.Integer".equals(attribute.getDataType()) ||
+							"java.lang.Boolean".equals(attribute.getDataType()) ||
+							"java.util.Collection".equals(attribute.getDataType()) &&
+							hasContainmentReferenceDetail)
+					{
+						if (!Validator.isEmpty(valueTable.get(attribute.getCsvColumnName()
+								+ columnSuffix + "#" + i)))
+						{
+							containmentObject = valueTable.get(attribute.getCsvColumnName() + columnSuffix + "#" + i);
+							contRefObjectCollection.add(containmentObject);
+						}
+					}
+					else
+					{
+						processObject(containmentObject, contRefMigrationClass,
+							columnSuffix + "#" + i, validate, hasAttributesDetail);
+						contRefObjectCollection.add(containmentObject);
+					}					
+				}
+			}
+			String roleName = contRefMigrationClass.getRoleName();
+			mainMigrationClass.invokeSetterMethod(roleName, new Class[]{Collection.class},
+					mainObj, contRefObjectCollection);
+			hasContainmentReferenceDetail = false;
+		}
+		return hasContainmentReferenceDetail;
 	}
 }

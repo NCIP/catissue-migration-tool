@@ -25,7 +25,6 @@ import org.hibernate.Session;
 
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
@@ -93,7 +92,8 @@ public class BulkOperationUtility
 		return hql.toString();
 	}
 
-	public static List<String> getAttributeList(BulkOperationClass bulkOperationClass, String suffix)
+	public static List<String> getAttributeList(BulkOperationClass bulkOperationClass,
+			String suffix)
 	{
 		List<String> attributeList = new ArrayList<String>();
 		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
@@ -109,16 +109,18 @@ public class BulkOperationUtility
 		while (containmentItert.hasNext())
 		{
 			BulkOperationClass containmentMigrationClass = containmentItert.next();
-			List<String> subAttributeList = getAttributeList(containmentMigrationClass, suffix);
+			List<String> subAttributeList = getAttributeList(containmentMigrationClass,
+					suffix);
 			attributeList.addAll(subAttributeList);
 		}
-		
+
 		Iterator<BulkOperationClass> referenceItert = bulkOperationClass
 				.getReferenceAssociationCollection().iterator();
 		while (referenceItert.hasNext())
 		{
 			BulkOperationClass referenceMigrationClass = referenceItert.next();
-			List<String> subAttributeList = getAttributeList(referenceMigrationClass, suffix);
+			List<String> subAttributeList = getAttributeList(referenceMigrationClass,
+					suffix);
 			attributeList.addAll(subAttributeList);
 		}
 		return attributeList;
