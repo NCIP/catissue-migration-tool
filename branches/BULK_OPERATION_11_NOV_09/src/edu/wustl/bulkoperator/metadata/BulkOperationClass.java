@@ -169,7 +169,8 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(Hashtable<String, String> valueList, String columnSuffix) throws BulkOperationException
+	public Object getClassDiscriminator(Hashtable<String, String> valueList,
+			String columnSuffix) throws BulkOperationException
 	{
 		Object object = null;
 		try

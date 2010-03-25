@@ -89,10 +89,10 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-//			String operationName = "addCP";
-//			String dropdownName = "add Coll Prot";
-//			String csvFile = "D:\\NewXML\\addCP.csv";
-//			String xmlFile = "D:\\NewXML\\addCP.xml";
+//			String operationName = "addContainer";
+//			String dropdownName = "addContainer";
+//			String csvFile = "D:\\NewXML\\addContainerData.csv";
+//			String xmlFile = "D:\\NewXML\\addContainer.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
