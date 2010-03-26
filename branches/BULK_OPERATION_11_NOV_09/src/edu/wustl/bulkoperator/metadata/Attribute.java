@@ -16,34 +16,6 @@ public class Attribute
 	Boolean updateBasedOn;
 	String belongsTo;
 	Collection<AttributeDiscriminator> discriminatorCollection = new ArrayList<AttributeDiscriminator>();
-	Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
-	Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
-
-	
-	public Collection<BulkOperationClass> getReferenceAssociationCollection()
-	{
-		return referenceAssociationCollection;
-	}
-
-	
-	public void setReferenceAssociationCollection(
-			Collection<BulkOperationClass> referenceAssociationCollection)
-	{
-		this.referenceAssociationCollection = referenceAssociationCollection;
-	}
-
-	
-	public Collection<BulkOperationClass> getContainmentAssociationCollection()
-	{
-		return containmentAssociationCollection;
-	}
-
-	
-	public void setContainmentAssociationCollection(
-			Collection<BulkOperationClass> containmentAssociationCollection)
-	{
-		this.containmentAssociationCollection = containmentAssociationCollection;
-	}
 
 	/**
 	 * @return the attributeCollection

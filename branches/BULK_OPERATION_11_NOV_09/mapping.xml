@@ -51,8 +51,6 @@
 			<bind-xml name="belongsTo" node="attribute"/>
 		</field>
 		<field name="discriminatorCollection" type="edu.wustl.bulkoperator.metadata.AttributeDiscriminator" collection="collection" />
-		<field name="containmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="referenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 	 </class>
 	 
 	 <class name="edu.wustl.bulkoperator.metadata.AttributeDiscriminator">
