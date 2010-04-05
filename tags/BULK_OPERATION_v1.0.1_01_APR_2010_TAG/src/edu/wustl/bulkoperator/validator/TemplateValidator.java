@@ -349,11 +349,11 @@ public class TemplateValidator
 				{
 					field = getDeclaredField(classObject, attributeName);
 					if (field == null &&
-						(!"java.lang.String".equals(bulkOperationClass.getClassName()) ||
-						!"java.lang.Integer".equals(bulkOperationClass.getClassName()) ||
-						!"java.lang.Boolean".equals(bulkOperationClass.getClassName()) ||
-						!"java.lang.Double".equals(bulkOperationClass.getClassName()) ||
-						!"java.lang.Float".equals(bulkOperationClass.getClassName()) ||
+						(!"java.lang.String".equals(bulkOperationClass.getClassName()) &&
+						!"java.lang.Integer".equals(bulkOperationClass.getClassName()) &&
+						!"java.lang.Boolean".equals(bulkOperationClass.getClassName()) &&
+						!"java.lang.Double".equals(bulkOperationClass.getClassName()) &&
+						!"java.lang.Float".equals(bulkOperationClass.getClassName()) &&
 						!"java.lang.Long".equals(bulkOperationClass.getClassName())))
 					{
 						logger.debug("The keyword '" + attributeName
