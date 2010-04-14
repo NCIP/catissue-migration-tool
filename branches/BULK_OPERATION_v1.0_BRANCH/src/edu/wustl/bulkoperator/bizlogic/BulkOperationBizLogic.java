@@ -1,12 +1,17 @@
 package edu.wustl.bulkoperator.bizlogic;
 
+import java.io.BufferedReader;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.Blob;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -102,21 +107,21 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @throws ApplicationException ApplicationException.
 	 */
 	public File getCSVFile(String dropdownName) throws 
-				BulkOperationException, ApplicationException
+				BulkOperationException, ApplicationException, SQLException
 	{
 		File csvFile = null;
 		JDBCDAO jdbcDao = null;
+		ResultSet resultSet = null;
 		try
 		{
 			jdbcDao = AppUtility.openJDBCSession();
 			String query = "select csv_template from catissue_bulk_operation where " +
 					"DROPDOWN_NAME like '" + dropdownName +"'";
-			List list = jdbcDao.executeQuery(query);
-			if(!list.isEmpty())
+			resultSet = jdbcDao.getQueryResultSet(query);
+			if (resultSet.next())
 			{
-				List innerList = (List)list.get(0);
-				String commaSeparatedString = (String)innerList.get(0);
-				csvFile = writeCSVFile(commaSeparatedString, dropdownName);
+				StringBuilder sb = getStringFromInputStream(resultSet.getBinaryStream(1));
+				csvFile = writeCSVFile(sb.toString(), dropdownName);
 			}
 		}
 		catch (Exception exp)
@@ -127,9 +132,33 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		finally
 		{
+			if(resultSet != null)
+			{
+				resultSet.close();
+			}
 			AppUtility.closeJDBCSession(jdbcDao);
 		}
 		return csvFile;
+	}
+
+	/**
+	 * @param resultSet
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	private StringBuilder getStringFromInputStream(InputStream inputStream) throws SQLException,
+			IOException
+	{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		StringBuilder sb = new StringBuilder();
+		String line = null;
+		while ((line = reader.readLine()) != null)
+		{
+			sb.append(line);
+			inputStream.close();
+		}
+		return sb;
 	}
 
 	/**
@@ -174,9 +203,11 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @throws ApplicationException ApplicationException.
 	 */
 	public List<String> getOperationNameAndXml(String dropdownName, String operationName)
-		throws BulkOperationException
+		throws BulkOperationException, SQLException, ApplicationException
 	{
 		List<String> returnList = new ArrayList<String>();
+		ResultSet resultSet = null;
+		JDBCDAO jdbcDao = null;
 		try
 		{
 			String query = null;
@@ -191,32 +222,16 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 				query = "select operation, xml_tempalte from " +
 				"catissue_bulk_operation " +
 				"where OPERATION = '" + operationName + "'";
-			}			
-			List list = AppUtility.executeSQLQuery(query);
-			if(!list.isEmpty())
-			{
-				List innerList = (List)list.get(0);
-				if(!innerList.isEmpty())
-				{
-					String innerString1 = (String)innerList.get(0);
-					returnList.add(innerString1);
-					if(innerList.get(1) instanceof CLOB)
-					{
-						CLOB clob = (CLOB)innerList.get(1);
-						Reader reader = clob.getCharacterStream();
-						CharArrayWriter writer=new CharArrayWriter();
-						int i = -1;
-						while ( (i=reader.read())!=-1)
-						{
-							writer.write(i);
-						}
-						returnList.add(new String(writer.toCharArray()));
-					}
-					else
-					{
-						returnList.add((String)innerList.get(1));
-					}
-				}
+			}
+			jdbcDao = AppUtility.openJDBCSession();
+//			List list = AppUtility.executeSQLQuery(query);
+			resultSet = jdbcDao.getQueryResultSet(query);
+			if(resultSet.next())
+			{	
+				String innerString1 = resultSet.getString(1);
+				returnList.add(innerString1);
+				StringBuilder xmlString = getStringFromInputStream(resultSet.getBinaryStream(2));
+				returnList.add(xmlString.toString());
 			}
 		}
 		catch (Exception exp)
@@ -224,6 +239,14 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 			logger.error(exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.database.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+		}
+		finally
+		{
+			if(resultSet != null)
+			{
+				resultSet.close();
+			}
+			AppUtility.closeJDBCSession(jdbcDao);
 		}
 		return returnList;
 	}
