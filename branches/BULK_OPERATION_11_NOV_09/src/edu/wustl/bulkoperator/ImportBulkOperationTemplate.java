@@ -89,10 +89,10 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-//			String operationName = "addCP";
-//			String dropdownName = "add Coll Prot";
-//			String csvFile = "D:\\NewXML\\addCP.csv";
-//			String xmlFile = "D:\\NewXML\\addCP.xml";
+//			String operationName = "addContainer";
+//			String dropdownName = "addContainer";
+//			String csvFile = "D:\\NewXML\\addContainerData.csv";
+//			String xmlFile = "D:\\NewXML\\addContainer.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -271,10 +271,9 @@ public class ImportBulkOperationTemplate
 						+ "where OPERATION = ? or DROPDOWN_NAME= ? ";
 				preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, operationName);
-				StringReader csvReader = new StringReader(csvFileData);
-				preparedStatement.setCharacterStream(2, csvReader, csvFileData.length());
-				StringReader xmlReader = new StringReader(xmlFileData);
-				preparedStatement.setCharacterStream(3, xmlReader, xmlFileData.length());
+				preparedStatement.setString(2, csvFileData);
+				StringReader reader = new StringReader(xmlFileData);
+				preparedStatement.setCharacterStream(3, reader, xmlFileData.length());
 				preparedStatement.setString(4, dropdownName);
 				preparedStatement.setString(5, operationName);
 				preparedStatement.setString(6, dropdownName);
@@ -286,10 +285,8 @@ public class ImportBulkOperationTemplate
 						+ "where OPERATION = ? or DROPDOWN_NAME= ? ";
 				preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, operationName);
-				StringReader csvReader = new StringReader(csvFileData);
-				preparedStatement.setCharacterStream(2, csvReader, csvFileData.length());
-				StringReader xmlReader = new StringReader(xmlFileData);
-				preparedStatement.setCharacterStream(3, xmlReader, xmlFileData.length());
+				preparedStatement.setString(2, csvFileData);
+				preparedStatement.setString(3, xmlFileData);
 				preparedStatement.setString(4, dropdownName);
 				preparedStatement.setString(5, operationName);
 				preparedStatement.setString(6, dropdownName);
@@ -360,10 +357,9 @@ public class ImportBulkOperationTemplate
 						preparedStatement = connection.prepareStatement(query);
 						preparedStatement.setInt(1, sequenceNumber);
 						preparedStatement.setString(2, operationName);
-						StringReader csvReader = new StringReader(csvFileData);
-						preparedStatement.setCharacterStream(3, csvReader, csvFileData.length());
-						StringReader xmlReader = new StringReader(xmlFileData);
-						preparedStatement.setCharacterStream(4, xmlReader, xmlFileData.length());
+						preparedStatement.setString(3, csvFileData);
+						StringReader reader = new StringReader(xmlFileData);
+						preparedStatement.setCharacterStream(4, reader, xmlFileData.length());
 						preparedStatement.setString(5, dropdownName);
 					}
 				}
@@ -377,10 +373,8 @@ public class ImportBulkOperationTemplate
 						+ "CSV_TEMPLATE, XML_TEMPALTE, DROPDOWN_NAME ) values (?, ?, ?, ?)";
 				preparedStatement = connection.prepareStatement(query);
 				preparedStatement.setString(1, operationName);
-				StringReader csvReader = new StringReader(csvFileData);
-				preparedStatement.setCharacterStream(2, csvReader, csvFileData.length());
-				StringReader xmlReader = new StringReader(xmlFileData);
-				preparedStatement.setCharacterStream(3, xmlReader, xmlFileData.length());
+				preparedStatement.setString(2, csvFileData);
+				preparedStatement.setString(3, xmlFileData);
 				preparedStatement.setString(4, dropdownName);
 			}
 			int rowCount = preparedStatement.executeUpdate();
