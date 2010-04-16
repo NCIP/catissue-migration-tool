@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import edu.wustl.bulkoperator.jobmanager.JobDetails;
 
@@ -126,7 +127,7 @@ public class JobMessage implements Serializable
 		}
 		else
 		{
-			this.operationCalled = operationCalled.toUpperCase();
+			this.operationCalled = operationCalled.toUpperCase(Locale.ENGLISH);
 		}
 	}
 

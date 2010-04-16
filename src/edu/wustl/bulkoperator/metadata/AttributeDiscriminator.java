@@ -3,8 +3,8 @@ package edu.wustl.bulkoperator.metadata;
 
 public class AttributeDiscriminator
 {
-	String name;
-	String value;
+	private String name;
+	private String value;
 	
 	/**
 	 * @return the discriminatorName

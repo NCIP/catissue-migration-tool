@@ -1,63 +1,60 @@
+
 package edu.wustl.bulkoperator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 
+import edu.wustl.common.util.logger.Logger;
 
 public class SortObject implements Comparator<Object>
 {
 
+	private static final Logger logger = Logger.getCommonLogger(SortObject.class);
 
-	public int compare(Object o1, Object o2)
+	public int compare(Object object1, Object object2)
 	{
+		int returnValue = 0;
 		try
 		{
-			Method getId = o1.getClass().getMethod("getId", null);
-			Long id1 =(Long) getId.invoke(o1, null);
-			Method getId2 = o2.getClass().getMethod("getId", null);
-			Long id2 = (Long)getId2.invoke(o2, null);
-			if(id1 < id2)
+			Method getId = object1.getClass().getMethod("getId", null);
+			Long id1 = (Long) getId.invoke(object1, null);
+			Method getId2 = object2.getClass().getMethod("getId", null);
+			Long id2 = (Long) getId2.invoke(object2, null);
+			if (id1 < id2)
 			{
-				return -1;
+				returnValue = -1;
 			}
-			else if(id1 > id2)
+			else if (id1 > id2)
 			{
-				return 1;
+				returnValue = 1;
 			}
-			else if(id1 == id2)
+			else if (Long.valueOf(id1) == Long.valueOf(id2))
 			{
-				return 0;
+				returnValue = 0;
 			}
-			
 		}
-		catch (SecurityException e)
+		catch (SecurityException securtyExp)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(securtyExp.getMessage(), securtyExp);
 		}
-		catch (NoSuchMethodException e)
+		catch (NoSuchMethodException noSuchMthExp)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(noSuchMthExp.getMessage(), noSuchMthExp);
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException illArgExp)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(illArgExp.getMessage(), illArgExp);
 		}
-		catch (IllegalAccessException e)
+		catch (IllegalAccessException illAccExp)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(illAccExp.getMessage(), illAccExp);
 		}
-		catch (InvocationTargetException e)
+		catch (InvocationTargetException invocationTrgExp)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(invocationTrgExp.getMessage(), invocationTrgExp);
 		}
-		// TODO Auto-generated method stub
-		return 0;
+		return returnValue;
 	}
 
 }

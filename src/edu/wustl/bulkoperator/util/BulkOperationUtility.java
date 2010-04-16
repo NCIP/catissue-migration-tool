@@ -6,16 +6,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -44,14 +44,12 @@ public class BulkOperationUtility
 	 * @param columnNameHashTable
 	 * @return
 	 */
-	public static String createHQL(BulkOperationClass bulkOperationclass,
-			Hashtable<String, String> columnNameHashTable)
+	public String createHQL(BulkOperationClass bulkOperationclass,
+			Map<String, String> columnNameHashTable)
 	{
 		Iterator<Attribute> attributeItertor = bulkOperationclass.getAttributeCollection()
 				.iterator();
-		int count = 0;
 		List<String> whereClause = new ArrayList<String>();
-
 		while (attributeItertor.hasNext())
 		{
 			Attribute attribute = attributeItertor.next();
@@ -88,7 +86,7 @@ public class BulkOperationUtility
 				}
 			}
 		}
-		System.out.println("---------- " + hql + " --------------");
+		logger.info("---------- " + hql + " --------------");
 		return hql.toString();
 	}
 
@@ -125,6 +123,53 @@ public class BulkOperationUtility
 		}
 		return attributeList;
 	}
+	
+	/**
+	 * 
+	 * @param bulkOperationClass
+	 * @return
+	 */
+	public BulkOperationClass checkForDEObject(BulkOperationClass bulkOperationClass)
+	{
+		Iterator<BulkOperationClass> DEAssoIterator = bulkOperationClass.
+		getDEAssociationCollection().iterator();
+		while (DEAssoIterator.hasNext())
+		{
+			return DEAssoIterator.next();
+		}
+
+		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass.
+							getContainmentAssociationCollection().iterator();
+		while (containmentAssoIterator.hasNext())
+		{
+			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
+			if(containmentBulkOperationClass.getDEAssociationCollection() != null &&
+					!containmentBulkOperationClass.getDEAssociationCollection().isEmpty())
+			{
+				return containmentBulkOperationClass.getDEAssociationCollection().iterator().next();
+			}
+			else
+			{
+				checkForDEObject(containmentBulkOperationClass);
+			}
+		}
+		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass.
+				getReferenceAssociationCollection().iterator();
+		while (referenceAssoIterator.hasNext())
+		{
+			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
+			if(referenceBulkOperationClass.getDEAssociationCollection() != null &&
+					!referenceBulkOperationClass.getDEAssociationCollection().isEmpty())
+			{
+				return referenceBulkOperationClass.getDEAssociationCollection().iterator().next();
+			}
+			else
+			{
+				checkForDEObject(referenceBulkOperationClass);
+			}
+		}
+		return null;
+	}
 	/**
 	 * 
 	 * @param name
@@ -136,7 +181,7 @@ public class BulkOperationUtility
 		if (name != null && name.length() > 0)
 		{
 			String firstAlphabet = name.substring(0, 1);
-			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase();
+			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase(Locale.ENGLISH);
 			String remainingString = name.substring(1);
 			functionName = "get" + upperCaseFirstAlphabet + remainingString;
 		}
@@ -149,7 +194,7 @@ public class BulkOperationUtility
 		if (name != null && name.length() > 0)
 		{
 			String firstAlphabet = name.substring(0, 1);
-			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase();
+			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase(Locale.ENGLISH);
 			String remainingString = name.substring(1);
 			objectName = "edu.wustl.catissuecore.domain." + upperCaseFirstAlphabet
 					+ remainingString + "Specimen";
@@ -163,7 +208,7 @@ public class BulkOperationUtility
 		if (name != null && name.length() > 0)
 		{
 			String firstAlphabet = name.substring(0, 1);
-			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase();
+			String upperCaseFirstAlphabet = firstAlphabet.toUpperCase(Locale.ENGLISH);
 			String remainingString = name.substring(1);
 			functionName = "set" + upperCaseFirstAlphabet + remainingString;
 		}
@@ -175,37 +220,32 @@ public class BulkOperationUtility
 		return System.currentTimeMillis() / 1000;
 	}
 
-	public static void modifyData(String query, Session session) //throws SQLException
+	public static void modifyData(String query, Session session) throws SQLException
 	{
-		Connection connection = session.connection();
 		Statement statement = null;
 		try
 		{
-			statement = connection.createStatement();
+			statement = session.connection().createStatement();
 			statement.executeUpdate(query);
-			connection.commit();
+			session.connection().commit();
 		}
-		catch (SQLException e)
+		catch (SQLException sqlExp)
 		{
-			e.printStackTrace();
+			logger.error(sqlExp.getMessage(), sqlExp);
 			try
 			{
-				connection.rollback();
+				session.connection().rollback();
 			}
-			catch (SQLException e1)
+			catch (SQLException sqlExpp)
 			{
-				e1.printStackTrace();
+				logger.error(sqlExpp.getMessage(), sqlExpp);
 			}
 		}
 		finally
 		{
-			try
+			if(statement != null)
 			{
 				statement.close();
-			}
-			catch (SQLException e)
-			{
-				e.printStackTrace();
 			}
 		}
 	}
@@ -226,11 +266,11 @@ public class BulkOperationUtility
 		}
 		catch (FileNotFoundException fnfException)
 		{
-			fnfException.printStackTrace();
+			logger.error(fnfException.getMessage(), fnfException);
 		}
 		catch (IOException ioException)
 		{
-			ioException.printStackTrace();
+			logger.error(ioException.getMessage(), ioException);
 		}
 		return props;
 	}
@@ -255,16 +295,16 @@ public class BulkOperationUtility
 			 zipFile = new File(zipFileName + ".zip");
 			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
 			out.setLevel(Deflater.DEFAULT_COMPRESSION);
-			FileInputStream in = new FileInputStream(csvFile);
+			FileInputStream fileInptStream = new FileInputStream(csvFile);
 			ZipEntry zipEntry = new ZipEntry(csvFile.getName());
 			out.putNextEntry(zipEntry);
 			int len;
-			while ((len = in.read(buffer)) > 0)
+			while ((len = fileInptStream.read(buffer)) > 0)
 			{
 				out.write(buffer, 0, len);
 			}
 			out.closeEntry();
-			in.close();
+			fileInptStream.close();
 			out.close();
 			csvFile.delete();
 			if (csvFile.delete())
@@ -309,7 +349,7 @@ public class BulkOperationUtility
 		{
 			logger.debug("Error while accessing caTissueInstall.properties file.", fnfException);
 			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.file.not.found");
-			throw new BulkOperationException(errorKey, fnfException, "caTissueInstall.properties");
+			throw new BulkOperationException(errorKey, fnfException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
 		}
 		catch (IOException ioException)
 		{			
@@ -346,13 +386,13 @@ public class BulkOperationUtility
 		{
 			logger.debug("caTissueInstall.properties file not found.", fnfException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.not.found");
-			throw new BulkOperationException(errorkey, null, "caTissueInstall.properties");
+			throw new BulkOperationException(errorkey, fnfException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
 		}
 		catch (IOException ioException)
 		{			
 			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
-			throw new BulkOperationException(errorkey, null, "caTissueInstall.properties");
+			throw new BulkOperationException(errorkey, ioException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
 		}
 		return props;
 	}
@@ -388,7 +428,7 @@ public class BulkOperationUtility
 		{
 			logger.error("Could not update the table Job Details with the " +
 				"status column value from inprogess to failed." + daoExp.getMessage(), daoExp);
-			daoExp.printStackTrace();
+			logger.error(daoExp.getMessage(), daoExp);
 			throw daoExp;
 		}
 	}

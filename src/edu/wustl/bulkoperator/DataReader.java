@@ -14,15 +14,14 @@ import edu.wustl.common.exception.ErrorKey;
 
 public class DataReader
 {
-	Properties dataReaderProperties = null; 
+	protected transient Properties dataReaderProperties = null; 
 	public DataReader(Properties properties)
 	{
 		dataReaderProperties = properties;
 	}
 	public static DataReader getNewDataReaderInstance(Properties properties)
 	{
-		DataReader dataReader = new DataReader(properties);
-		return dataReader;
+		return new DataReader(properties);
 	}
 	
 	public DataList readData() throws BulkOperationException

@@ -42,4 +42,13 @@ public class BulkOperationConstants
 	public static final String PAGE_OF_PARTICIPANT_CP_QUERY = "pageOfParticipantCPQuery";
 	public static final String CP_AND_PARTICIPANT_VIEW = "cpAndParticipantView";
 	public static final String CP_TREE_VIEW = "cpTreeView";
+	public static final String SINGLE_COMMA = ",";
+	public static final String NEW_LINE = "\n";
+	public static final String ERROR_CONSOLE_FORMAT = "------------------------ERROR:--------------------------------";
+	public static final String COMMON_ISSUES_ERROR_KEY = "bulk.operation.issues";
+	public static final String JAVA_LANG_STRING_DATATYPE = "java.lang.String";
+	public static final String CATISSUE_INSTALL_PROPERTIES = "caTissueInstall.properties";
+	public static final String CATISSUE_SPECIMENCOLLECTIONGROUP = "edu.wustl.catissuecore.domain.SpecimenCollectionGroup";
+	public static final String CATISSUE_SPECIMEN = "edu.wustl.catissuecore.domain.Specimen";
+	public static final String CATISSUE_PARTICIPANT = "edu.wustl.catissuecore.domain.Participant";
 }

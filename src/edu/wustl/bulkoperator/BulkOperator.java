@@ -2,14 +2,13 @@
 package edu.wustl.bulkoperator;
 
 import java.io.FileInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
 import org.xml.sax.InputSource;
 
-import edu.wustl.bulkoperator.appservice.MigrationAppService;
+import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
@@ -35,12 +34,12 @@ public class BulkOperator
 	/**
 	 * logger.
 	 */
-	private static Logger logger = Logger.getCommonLogger(BulkOperator.class);
+	private static final Logger logger = Logger.getCommonLogger(BulkOperator.class);
 	/**
 	 * metadata.
 	 */
-	BulkOperationMetaData metadata;
-	
+	protected transient BulkOperationMetaData metadata;
+
 	/**
 	 * @return the metadata
 	 */
@@ -153,33 +152,37 @@ public class BulkOperator
 			properties.put("inputStream", inputStream);
 			DataList dataList = DataReader.getNewDataReaderInstance(properties).readData();
 
-			BulkOperator bulkOperator = new BulkOperator(
-					xmlFileAbsolutePath, "mapping.xml");
+			BulkOperator bulkOperator = new BulkOperator(xmlFileAbsolutePath, "mapping.xml");
 			bulkOperator.startProcess(operationName, userName, password, "1", dataList,
 					BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE, null);
 		}
-		catch (ApplicationException e)
+		catch (ApplicationException appExp)
 		{
-			logger.info("------------------------ERROR:--------------------------------\n");
-			logger.info(e.getMsgValues() + "\n");
+			logger.info(BulkOperationConstants.ERROR_CONSOLE_FORMAT + 
+					BulkOperationConstants.NEW_LINE);
+			logger.info(appExp.getMsgValues() + "\n");
 			//logger.debug(e.getMsgValues(), e.printStackTrace());
 			System.out
 					.println("Usage: jbossHome loginName password operationName csvFileAbsolutePath \n");
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println("------------------------ERROR:--------------------------------");
-			System.out.println("------------------------ERROR:--------------------------------");
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT + 
+					BulkOperationConstants.NEW_LINE);
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT);
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT);
 		}
-		catch (Exception e)
+		catch (Exception exp)
 		{
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println(e.getMessage() + "\n\n");
-			e.printStackTrace();
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT + 
+					BulkOperationConstants.NEW_LINE);
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT + 
+					BulkOperationConstants.NEW_LINE);
+			System.out.println(exp.getMessage() + "\n\n");
+			exp.printStackTrace();
 			System.out
 					.println("Usage: operationName csvFileAbsolutePath userName password jbossHome\n");
-			System.out.println("------------------------ERROR:--------------------------------\n");
-			System.out.println("------------------------ERROR:--------------------------------");
-			System.out.println("------------------------ERROR:--------------------------------");
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT + 
+					BulkOperationConstants.NEW_LINE);
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT);
+			System.out.println(BulkOperationConstants.ERROR_CONSOLE_FORMAT);
 		}
 		finally
 		{
@@ -207,20 +210,20 @@ public class BulkOperator
 	 * @throws InvocationTargetException
 	 * @throws BulkOperationException
 	 */
-	public void startProcess(String operationName, String userName, String password, String userId, 
+	public void startProcess(String operationName, String userName, String password, String userId,
 			DataList dataList, String appServiceClassName, JobData jobData) throws Exception
 	{
 		Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
 		if (classList != null)
 		{
-			Iterator<BulkOperationClass> it = classList.iterator();
-			if(it.hasNext())
+			Iterator<BulkOperationClass> iterator = classList.iterator();
+			if (iterator.hasNext())
 			{
-				BulkOperationClass bulkOperationClass = it.next();
-				MigrationAppService migrationAppService = MigrationAppService.getInstance(
-							appServiceClassName, true, userName, password);
+				BulkOperationClass bulkOperationClass = iterator.next();
+				AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService.getInstance(
+						appServiceClassName, true, userName, password);
 				BulkOperationProcessor bulkOperationProcessor = new BulkOperationProcessor(
-						bulkOperationClass, migrationAppService, dataList, jobData);
+						bulkOperationClass, bulkOprAppService, dataList, jobData);
 				bulkOperationProcessor.process();
 			}
 		}

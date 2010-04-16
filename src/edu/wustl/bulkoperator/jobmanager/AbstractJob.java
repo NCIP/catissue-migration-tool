@@ -7,7 +7,7 @@ package edu.wustl.bulkoperator.jobmanager;
  *
  * @author nitesh_marwaha
  */
-public abstract class Job implements Runnable
+public abstract class AbstractJob implements Runnable
 {
 
 	/** The job data. */
@@ -29,7 +29,7 @@ public abstract class Job implements Runnable
 	 * @param jobStartedBy the job started by
 	 * @param jobStatusListener the job status listener
 	 */
-	protected Job(final String jobName, final String jobStartedBy,
+	protected AbstractJob(final String jobName, final String jobStartedBy,
 			final JobStatusListener jobStatusListener)
 	{
 		this.jobStatusListener = jobStatusListener;

@@ -10,12 +10,12 @@ import edu.wustl.common.exception.ErrorKey;
 public class Attribute
 {
 
-	String name;
-	String dataType;
-	String csvColumnName;
-	Boolean updateBasedOn;
-	String belongsTo;
-	Collection<AttributeDiscriminator> discriminatorCollection = new ArrayList<AttributeDiscriminator>();
+	private String name;
+	private String dataType;
+	private String csvColumnName;
+	private Boolean updateBasedOn;
+	private String belongsTo;
+	private Collection<AttributeDiscriminator> discriminatorCollection = new ArrayList<AttributeDiscriminator>();
 
 	/**
 	 * @return the attributeCollection
@@ -96,10 +96,10 @@ public class Attribute
 				valueObject = Class.forName(dataType).getConstructor(String.class).newInstance(value);
 			}			
 		}
-		catch (Exception ex)
+		catch (Exception exp)
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-			throw new BulkOperationException(errorkey, null, value);
+			throw new BulkOperationException(errorkey, exp, value);
 		}
 		return valueObject;
 	}

@@ -40,7 +40,7 @@ final public class JobManager
 	 *
 	 * @param job the job
 	 */
-	public synchronized void addJob(final Job job)
+	public synchronized void addJob(final AbstractJob job)
 	{
 		final Thread jobThread = new Thread(job);
 		jobThread.start();

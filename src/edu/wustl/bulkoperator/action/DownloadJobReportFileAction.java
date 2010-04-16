@@ -46,11 +46,12 @@ public class DownloadJobReportFileAction extends SecureAction
 	{
 		String fileId;
 		fileId = request.getParameter(Constants.SYSTEM_IDENTIFIER);
+		ResultSet dblist = null;
 		JDBCDAO dao = null;
 		try
 		{
 			dao = AppUtility.openJDBCSession();
-			ResultSet dblist = dao
+			dblist = dao
 					.getQueryResultSet("select LOG_FILE, LOG_FILE_NAME from JOB_DETAILS where IDENTIFIER = "
 							+ fileId);
 
@@ -66,7 +67,9 @@ public class DownloadJobReportFileAction extends SecureAction
 				byte buff[] = new byte[1024];
 				int len;
 				while ((len = inputStream.read(buff)) > 0)
+				{
 					out.write(buff, 0, len);
+				}
 				out.close();
 				inputStream.close();
 
@@ -77,15 +80,15 @@ public class DownloadJobReportFileAction extends SecureAction
 							+ zipFileName + "\";");
 					response.setContentLength((int) file.length());
 
-					OutputStream os = response.getOutputStream();
+					OutputStream outputStream = response.getOutputStream();
 					BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 					int count;
 					byte buf[] = new byte[4096];
 					while ((count = bis.read(buf)) > -1)
 					{
-						os.write(buf, 0, count);
+						outputStream.write(buf, 0, count);
 					}
-					os.flush();
+					outputStream.flush();
 					bis.close();
 				}
 				else
@@ -104,6 +107,10 @@ public class DownloadJobReportFileAction extends SecureAction
 		{
 			try
 			{
+				if(dblist != null)
+				{
+					dblist.close();
+				}
 				if (dao != null)
 				{
 					dao.closeSession();
