@@ -3,11 +3,11 @@ package edu.wustl.bulkoperator.client;
 
 import edu.wustl.bulkoperator.BulkOperator;
 import edu.wustl.bulkoperator.DataList;
-import edu.wustl.bulkoperator.jobmanager.Job;
+import edu.wustl.bulkoperator.jobmanager.AbstractJob;
 import edu.wustl.bulkoperator.jobmanager.JobStatusListener;
 import edu.wustl.common.util.logger.Logger;
 
-public class BulkOperatorJob extends Job
+public class BulkOperatorJob extends AbstractJob
 {
 	/**
 	 * logger instance of the class.

@@ -2,38 +2,39 @@
 package edu.wustl.bulkoperator.appservice;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
-import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.metadata.ObjectIdentifierMap;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
 
-public abstract class MigrationAppService
+public abstract class AbstractBulkOperationAppService
 {
 
-	public MigrationAppService(boolean isAuthenticationRequired, String userName, String password)
+	public AbstractBulkOperationAppService(boolean isAuthenticationRequired, String userName, String password)
 			throws BulkOperationException
 	{
-		this.isAuthenticationRequired = isAuthenticationRequired;
+		this.isAuthRequired = isAuthenticationRequired;
 		initialize(userName, password);
 	}
 
-	protected boolean isAuthenticationRequired = true;
+	protected transient boolean isAuthRequired = true;
 
 	public boolean isAuthenticationRequired()
 	{
-		return isAuthenticationRequired;
+		return isAuthRequired;
 	}
 
-	public static MigrationAppService getInstance(String migrationAppClassName,boolean isAuthenticationRequired, String userName, String password)
+	public static AbstractBulkOperationAppService getInstance(String migrationAppClassName,
+			boolean isAuthenticationRequired, String userName, String password)
 			throws BulkOperationException
 	{
-		if(migrationAppClassName==null)
+		if (migrationAppClassName == null)
 		{
 			migrationAppClassName = BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE;
 		}
-		MigrationAppService appService = null;
+		AbstractBulkOperationAppService appService = null;
 		try
 		{
 			Class migrationServiceTypeClass = Class.forName(migrationAppClassName);
@@ -43,7 +44,8 @@ public abstract class MigrationAppService
 			constructorParameters[2] = String.class;
 			Constructor constructor = migrationServiceTypeClass
 					.getDeclaredConstructor(constructorParameters);
-			appService = (MigrationAppService) constructor.newInstance(isAuthenticationRequired, userName, password);
+			appService = (AbstractBulkOperationAppService) constructor.newInstance(isAuthenticationRequired,
+					userName, password);
 		}
 		catch (Exception exp)
 		{
@@ -58,45 +60,39 @@ public abstract class MigrationAppService
 	abstract public void authenticate(String userName, String password)
 			throws BulkOperationException;
 
-	public void insert(Object obj, BulkOperationClass migration,
-			ObjectIdentifierMap objectIdentifierMap) throws Exception
+	public Object insert(Object obj) throws Exception
 	{
-		try
-		{
-			Object newObj = insertObject(obj);
-		}
-		catch (Exception appExp)
-		{
-			throw appExp;
-		}
+		return insertObject(obj);
+	}
+
+	public Object insertDEObject(Object dynExtObject, Object staticObject) throws Exception
+	{
+		return insertDynExtObject(dynExtObject, staticObject);
 	}
 
 	public Object search(Object obj) throws Exception
 	{
-		Object newObj = null;
-		try
-		{
-			newObj = searchObject(obj);
-		}
-		catch (Exception appExp)
-		{
-			throw appExp;
-		}
-		return newObj;
+		return searchObject(obj);
 	}
 
 	public Object update(Object obj) throws Exception
 	{
-		Object newObj = null;
+		return updateObject(obj);
+	}
+
+	public List<Object> hookStaticDEObject(Object staticObject, Object DEObjectId, Object containerID)
+	throws Exception
+	{
+		List<Object> objectList = new ArrayList<Object>();
 		try
 		{
-			newObj = updateObject(obj);
+			objectList = hookStaticDynExtObject(staticObject, DEObjectId, containerID);
 		}
 		catch (Exception appExp)
 		{
 			throw new Exception(appExp.getMessage(), appExp);
 		}
-		return newObj;
+		return objectList;
 	}
 
 	abstract protected Object insertObject(Object obj) throws Exception;
@@ -106,4 +102,9 @@ public abstract class MigrationAppService
 	abstract protected Object updateObject(Object obj) throws Exception;
 
 	abstract protected Object searchObject(Object obj) throws Exception;
+
+	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
+
+	abstract protected List<Object> hookStaticDynExtObject(Object staticObject, Object DEObjectId, Object containerID)
+			throws Exception;
 }

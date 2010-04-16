@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
@@ -19,7 +21,7 @@ public class DataList
 	 */
 	private static final Logger logger = Logger.getCommonLogger(DataList.class);
 	private List<String>headerList = new ArrayList<String>();
-	private List<Hashtable<String, String>>valueList = new ArrayList<Hashtable<String,String>>();
+	private final transient List<Hashtable<String, String>>valueList = new ArrayList<Hashtable<String,String>>();
 	private static final String STATUS_KEY="Status";
 	private static final String MESSAGE_KEY="Message";
 	public void setHeaderList(List<String>list)
@@ -59,10 +61,10 @@ public class DataList
 	}
 	public void setValue(String header, String value, int index)
 	{
-		Hashtable<String,String> valueTable = valueList.get(index);
+		Map<String,String> valueTable = valueList.get(index);
 		valueTable.put(header, value);
 	}
-	public Hashtable<String, String>getValue(int index)
+	public Map<String, String> getValue(int index)
 	{
 		return valueList.get(index);
 	}
@@ -79,7 +81,7 @@ public class DataList
 	public boolean checkIfColumnHasAValue(int index,String headerName)
 	{
 		boolean hasValue = false;
-		Hashtable<String,String> valueTable = valueList.get(index);
+		Map<String,String> valueTable = valueList.get(index);
 		Object value = valueTable.get(headerName);
 		if(value!=null && !"".equals(value.toString()))
 		{
@@ -105,7 +107,7 @@ public class DataList
 	}
 	public void addStatusMessage(int index,String status,String message)
 	{
-		Hashtable<String,String> valueTable = valueList.get(index);
+		Map<String,String> valueTable = valueList.get(index);
 		valueTable.put(STATUS_KEY, status);
 		valueTable.put(MESSAGE_KEY, message);
 	}
@@ -115,7 +117,8 @@ public class DataList
 	 * @return
 	 * @throws IOException
 	 */
-	public File createCSVReportFile(String csvFileName) throws BulkOperationException
+	public File createCSVReportFile(String csvFileName)
+		throws BulkOperationException, IOException
 	{
 		File file = null;
 		FileWriter writer = null;
@@ -129,21 +132,21 @@ public class DataList
 			StringBuffer line = new StringBuffer(); 
 			for(int j=0;j<headerListSize;j++)
 			{
-				line.append(headerList.get(j)+",");			
+				line.append(headerList.get(j) + BulkOperationConstants.SINGLE_COMMA);			
 			}
 			line.deleteCharAt(line.length()-1);
 			writer.write(line.append("\n").toString());
 			for(int i=0;i<valueListSize;i++)
 			{
 				line.setLength(0);
-				Hashtable<String,String> valueTable = valueList.get(i);
+				Map<String,String> valueTable = valueList.get(i);
 				
 				for(int j=0;j<headerListSize;j++)
 				{
-					line.append(valueTable.get(headerList.get(j))+",");
+					line.append(valueTable.get(headerList.get(j)) + BulkOperationConstants.SINGLE_COMMA);
 				}
 				line.deleteCharAt(line.length()-1);
-				line.append("\n");
+				line.append(BulkOperationConstants.NEW_LINE);
 				writer.write(line.toString());
 			}
 		}
@@ -157,14 +160,9 @@ public class DataList
 		}
 		finally
 		{
-			try
+			if(writer != null)
 			{
 				writer.close();
-			}
-			catch (IOException exp)
-			{
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
 			}
 		}
 		return file;

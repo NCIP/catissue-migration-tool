@@ -3,6 +3,7 @@ package edu.wustl.bulkoperator.jobmanager;
 
 import java.sql.Timestamp;
 import java.util.Hashtable;
+import java.util.Map;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -17,7 +18,7 @@ public class JobData
 	private JobStatusListener jobStatusListener;
 
 	/** The job status entry. */
-	private Hashtable<Object, Object> jobStatusEntry;
+	private Map<Object, Object> jobStatusEntry;
 
 	/** The job status. */
 	private String jobStatus;
@@ -178,7 +179,7 @@ public class JobData
 	 *
 	 * @return the job status entry
 	 */
-	public Hashtable getJobStatusEntry()
+	public Map getJobStatusEntry()
 	{
 		return this.jobStatusEntry;
 	}

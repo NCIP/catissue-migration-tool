@@ -305,8 +305,8 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
 			client.executeMethod(postMethod);
 
-			InputStream in =  (InputStream)postMethod.getResponseBodyAsStream();
-			ObjectInputStream oist = new ObjectInputStream(in);
+			InputStream inputStream =  (InputStream)postMethod.getResponseBodyAsStream();
+			ObjectInputStream oist = new ObjectInputStream(inputStream);
 			Object object = oist.readObject();
 			jobMessage = (JobMessage)object;
 

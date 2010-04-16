@@ -187,10 +187,10 @@ public class BulkHandler extends Action
 		{
 			jobMessage.setOperationSuccessfull(false);
 			ActionErrors errors = (ActionErrors)request.getAttribute("org.apache.struts.action.ERROR");
-			Iterator<ActionError> it = errors.get();
-			while(it.hasNext())
+			Iterator<ActionError> iterator = errors.get();
+			while(iterator.hasNext())
 			{
-				ActionError actionError = (ActionError)it.next();
+				ActionError actionError = (ActionError)iterator.next();
 				Object[] values = actionError.getValues();
 				for(int index=0 ; index<values.length ; index++)
 				{
@@ -239,7 +239,7 @@ public class BulkHandler extends Action
 	throws IOException, SQLException
 	{
 		OutputStream ost = response.getOutputStream();
-		ObjectOutputStream os = new ObjectOutputStream(ost);
+		ObjectOutputStream objOutputStream = new ObjectOutputStream(ost);
 
 		JobDetails jobDetails = jobMessage.getJobData();
 		if(jobDetails != null && jobDetails.getLogFile() != null )
@@ -255,7 +255,7 @@ public class BulkHandler extends Action
 			}
 			(jobMessage.getJobData()).setLogFilesBytes(buf);
 		}
-		os.writeObject(jobMessage);
+		objOutputStream.writeObject(jobMessage);
 
 	}
 	/**
@@ -271,35 +271,35 @@ public class BulkHandler extends Action
 		{
 			DiskFileItemFactory factory = new DiskFileItemFactory();
 			factory.setRepository(new File(CommonServiceLocator.getInstance().getAppHome()));
-			ServletFileUpload fu = new ServletFileUpload(factory);
+			ServletFileUpload servletFileUpload = new ServletFileUpload(factory);
 
 		    // If file size exceeds, a FileUploadException will be thrown
-		    fu.setSizeMax(10000*1000*100*10);
+		    servletFileUpload.setSizeMax(10000*1000*100*10);
 		    List<FileItem> fileItems;
-				fileItems = fu.parseRequest(request);
+				fileItems = servletFileUpload.parseRequest(request);
 		    Iterator<FileItem> itr = fileItems.iterator();
 		    while(itr.hasNext())
 		    {
-			      FileItem fi = itr.next();
+			      FileItem fileItem = itr.next();
 			      //Check if not form field so as to only handle the file inputs
 			      //else condition handles the submit button input
-			      if(!fi.isFormField())
+			      if(!fileItem.isFormField())
 			      {
-			    	 if("csvFile".equals(fi.getFieldName()))
+			    	 if("csvFile".equals(fileItem.getFieldName()))
 			    	 {
-			    		 bulkOperationForm.setCsvFile(getFormFile(fi));
+			    		 bulkOperationForm.setCsvFile(getFormFile(fileItem));
 			    	 }
 			    	 else
 			    	 {
-			    		 bulkOperationForm.setXmlTemplateFile(getFormFile(fi));
+			    		 bulkOperationForm.setXmlTemplateFile(getFormFile(fileItem));
 			    	 }
-			    	 logger.info("Field ="+fi.getFieldName());
+			    	 logger.info("Field ="+fileItem.getFieldName());
 			      }
 			      else
 			      {
-			    	  if("operation".equals(fi.getFieldName()))
+			    	  if("operation".equals(fileItem.getFieldName()))
 			    	  {
-			    		  bulkOperationForm.setOperationName(fi.getString());
+			    		  bulkOperationForm.setOperationName(fileItem.getString());
 			    	  }
 
 			      }
@@ -326,9 +326,9 @@ public class BulkHandler extends Action
 			("org.apache.struts.upload.CommonsMultipartRequestHandler");
 
 			Class childClass = parentClass .getDeclaredClasses()[0];
-			Constructor c = childClass .getConstructors()[0];
-			c.setAccessible(true);
-			return (FormFile)c.newInstance(new Object[] {fileItem});
+			Constructor constructor = childClass .getConstructors()[0];
+			constructor.setAccessible(true);
+			return (FormFile)constructor.newInstance(new Object[] {fileItem});
 		}
 		catch (Exception exp)
 		{

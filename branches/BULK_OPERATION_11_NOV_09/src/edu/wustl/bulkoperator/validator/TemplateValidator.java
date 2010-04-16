@@ -13,7 +13,9 @@ import edu.wustl.bulkoperator.DataList;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.logger.Logger;
@@ -28,9 +30,9 @@ public class TemplateValidator
 	/**
 	 * errorList of ArrayList format containing error messages in String format.
 	 */
-	private List<String> errorList = new ArrayList<String>();
-	private int globalRecordsCount = 0;
-	private boolean isDiscriminator = false;
+	private transient List<String> errorList = new ArrayList<String>();
+	private transient int globalRecordsCount = 0;
+	private transient boolean isDiscriminator = false;
 
 	/**
 	 * Validate Xml And Csv.
@@ -54,6 +56,16 @@ public class TemplateValidator
 				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
 						null);
 				bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "", true);
+				BulkOperationUtility utility = new BulkOperationUtility();
+				BulkOperationClass DEBulkOperationClass = utility.checkForDEObject(bulkOperationClass);
+				if(DEBulkOperationClass != null)
+				{
+					Object DEdomainObject = DEBulkOperationClass.getClassObject().getConstructor().newInstance(
+							null);
+					bulkOperationProcessor.processObject(DEdomainObject, DEBulkOperationClass, "", true);
+					checkForCaTissueDEHookingObject(domainObject, DEdomainObject);
+					checkForContainerID(DEBulkOperationClass, DEdomainObject);
+				}
 			}
 			catch (BulkOperationException bulkExp)
 			{
@@ -67,8 +79,34 @@ public class TemplateValidator
 				throw new BulkOperationException(errorKey, exp, exp.getMessage());
 			}			
 		}
-		Set<String> errorSet = new HashSet<String>(errorList);
-		return errorSet;
+		return new HashSet<String>(errorList);
+	}
+	
+	private void checkForContainerID(BulkOperationClass DEBulkOperationClass, Object DEdomainObject)
+	{
+		if(DEBulkOperationClass.getContainerId() == null)
+		{
+			checkForNullData(DEBulkOperationClass, "containerId");
+		}
+		else if(DEBulkOperationClass.getContainerId() <= 0)
+		{
+			logger.error("The 'containerID' value mentioned for " + DEBulkOperationClass.getClassName()
+				+ " is incorrect. The value should be greater than '0'.");
+			errorList.add("The 'containerID' value mentioned for " + DEBulkOperationClass.getClassName()
+				+ " is incorrect. The value should be greater than '0'.");
+		}
+	}
+
+	private void checkForCaTissueDEHookingObject(Object staticObject, Object DEObject)
+	throws BulkOperationException
+	{
+		if(!BulkOperationConstants.CATISSUE_PARTICIPANT.equals(staticObject.getClass().getName())
+			&& !BulkOperationConstants.CATISSUE_SPECIMEN.equals(staticObject.getClass().getName())
+			&& !BulkOperationConstants.CATISSUE_SPECIMENCOLLECTIONGROUP.equals(staticObject.getClass().getName()))
+		{
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.hooking.DEobject.name");
+			throw new BulkOperationException(errorKey, null, staticObject.getClass().getName());
+		}
 	}
 
 	/**
@@ -250,7 +288,14 @@ public class TemplateValidator
 			validateContainmentReference(operationName, referenceClassList, csvColumnNames,
 					maxRowNumbers);
 		}
-
+		if (bulkOperationClass.getDEAssociationCollection() != null
+				&& !bulkOperationClass.getDEAssociationCollection().isEmpty())
+		{
+			Collection<BulkOperationClass> DEAssociationClassList = bulkOperationClass
+					.getDEAssociationCollection();
+			validateContainmentReference(operationName, DEAssociationClassList, csvColumnNames,
+					maxRowNumbers);
+		}
 	}
 
 	/**

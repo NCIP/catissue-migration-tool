@@ -26,8 +26,12 @@
 		<field name="batchSize" type="integer">
 			<bind-xml name="batchSize" node="attribute"/>
 		</field>
+		<field name="containerId" type="integer">
+			<bind-xml name="containerId" node="attribute"/>
+		</field>
 		<field name="containmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="referenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="DEAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="attributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
 	</class>
 	

@@ -53,7 +53,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	/**
 	 * Logger added for Specimen class.
 	 */
-	private transient final Logger logger = Logger.getCommonLogger(BulkOperationBizLogic.class);
+	private static final Logger logger = Logger.getCommonLogger(BulkOperationBizLogic.class);
 	/**
 	 * Get Template Name from DropDown List.
 	 * @return List of NameValueBean.
@@ -205,10 +205,10 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 						CLOB clob = (CLOB)innerList.get(1);
 						Reader reader = clob.getCharacterStream();
 						CharArrayWriter writer=new CharArrayWriter();
-						int i = -1;
-						while ( (i=reader.read())!=-1)
+						int intVar = -1;
+						while ( (intVar=reader.read())!=-1)
 						{
-							writer.write(i);
+							writer.write(intVar);
 						}
 						returnList.add(new String(writer.toCharArray()));
 					}
@@ -245,9 +245,9 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 					+ File.separator + "mapping.xml";
 			Mapping mapping = new Mapping();
 			mapping.loadMapping(mappingFilePath);
-			Unmarshaller un = new Unmarshaller(BulkOperationMetaData.class);
-			un.setMapping(mapping);
-			bulkOperationMetaData = (BulkOperationMetaData) un.unmarshal(inputSource);
+			Unmarshaller unMarshaller = new Unmarshaller(BulkOperationMetaData.class);
+			unMarshaller.setMapping(mapping);
+			bulkOperationMetaData = (BulkOperationMetaData) unMarshaller.unmarshal(inputSource);
 		}
 		catch (Exception exp)
 		{

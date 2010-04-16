@@ -1,3 +1,4 @@
+
 package edu.wustl.bulkoperator.util;
 
 import java.util.List;
@@ -10,18 +11,18 @@ import edu.wustl.dao.JDBCDAO;
 import edu.wustl.dao.daofactory.DAOConfigFactory;
 import edu.wustl.dao.exception.DAOException;
 
-
 public class AppUtility
 {
-	private static Logger logger = Logger.getCommonLogger(AppUtility.class);
-	
+
+	private static final Logger logger = Logger.getCommonLogger(AppUtility.class);
+
 	public static ApplicationException getApplicationException(Exception exception,
 			String errorName, String msgValues)
 	{
 		return new ApplicationException(ErrorKey.getErrorKey(errorName), exception, msgValues);
 
 	}
-	
+
 	public static JDBCDAO openJDBCSession() throws ApplicationException
 	{
 		JDBCDAO jdbcDAO = null;
@@ -33,14 +34,13 @@ public class AppUtility
 		}
 		catch (final DAOException daoExp)
 		{
-			AppUtility.logger.error(daoExp.getMessage(), daoExp);
-			daoExp.printStackTrace();
+			logger.error(daoExp.getMessage(), daoExp);
 			throw getApplicationException(daoExp, daoExp.getErrorKeyName(), daoExp
 					.getErrorKeyName());
 		}
 		return jdbcDAO;
 	}
-	
+
 	public static void closeJDBCSession(JDBCDAO jdbcDAO) throws ApplicationException
 	{
 		try
@@ -53,11 +53,10 @@ public class AppUtility
 		catch (final DAOException daoExp)
 		{
 			AppUtility.logger.error(daoExp.getMessage(), daoExp);
-			daoExp.printStackTrace();
 			throw getApplicationException(daoExp, daoExp.getErrorKeyName(), daoExp.getMsgValues());
 		}
 	}
-	
+
 	/**
 	 * Executes sql Query and returns the results.
 	 *

@@ -50,6 +50,11 @@ public class ImportBulkOperationTemplate
 	/**
 	 * logger Logger - Generic logger.
 	 */
+	private static final Logger logger = Logger.getCommonLogger(ImportBulkOperationTemplate.class);
+
+	/**
+	 * logger Logger - Generic logger.
+	 */
 	static
 	{
 		try
@@ -59,13 +64,9 @@ public class ImportBulkOperationTemplate
 		}
 		catch (IOException exp)
 		{
-			exp.printStackTrace();
+			logger.error(exp.getMessage(), exp);
 		}
 	}
-	/**
-	 * logger Logger - Generic logger.
-	 */
-	private static final Logger logger = Logger.getCommonLogger(ImportBulkOperationTemplate.class);
 
 	/**
 	 * Import Bulk Operation Template.
@@ -89,10 +90,10 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-//			String operationName = "addContainer";
-//			String dropdownName = "addContainer";
-//			String csvFile = "D:\\NewXML\\addContainerData.csv";
-//			String xmlFile = "D:\\NewXML\\addContainer.xml";
+			//			String operationName = "addContainer";
+			//			String dropdownName = "addContainer";
+			//			String csvFile = "D:\\NewXML\\addContainerData.csv";
+			//			String xmlFile = "D:\\NewXML\\addContainer.xml";
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -102,24 +103,24 @@ public class ImportBulkOperationTemplate
 		}
 		catch (BulkOperationException exp)
 		{
-			
+
 			logger.info("------------------------ERROR:--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage()+ "\n");
+			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 		catch (SQLException exp)
 		{
 			logger.info("------------------------ERROR:--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage()+ "\n");
+			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 		catch (Exception exp)
 		{
 			logger.info("------------------------ERROR:--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage()+ "\n");
+			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 	}
@@ -134,7 +135,7 @@ public class ImportBulkOperationTemplate
 	 * @throws Exception
 	 */
 	private static void validate(String operationName, String dropdownName, String csvFile,
-			String xmlFile) throws BulkOperationException, SQLException
+			String xmlFile) throws BulkOperationException, SQLException, IOException
 	{
 		DataList dataList = null;
 		try
@@ -166,7 +167,12 @@ public class ImportBulkOperationTemplate
 			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
 		Collection<BulkOperationClass> classList = metaData.getBulkOperationClass();
-		if (classList != null)
+		if (classList == null)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
+			throw new BulkOperationException(errorkey, null, "");
+		}
+		else
 		{
 			Iterator<BulkOperationClass> iterator = classList.iterator();
 			if (iterator.hasNext())
@@ -191,11 +197,6 @@ public class ImportBulkOperationTemplate
 					logger.info("----------------------ERROR-------------------------");
 				}
 			}
-		}
-		else
-		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
-			throw new BulkOperationException(errorkey, null, "");
 		}
 	}
 
@@ -230,17 +231,9 @@ public class ImportBulkOperationTemplate
 		}
 		finally
 		{
-			try
+			if (connection != null)
 			{
-				if(connection != null)
-				{
-					connection.close();
-				}
-			}
-			catch (SQLException exp)
-			{
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
+				connection.close();
 			}
 		}
 	}
@@ -257,7 +250,7 @@ public class ImportBulkOperationTemplate
 	 */
 	private static void editTemplate(Connection connection, String operationName,
 			String dropdownName, String csvFileData, String xmlFileData)
-			throws BulkOperationException
+			throws BulkOperationException, SQLException
 	{
 		PreparedStatement preparedStatement = null;
 		String databaseType = null;
@@ -309,14 +302,9 @@ public class ImportBulkOperationTemplate
 		}
 		finally
 		{
-			try
+			if (preparedStatement != null)
 			{
 				preparedStatement.close();
-			}
-			catch (SQLException exp)
-			{
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
 			}
 		}
 	}
@@ -337,13 +325,16 @@ public class ImportBulkOperationTemplate
 			throws BulkOperationException, SQLException
 	{
 		PreparedStatement preparedStatement = null;
+		Statement statement = null;
+		ResultSet resultSet = null;
 		try
 		{
-			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType()))
+			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility
+					.getDatabaseType()))
 			{
 				String sequenceQuery = "select CATISSUE_BULK_OPERATION_SEQ.NEXTVAL from dual";
-				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery(sequenceQuery);
+				statement = connection.createStatement();
+				resultSet = statement.executeQuery(sequenceQuery);
 				int sequenceNumber = 0;
 				if (resultSet.next())
 				{
@@ -363,8 +354,6 @@ public class ImportBulkOperationTemplate
 						preparedStatement.setString(5, dropdownName);
 					}
 				}
-				resultSet.close();
-				statement.close();
 			}
 			else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility
 					.getDatabaseType()))
@@ -388,9 +377,18 @@ public class ImportBulkOperationTemplate
 		}
 		finally
 		{
-			
+			if (resultSet != null)
+			{
+				resultSet.close();
+			}
+			if (statement != null)
+			{
+				statement.close();
+			}
+			if (preparedStatement != null)
+			{
 				preparedStatement.close();
-			
+			}
 		}
 	}
 
@@ -447,10 +445,10 @@ public class ImportBulkOperationTemplate
 				}
 			}
 		}
-		catch(SQLException exp)
+		catch (SQLException exp)
 		{
-			logger.debug("Error in database operation. Please the database driver and database " +
-				"properties mentioned in the caTissueInstall.properties file.", exp);
+			logger.debug("Error in database operation. Please the database driver and database "
+					+ "properties mentioned in the caTissueInstall.properties file.", exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error.driver.msg");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
@@ -484,13 +482,13 @@ public class ImportBulkOperationTemplate
 		{
 			logger.debug("XML File Not Found at the specified path.", fnfExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.file.not.found");
-			throw new BulkOperationException(errorkey, null, "");
+			throw new BulkOperationException(errorkey, fnfExp, "");
 		}
 		catch (IOException ioExp)
 		{
 			logger.debug("Error in reading the XML File.", ioExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.file.reading");
-			throw new BulkOperationException(errorkey, null, "");
+			throw new BulkOperationException(errorkey, ioExp, "");
 		}
 		catch (Exception exp)
 		{
@@ -507,7 +505,8 @@ public class ImportBulkOperationTemplate
 	 * @return String.
 	 * @throws Exception Exception.
 	 */
-	private static String getCSVTemplateFileData(String csvFile) throws BulkOperationException
+	private static String getCSVTemplateFileData(String csvFile) throws BulkOperationException,
+			IOException
 	{
 		CSVReader reader = null;
 		List<String[]> list = null;
@@ -527,7 +526,7 @@ public class ImportBulkOperationTemplate
 					commaSeparatedString.append(string[i]);
 					if (i < rowDataLength - 1)
 					{
-						commaSeparatedString.append(",");
+						commaSeparatedString.append(BulkOperationConstants.SINGLE_COMMA);
 					}
 				}
 			}
@@ -539,22 +538,16 @@ public class ImportBulkOperationTemplate
 			throw new BulkOperationException(errorkey, fnfExpp, "");
 		}
 		catch (IOException ioExpp)
-		{	
+		{
 			logger.debug("Error in reading the CSV File.", ioExpp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.reading");
 			throw new BulkOperationException(errorkey, ioExpp, "");
 		}
 		finally
 		{
-			try
+			if (reader != null)
 			{
 				reader.close();
-			}
-			catch (IOException exp)
-			{
-				logger.debug(exp.getMessage(), exp);
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
 			}
 		}
 		return commaSeparatedString.toString();
