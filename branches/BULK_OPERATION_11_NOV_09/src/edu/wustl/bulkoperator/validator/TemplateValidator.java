@@ -380,24 +380,24 @@ public class TemplateValidator
 	{
 		Collection<AttributeDiscriminator> attributeDisColl = attribute
 				.getDiscriminatorCollection();
-		if (!attributeDisColl.isEmpty() && isDiscriminator)
-		{
-			logger.debug("There can be only one attribute Collection tag which can have "
-					+ "discriminatorCollection tag in XML template. The XML template has more "
-					+ "than one attribute collection holding the discriminatorCollection tag.");
-			errorList.add("There can be only one attribute Collection tag which can have "
-					+ "discriminatorCollection tag in XML template. The XML template has more "
-					+ "than one attribute collection holding the discriminatorCollection tag.");
-		}
-		else
-		{
+//		if (!attributeDisColl.isEmpty() && isDiscriminator)
+//		{
+//			logger.debug("There can be only one attribute Collection tag which can have "
+//					+ "discriminatorCollection tag in XML template. The XML template has more "
+//					+ "than one attribute collection holding the discriminatorCollection tag.");
+//			errorList.add("There can be only one attribute Collection tag which can have "
+//					+ "discriminatorCollection tag in XML template. The XML template has more "
+//					+ "than one attribute collection holding the discriminatorCollection tag.");
+//		}
+//		else
+//		{
 			for (AttributeDiscriminator discriminator : attributeDisColl)
 			{
 				validateDiscriminatorName(bulkOperationClass, discriminator);
 				validateDiscriminatorValue(bulkOperationClass, discriminator);
-				isDiscriminator = true;
+//				isDiscriminator = true;
 			}
-		}
+//		}
 	}
 
 	/**
