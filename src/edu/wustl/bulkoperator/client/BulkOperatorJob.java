@@ -1,10 +1,13 @@
 
 package edu.wustl.bulkoperator.client;
 
-import edu.wustl.bulkoperator.BulkOperator;
-import edu.wustl.bulkoperator.DataList;
+import java.io.InputStream;
+
+import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.controller.BulkOperationProcessController;
 import edu.wustl.bulkoperator.jobmanager.AbstractJob;
 import edu.wustl.bulkoperator.jobmanager.JobStatusListener;
+import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperatorJob extends AbstractJob
@@ -13,22 +16,18 @@ public class BulkOperatorJob extends AbstractJob
 	 * logger instance of the class.
 	 */
 	private final static Logger logger = Logger.getCommonLogger(BulkOperatorJob.class);
-	private BulkOperator bulkOperator = null;
-	private String loginName = null;
-	private String password = null;
-	private String className = null;
-	private DataList dataList = null;
+	private InputStream csvFileInputStream = null;
+	private BulkOperationClass bulkOperationClass = null;
+	private AppServiceInformationObject serviceInformationObject = null;
 
-	public BulkOperatorJob(String operationName, String loginName, String password, String userId,
-			BulkOperator bulkOperator, DataList dataList, String className,
-			JobStatusListener jobStatusListener)
+	public BulkOperatorJob(String operationName, String userId,
+			InputStream csvFileInputStream, JobStatusListener jobStatusListener,
+			AppServiceInformationObject serviceInformationObject, BulkOperationClass bulkOperationClass)
 	{
 		super(operationName, userId, jobStatusListener);
-		this.bulkOperator = bulkOperator;
-		this.loginName = loginName;
-		this.password = password;
-		this.className = className;
-		this.dataList = dataList;
+		this.serviceInformationObject =serviceInformationObject;
+		this.csvFileInputStream = csvFileInputStream;
+		this.bulkOperationClass = bulkOperationClass;
 	}
 
 	@Override
@@ -36,8 +35,9 @@ public class BulkOperatorJob extends AbstractJob
 	{
 		try
 		{
-			bulkOperator.startProcess(getJobName(), this.loginName, this.password, getJobStartedBy(),
-					this.dataList, this.className, this.getJobData());
+			BulkOperationProcessController.getBulkOperationControllerInstance().
+					handleBulkOperationJob(this.csvFileInputStream, this.getJobData(), serviceInformationObject,
+							bulkOperationClass);
 		}
 		catch (Exception exp)
 		{

@@ -56,7 +56,8 @@ public class FileUploadAction extends SecureAction
 		BulkOperationForm bulkOperationForm = (BulkOperationForm) form;
 		String dropDownName = bulkOperationForm.getDropdownName();
 		String operationName = bulkOperationForm.getOperationName();
-		logger.info("operationName : "+dropDownName);
+		logger.info("Operation Name: " + operationName);
+		logger.info("DropDown Name: " + dropDownName);
 		String retrievedOperationName = null;
 		String forward = BulkOperationConstants.SUCCESS;
 		try
@@ -73,8 +74,9 @@ public class FileUploadAction extends SecureAction
 				throw new BulkOperationException(errorKey, null, "Error in loading the CSV file on server");
 			}
 			InputStream csvFileInputStream = bulkOperationForm.getCsvFile().getInputStream();
+			InputStream csvFileInputStreamForValidation = bulkOperationForm.getCsvFile().getInputStream();
 			InputSource xmlTemplateInputSource = null;
-			logger.info("bulkOperationForm.getXmlTemplateFile() : "+bulkOperationForm.getXmlTemplateFile());
+			logger.info("bulkOperationForm.getXmlTemplateFile() : " + bulkOperationForm.getXmlTemplateFile());
 			if(bulkOperationForm.getXmlTemplateFile()==null ||
 					bulkOperationForm.getXmlTemplateFile().toString().equalsIgnoreCase("noname"))
 			{
@@ -103,8 +105,9 @@ public class FileUploadAction extends SecureAction
 				String xmlTemplateString = new String(bulkOperationForm.getXmlTemplateFile().getFileData());
 				xmlTemplateInputSource= new InputSource(new StringReader(xmlTemplateString));
 			}
-			Long jobId = bulkOperationBizLogic.initBulkOperation(csvFileInputStream,
-					xmlTemplateInputSource,	retrievedOperationName, this.getSessionData(request));
+			Long jobId = bulkOperationBizLogic.initBulkOperation(csvFileInputStream, 
+					csvFileInputStreamForValidation, xmlTemplateInputSource, 
+					retrievedOperationName, this.getSessionData(request));
 			final ActionMessages msg = new ActionMessages();
 			final ActionMessage msgs = new ActionMessage("job.submitted");
 			msg.add(ActionErrors.GLOBAL_MESSAGE, msgs);

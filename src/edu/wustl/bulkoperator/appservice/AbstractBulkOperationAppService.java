@@ -2,7 +2,6 @@
 package edu.wustl.bulkoperator.appservice;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
@@ -12,8 +11,8 @@ import edu.wustl.common.exception.ErrorKey;
 public abstract class AbstractBulkOperationAppService
 {
 
-	public AbstractBulkOperationAppService(boolean isAuthenticationRequired, String userName, String password)
-			throws BulkOperationException
+	public AbstractBulkOperationAppService(boolean isAuthenticationRequired, String userName,
+			String password) throws Exception
 	{
 		this.isAuthRequired = isAuthenticationRequired;
 		initialize(userName, password);
@@ -44,8 +43,8 @@ public abstract class AbstractBulkOperationAppService
 			constructorParameters[2] = String.class;
 			Constructor constructor = migrationServiceTypeClass
 					.getDeclaredConstructor(constructorParameters);
-			appService = (AbstractBulkOperationAppService) constructor.newInstance(isAuthenticationRequired,
-					userName, password);
+			appService = (AbstractBulkOperationAppService) constructor.newInstance(
+					isAuthenticationRequired, userName, password);
 		}
 		catch (Exception exp)
 		{
@@ -55,7 +54,7 @@ public abstract class AbstractBulkOperationAppService
 		return appService;
 	}
 
-	abstract public void initialize(String userName, String password) throws BulkOperationException;
+	abstract public void initialize(String userName, String password) throws Exception;
 
 	abstract public void authenticate(String userName, String password)
 			throws BulkOperationException;
@@ -80,19 +79,9 @@ public abstract class AbstractBulkOperationAppService
 		return updateObject(obj);
 	}
 
-	public List<Object> hookStaticDEObject(Object staticObject, Object DEObjectId, Object containerID)
-	throws Exception
+	public List<Object> hookStaticDEObject(Object hookingInformationObject) throws Exception
 	{
-		List<Object> objectList = new ArrayList<Object>();
-		try
-		{
-			objectList = hookStaticDynExtObject(staticObject, DEObjectId, containerID);
-		}
-		catch (Exception appExp)
-		{
-			throw new Exception(appExp.getMessage(), appExp);
-		}
-		return objectList;
+		return hookStaticDynExtObject(hookingInformationObject);		
 	}
 
 	abstract protected Object insertObject(Object obj) throws Exception;
@@ -103,8 +92,9 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract protected Object searchObject(Object obj) throws Exception;
 
-	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
+	abstract protected Object insertDynExtObject(Object obj1, Object obj2)
+			throws Exception;
 
-	abstract protected List<Object> hookStaticDynExtObject(Object staticObject, Object DEObjectId, Object containerID)
+	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject)
 			throws Exception;
 }

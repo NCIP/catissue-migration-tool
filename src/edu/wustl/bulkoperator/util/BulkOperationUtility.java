@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,8 +21,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.hibernate.Session;
-
+import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.common.exception.ErrorKey;
@@ -44,7 +43,7 @@ public class BulkOperationUtility
 	 * @param columnNameHashTable
 	 * @return
 	 */
-	public String createHQL(BulkOperationClass bulkOperationclass,
+	public static String createHQL(BulkOperationClass bulkOperationclass,
 			Map<String, String> columnNameHashTable)
 	{
 		Iterator<Attribute> attributeItertor = bulkOperationclass.getAttributeCollection()
@@ -129,7 +128,7 @@ public class BulkOperationUtility
 	 * @param bulkOperationClass
 	 * @return
 	 */
-	public BulkOperationClass checkForDEObject(BulkOperationClass bulkOperationClass)
+	public static BulkOperationClass checkForDEObject(BulkOperationClass bulkOperationClass)
 	{
 		Iterator<BulkOperationClass> DEAssoIterator = bulkOperationClass.
 		getDEAssociationCollection().iterator();
@@ -215,39 +214,9 @@ public class BulkOperationUtility
 		return functionName;
 	}
 
-	public static Long getTime()
+	public static Long getCurrentTimeInSeconds()
 	{
 		return System.currentTimeMillis() / 1000;
-	}
-
-	public static void modifyData(String query, Session session) throws SQLException
-	{
-		Statement statement = null;
-		try
-		{
-			statement = session.connection().createStatement();
-			statement.executeUpdate(query);
-			session.connection().commit();
-		}
-		catch (SQLException sqlExp)
-		{
-			logger.error(sqlExp.getMessage(), sqlExp);
-			try
-			{
-				session.connection().rollback();
-			}
-			catch (SQLException sqlExpp)
-			{
-				logger.error(sqlExpp.getMessage(), sqlExpp);
-			}
-		}
-		finally
-		{
-			if(statement != null)
-			{
-				statement.close();
-			}
-		}
 	}
 
 	/**
@@ -282,7 +251,7 @@ public class BulkOperationUtility
 	 * @return
 	 * @throws IOException
 	 */
-	public File createZip(File csvFile, String zipFileName) throws BulkOperationException
+	public static File createZip(File csvFile, String zipFileName) throws BulkOperationException
 	{
 		File zipFile = null;
 		try
@@ -330,7 +299,7 @@ public class BulkOperationUtility
 	 * 
 	 * @return
 	 */
-	public String getUniqueKey()
+	public static String getUniqueKey()
 	{
 		Date date = new Date();
 		Format formatter = new SimpleDateFormat("dd-MM-yy");
@@ -431,5 +400,106 @@ public class BulkOperationUtility
 			logger.error(daoExp.getMessage(), daoExp);
 			throw daoExp;
 		}
+	}
+	
+	public static boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
+			Map<String, String> csvData)
+	{
+		boolean hasValue = false;
+		if(!attributeList.isEmpty())
+		{
+			for(int i=0;i<attributeList.size();i++)
+			{
+				hasValue = checkIfColumnHasAValue(index,attributeList.get(i), csvData);
+				if(hasValue)
+				{
+					break;
+				}
+			}
+		}
+		return hasValue;
+	}
+	
+	public static boolean checkIfColumnHasAValue(int index, String headerName, Map<String, String> csvData)
+	{
+		boolean hasValue = false;
+		Object value = csvData.get(headerName);
+		if(value!=null && !"".equals(value.toString()))
+		{
+			hasValue = true;
+		}
+		return hasValue;
+	}
+	
+	public static CSVReader getDataReader(InputStream csvFileInputStream) throws BulkOperationException
+	{
+		CSVReader reader = null;
+		try
+		{
+			reader = new CSVReader(new InputStreamReader(csvFileInputStream));
+		}
+		catch (Exception bulkExp)
+		{
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.reading.csv.file");
+			throw new BulkOperationException(errorKey, bulkExp, "");
+		}
+		return reader;
+	}
+
+	public static DataList readCSVColumnNames(CSVReader reader)
+		throws BulkOperationException
+	{
+		DataList dataList = new DataList();;
+ 		String[] headers = null;
+		try
+		{
+			if(reader != null)
+			{
+				headers = reader.readNext();
+				for(int i=0;i<headers.length;i++)
+				{
+					dataList.addHeader(headers[i].trim());
+				}
+				dataList.addHeader(BulkOperationConstants.STATUS);
+				dataList.addHeader(BulkOperationConstants.MESSAGE);
+				dataList.addHeader(BulkOperationConstants.MAIN_OBJECT_ID);
+			}
+		}
+		catch (FileNotFoundException fnfExpp)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.not.found");
+			throw new BulkOperationException(errorkey, fnfExpp, "");
+		}
+		catch (IOException ioExpp)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.reading");
+			throw new BulkOperationException(errorkey, ioExpp, "");
+		}
+		return dataList;
+	}
+	
+	public static DataList readCSVDataRow(String[] csvColumnValues, DataList dataList)
+		throws BulkOperationException
+	{
+		String[] newValues = null;
+ 		try
+		{
+			newValues = new String[dataList.getHeaderList().size() + 3];
+			for(int m = 0; m < newValues.length; m++)
+			{
+				newValues[m] = new String();
+			}			
+			for(int j = 0; j < csvColumnValues.length; j++)
+			{
+				newValues[j] = csvColumnValues[j]; 
+			}
+			dataList.addNewValue(newValues);
+		}
+		catch (Exception exp)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
+			throw new BulkOperationException(errorkey, exp, "CSV");
+		}
+		return dataList;
 	}
 }
