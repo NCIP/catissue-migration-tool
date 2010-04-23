@@ -8,14 +8,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.wustl.bulkoperator.BulkOperationProcessor;
-import edu.wustl.bulkoperator.DataList;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.util.BulkOperationConstants;
+import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
+import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.bulkoperator.util.DataList;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.logger.Logger;
@@ -48,22 +48,24 @@ public class TemplateValidator
 		validateBulkOperationClass(bulkOperationClass, operationName, dataList.getHeaderList(), 0);
 		if (errorList.isEmpty())
 		{
-			BulkOperationProcessor bulkOperationProcessor = new BulkOperationProcessor(
-					bulkOperationClass, null, dataList, null);
+			StaticBulkOperationProcessor staticProcessor =
+				new StaticBulkOperationProcessor(bulkOperationClass, null);
 			Object domainObject = null;
 			try
 			{
 				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
 						null);
-				bulkOperationProcessor.processObject(domainObject, bulkOperationClass, "", true);
-				BulkOperationUtility utility = new BulkOperationUtility();
-				BulkOperationClass DEBulkOperationClass = utility.checkForDEObject(bulkOperationClass);
+				staticProcessor.processObject(domainObject, bulkOperationClass, dataList.getValue(0),
+						"", true, 0);
+				BulkOperationClass DEBulkOperationClass = BulkOperationUtility.checkForDEObject(bulkOperationClass);
 				if(DEBulkOperationClass != null)
 				{
 					Object DEdomainObject = DEBulkOperationClass.getClassObject().getConstructor().newInstance(
 							null);
-					bulkOperationProcessor.processObject(DEdomainObject, DEBulkOperationClass, "", true);
-					checkForCaTissueDEHookingObject(domainObject, DEdomainObject);
+					DynEntityBulkOperationProcessor deProcessor =
+						new DynEntityBulkOperationProcessor(DEBulkOperationClass, null);
+					deProcessor.processObject(DEdomainObject, DEBulkOperationClass, dataList.getValue(0),
+							"", true, 0);
 					checkForContainerID(DEBulkOperationClass, DEdomainObject);
 				}
 			}
@@ -94,18 +96,6 @@ public class TemplateValidator
 				+ " is incorrect. The value should be greater than '0'.");
 			errorList.add("The 'containerID' value mentioned for " + DEBulkOperationClass.getClassName()
 				+ " is incorrect. The value should be greater than '0'.");
-		}
-	}
-
-	private void checkForCaTissueDEHookingObject(Object staticObject, Object DEObject)
-	throws BulkOperationException
-	{
-		if(!BulkOperationConstants.CATISSUE_PARTICIPANT.equals(staticObject.getClass().getName())
-			&& !BulkOperationConstants.CATISSUE_SPECIMEN.equals(staticObject.getClass().getName())
-			&& !BulkOperationConstants.CATISSUE_SPECIMENCOLLECTIONGROUP.equals(staticObject.getClass().getName()))
-		{
-			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.hooking.DEobject.name");
-			throw new BulkOperationException(errorKey, null, staticObject.getClass().getName());
 		}
 	}
 

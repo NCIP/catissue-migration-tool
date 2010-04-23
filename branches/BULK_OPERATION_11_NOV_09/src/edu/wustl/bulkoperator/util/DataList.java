@@ -1,4 +1,4 @@
-package edu.wustl.bulkoperator;
+package edu.wustl.bulkoperator.util;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,8 +8,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import edu.wustl.bulkoperator.util.BulkOperationConstants;
-import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 
@@ -21,9 +19,10 @@ public class DataList
 	 */
 	private static final Logger logger = Logger.getCommonLogger(DataList.class);
 	private List<String>headerList = new ArrayList<String>();
-	private final transient List<Hashtable<String, String>>valueList = new ArrayList<Hashtable<String,String>>();
-	private static final String STATUS_KEY="Status";
-	private static final String MESSAGE_KEY="Message";
+	private List<Hashtable<String, String>>valueList = new ArrayList<Hashtable<String,String>>();
+	private static final String STATUS_KEY = BulkOperationConstants.STATUS;
+	private static final String MESSAGE_KEY = BulkOperationConstants.MESSAGE;
+	private static final String MAIN_OBJECT_ID = BulkOperationConstants.MAIN_OBJECT_ID;
 	public void setHeaderList(List<String>list)
 	{
 		headerList = list;
@@ -61,10 +60,10 @@ public class DataList
 	}
 	public void setValue(String header, String value, int index)
 	{
-		Map<String,String> valueTable = valueList.get(index);
+		Hashtable<String,String> valueTable = valueList.get(index);
 		valueTable.put(header, value);
 	}
-	public Map<String, String> getValue(int index)
+	public Hashtable<String, String>getValue(int index)
 	{
 		return valueList.get(index);
 	}
@@ -81,7 +80,7 @@ public class DataList
 	public boolean checkIfColumnHasAValue(int index,String headerName)
 	{
 		boolean hasValue = false;
-		Map<String,String> valueTable = valueList.get(index);
+		Hashtable<String,String> valueTable = valueList.get(index);
 		Object value = valueTable.get(headerName);
 		if(value!=null && !"".equals(value.toString()))
 		{
@@ -89,14 +88,16 @@ public class DataList
 		}
 		return hasValue;
 	}
-	public boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList)
+
+	public boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
+			Map<String, String> csvData)
 	{
 		boolean hasValue = false;
 		if(!attributeList.isEmpty())
 		{
 			for(int i=0;i<attributeList.size();i++)
 			{
-				hasValue = checkIfColumnHasAValue(index,attributeList.get(i));
+				hasValue = checkIfColumnHasAValue_New(index,attributeList.get(i), csvData);
 				if(hasValue)
 				{
 					break;
@@ -105,11 +106,24 @@ public class DataList
 		}
 		return hasValue;
 	}
-	public void addStatusMessage(int index,String status,String message)
+	
+	public boolean checkIfColumnHasAValue_New(int index, String headerName, Map<String, String> csvData)
 	{
-		Map<String,String> valueTable = valueList.get(index);
+		boolean hasValue = false;
+		Object value = csvData.get(headerName);
+		if(value!=null && !"".equals(value.toString()))
+		{
+			hasValue = true;
+		}
+		return hasValue;
+	}
+	
+	public void addStatusMessage(int index, String status, String message, String mainObjectId)
+	{
+		Hashtable<String,String> valueTable = valueList.get(index);
 		valueTable.put(STATUS_KEY, status);
 		valueTable.put(MESSAGE_KEY, message);
+		valueTable.put(MAIN_OBJECT_ID, mainObjectId);
 	}
 	/**
 	 * 
@@ -117,8 +131,7 @@ public class DataList
 	 * @return
 	 * @throws IOException
 	 */
-	public File createCSVReportFile(String csvFileName)
-		throws BulkOperationException, IOException
+	public File createCSVReportFile(String csvFileName) throws BulkOperationException
 	{
 		File file = null;
 		FileWriter writer = null;
@@ -132,21 +145,21 @@ public class DataList
 			StringBuffer line = new StringBuffer(); 
 			for(int j=0;j<headerListSize;j++)
 			{
-				line.append(headerList.get(j) + BulkOperationConstants.SINGLE_COMMA);			
+				line.append(headerList.get(j)+",");			
 			}
 			line.deleteCharAt(line.length()-1);
 			writer.write(line.append("\n").toString());
 			for(int i=0;i<valueListSize;i++)
 			{
 				line.setLength(0);
-				Map<String,String> valueTable = valueList.get(i);
+				Hashtable<String,String> valueTable = valueList.get(i);
 				
 				for(int j=0;j<headerListSize;j++)
 				{
-					line.append(valueTable.get(headerList.get(j)) + BulkOperationConstants.SINGLE_COMMA);
+					line.append(valueTable.get(headerList.get(j))+",");
 				}
 				line.deleteCharAt(line.length()-1);
-				line.append(BulkOperationConstants.NEW_LINE);
+				line.append("\n");
 				writer.write(line.toString());
 			}
 		}
@@ -160,9 +173,14 @@ public class DataList
 		}
 		finally
 		{
-			if(writer != null)
+			try
 			{
 				writer.close();
+			}
+			catch (IOException exp)
+			{
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorkey, exp, exp.getMessage());
 			}
 		}
 		return file;

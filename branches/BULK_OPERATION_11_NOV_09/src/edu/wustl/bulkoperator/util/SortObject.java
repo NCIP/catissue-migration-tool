@@ -1,5 +1,5 @@
 
-package edu.wustl.bulkoperator;
+package edu.wustl.bulkoperator.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

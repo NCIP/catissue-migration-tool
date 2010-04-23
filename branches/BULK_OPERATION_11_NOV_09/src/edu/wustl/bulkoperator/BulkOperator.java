@@ -2,6 +2,7 @@
 package edu.wustl.bulkoperator;
 
 import java.io.FileInputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -13,9 +14,12 @@ import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
+import edu.wustl.bulkoperator.processor.BulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.bulkoperator.util.DataList;
+import edu.wustl.bulkoperator.util.DataReader;
 import edu.wustl.common.exception.ApplicationException;
 import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
@@ -128,7 +132,7 @@ public class BulkOperator
 	 */
 	public static void main(String args[])
 	{
-		Long startTime = BulkOperationUtility.getTime();
+		Long startTime = BulkOperationUtility.getCurrentTimeInSeconds();
 		System.setProperty("operationName", "createSpecimen");
 		System.setProperty("csvFileAbsolutePath", "G:/createSpecimen.csv");
 		System.setProperty("xmlFileAbsolutePath", "G:/createSpecimen.xml");
@@ -154,7 +158,7 @@ public class BulkOperator
 
 			BulkOperator bulkOperator = new BulkOperator(xmlFileAbsolutePath, "mapping.xml");
 			bulkOperator.startProcess(operationName, userName, password, "1", dataList,
-					BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE, null);
+					BulkOperationConstants.CA_CORE_MIGRATION_APP_SERVICE, null, null);
 		}
 		catch (ApplicationException appExp)
 		{
@@ -186,7 +190,7 @@ public class BulkOperator
 		}
 		finally
 		{
-			Long endTime = BulkOperationUtility.getTime();
+			Long endTime = BulkOperationUtility.getCurrentTimeInSeconds();
 			Long totalTime = endTime - startTime;
 			System.out.println("time taken = " + totalTime + "seconds");
 			if (totalTime > 60)
@@ -211,7 +215,7 @@ public class BulkOperator
 	 * @throws BulkOperationException
 	 */
 	public void startProcess(String operationName, String userName, String password, String userId,
-			DataList dataList, String appServiceClassName, JobData jobData) throws Exception
+			DataList dataList, String appServiceClassName, JobData jobData, DataReader dataReader) throws Exception
 	{
 		Collection<BulkOperationClass> classList = metadata.getBulkOperationClass();
 		if (classList != null)

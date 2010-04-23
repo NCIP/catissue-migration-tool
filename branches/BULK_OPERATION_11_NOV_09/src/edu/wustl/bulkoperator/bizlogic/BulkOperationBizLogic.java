@@ -21,8 +21,7 @@ import org.xml.sax.InputSource;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.wustl.bulkoperator.BulkOperator;
-import edu.wustl.bulkoperator.DataList;
-import edu.wustl.bulkoperator.DataReader;
+import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.client.BulkOperatorJob;
 import edu.wustl.bulkoperator.jobmanager.DefaultJobStatusListner;
 import edu.wustl.bulkoperator.jobmanager.JobDetails;
@@ -33,6 +32,8 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.util.AppUtility;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.bulkoperator.util.DataList;
+import edu.wustl.bulkoperator.util.DataReader;
 import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.beans.NameValueBean;
 import edu.wustl.common.beans.SessionDataBean;
@@ -278,18 +279,19 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @return Long.
 	 * @throws BulkOperationException BulkOperationException.
 	 */
-	public Long initBulkOperation(InputStream csvFileInputStream, InputSource xmlTemplateInputSource,
-		String retrievedOperationName, SessionDataBean sessionDataBean) throws BulkOperationException
+	public Long initBulkOperation(InputStream csvFileInputStream, InputStream csvFileInputStreamForValidation,
+		InputSource xmlTemplateInputSource, String retrievedOperationName, SessionDataBean sessionDataBean) throws BulkOperationException
 	{
 		Long jobId = null;
-		DataList dataList = parseCSVDataFile(csvFileInputStream);
+		DataList dataList = parseCSVDataFile(csvFileInputStreamForValidation);
 		if (dataList != null)
 		{
 			BulkOperator bulkOperator = parseXMLStringAndGetBulkOperatorInstance(
-					retrievedOperationName, xmlTemplateInputSource, dataList);
+					retrievedOperationName, xmlTemplateInputSource);
 			validateBulkOperation(retrievedOperationName,dataList,bulkOperator);
-			jobId = startBulkOperation(retrievedOperationName, dataList,
-					sessionDataBean, bulkOperator);
+			BulkOperationClass bulkOperationClass = bulkOperator.getMetadata().getBulkOperationClass().iterator().next();
+			jobId = startBulkOperation(retrievedOperationName, csvFileInputStream,
+					sessionDataBean, bulkOperationClass);
 		}
 		else
 		{
@@ -320,6 +322,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		return dataList;
 	}
+	
 	/**
 	 * Parse XML String And Get BulkOperator Instance.
 	 * @param operationName String.
@@ -329,7 +332,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @throws BulkOperationException BulkOperationException.
 	 */
 	private BulkOperator parseXMLStringAndGetBulkOperatorInstance(String operationName,
-			InputSource templateInputSource, DataList dataList) throws BulkOperationException
+			InputSource templateInputSource) throws BulkOperationException
 	{
 		BulkOperator bulkOperator = null;
 		try
@@ -389,14 +392,21 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @return Long.
 	 * @throws BulkOperationException BulkOperationException.
 	 */
-	private Long startBulkOperation(String operationName, DataList dataList,
-			SessionDataBean sessionDataBean, BulkOperator bulkOperator) throws BulkOperationException
+	private Long startBulkOperation(String operationName, InputStream csvFileInputStream,
+			SessionDataBean sessionDataBean, BulkOperationClass bulkOperationClass) throws BulkOperationException
 	{
-		JobStatusListener jobStatusListner = new DefaultJobStatusListner();
+		JobStatusListener jobStatusListener = new DefaultJobStatusListner();
+
 		String bulkOperationClassName = BulkOperationUtility.getClassNameFromBulkOperationPropertiesFile();
-		BulkOperatorJob bulkOperatorJob = new BulkOperatorJob(operationName, sessionDataBean.getUserName(),
-				null, String.valueOf(sessionDataBean.getUserId()), bulkOperator, dataList,
-				bulkOperationClassName, jobStatusListner);
+		
+		AppServiceInformationObject serviceInformationObject = new AppServiceInformationObject();
+		serviceInformationObject.setUserName(sessionDataBean.getUserName());
+		serviceInformationObject.setServiceImplementorClassName(bulkOperationClassName);
+		
+		BulkOperatorJob bulkOperatorJob = new BulkOperatorJob(operationName,
+			String.valueOf(sessionDataBean.getUserId()), csvFileInputStream, jobStatusListener, 
+			serviceInformationObject, bulkOperationClass);
+
 		JobManager.getInstance().addJob(bulkOperatorJob);
 		while(bulkOperatorJob.getJobData() == null)
 		{

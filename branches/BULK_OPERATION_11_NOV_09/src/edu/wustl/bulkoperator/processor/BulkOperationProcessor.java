@@ -1,5 +1,5 @@
 
-package edu.wustl.bulkoperator;
+package edu.wustl.bulkoperator.processor;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.bulkoperator.util.DataList;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Validator;
@@ -137,19 +138,19 @@ public class BulkOperationProcessor
 					if(DEObject != null)
 					{
 						dynExtObjectId = DEBulkOperationClass.invokeGetIdMethod(DEObject);
-						resultIds = resultIds + DEBulkOperationClass.getClassName() + "Id: " + dynExtObjectId;
+						resultIds = " " + resultIds + DEBulkOperationClass.getClassName() + "Id: " + dynExtObjectId;
 					}
-					dataList.addStatusMessage(currentRowIndex, "Success", resultIds);
+					dataList.addStatusMessage(currentRowIndex, "Success", resultIds, "");
 					successCount++;
 				}
 				catch (BulkOperationException exp)
 				{
 					failureCount++;
-					dataList.addStatusMessage(currentRowIndex, "Failure", " " + exp.getMessage());
+					dataList.addStatusMessage(currentRowIndex, "Failure", " " + exp.getMessage(), "");
 				}
 				catch (Exception exp)
 				{
-					dataList.addStatusMessage(currentRowIndex, "Failure", " " + exp.getMessage());
+					dataList.addStatusMessage(currentRowIndex, "Failure", " " + exp.getMessage(), "");
 					failureCount++;
 				}
 				if ((currentRowIndex % modValue) == 0)
@@ -189,8 +190,8 @@ public class BulkOperationProcessor
 		{
 			bulkOprAppService.insertDEObject(DEObject, staticObject);
 			Long dynExtObjectId = DEBulkOperationClass.invokeGetIdMethod(DEObject);
-			bulkOprAppService.hookStaticDEObject(staticObject,
-					dynExtObjectId, DEBulkOperationClass.getContainerId());
+//			bulkOprAppService.hookStaticDEObject(staticObject,
+//					dynExtObjectId, DEBulkOperationClass.getContainerId());
 		}
 		return DEObject;
 	}
@@ -290,11 +291,11 @@ public class BulkOperationProcessor
 					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						List<String> attributeList = BulkOperationUtility.getAttributeList(
+						List<String> attributeList = bulkOperationUtility.getAttributeList(
 								containmentMigrationClass, columnSuffix + "#" + i);
-						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+						if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList)
-								|| validate)
+								|| */validate)
 						{
 							Object containmentObject = containmentMigrationClass
 									.getClassDiscriminator(dataList.getValue(currentRowIndex),
@@ -337,10 +338,10 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && !cardinality.equals(""))
 				{
-					List<String> attributeList = BulkOperationUtility.getAttributeList(
+					List<String> attributeList = bulkOperationUtility.getAttributeList(
 							containmentMigrationClass, columnSuffix);
-					if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
-							|| validate)
+					if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
+							|| */validate)
 					{
 						Object containmentObject = mainMigrationClass.invokeGetterMethod(
 								containmentMigrationClass.getRoleName(), null, mainObj, null);
@@ -412,11 +413,11 @@ public class BulkOperationProcessor
 					int maxNoOfRecords = associationMigrationClass.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						List<String> attributeList = BulkOperationUtility.getAttributeList(
+						List<String> attributeList = bulkOperationUtility.getAttributeList(
 								associationMigrationClass, columnSuffix + "#" + i);
-						if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
+						if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList)
-								|| validate)
+								|| */validate)
 						{
 							Object referenceObject = associationMigrationClass
 									.getClassDiscriminator(dataList.getValue(currentRowIndex),
@@ -458,10 +459,10 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && !cardinality.equals(""))
 				{
-					List<String> attributeList = BulkOperationUtility.getAttributeList(
+					List<String> attributeList = bulkOperationUtility.getAttributeList(
 							associationMigrationClass, columnSuffix);
-					if (dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
-							|| validate)
+					if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
+							|| */validate)
 					{
 						Object associatedObject = mainMigrationClass.invokeGetterMethod(
 								associationMigrationClass.getRoleName(), null, mainObj, null);

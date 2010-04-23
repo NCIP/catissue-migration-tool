@@ -34,6 +34,8 @@ import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.bulkoperator.util.DataList;
+import edu.wustl.bulkoperator.util.DataReader;
 import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
