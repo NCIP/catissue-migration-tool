@@ -23,21 +23,26 @@ public class DataList
 	private static final String STATUS_KEY = BulkOperationConstants.STATUS;
 	private static final String MESSAGE_KEY = BulkOperationConstants.MESSAGE;
 	private static final String MAIN_OBJECT_ID = BulkOperationConstants.MAIN_OBJECT_ID;
-	public void setHeaderList(List<String>list)
-	{
-		headerList = list;
-	}
+	
 	public List<String> getHeaderList()
 	{
 		return headerList;
 	}
+
+	/*
+	public void setHeaderList(List<String>list)
+	{
+		headerList = list;
+	}
+	
 	public void setHeaderList(String[] headers)
 	{
 		for(int i=0;i<headers.length;i++)
 		{
 			addHeader(headers[i]);
 		}
-	}
+	}*/
+
 	public void addHeader(String header)
 	{
 		headerList.add(header);
@@ -73,7 +78,7 @@ public class DataList
 		return  valueList.size();
 	}
 	
-	public boolean checkIfColumnExists(String headerName)
+	/*public boolean checkIfColumnExists(String headerName)
 	{
 		return headerList.contains(headerName);
 	}
@@ -87,7 +92,7 @@ public class DataList
 			hasValue = true;
 		}
 		return hasValue;
-	}
+	}*/
 
 	public boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
 			Map<String, String> csvData)
@@ -184,13 +189,5 @@ public class DataList
 			}
 		}
 		return file;
-	}
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isEmpty()
-	{
-		return valueList.isEmpty();
 	}
 }

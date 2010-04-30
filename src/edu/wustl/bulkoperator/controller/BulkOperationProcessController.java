@@ -10,7 +10,6 @@ import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.HookingObjectInformation;
-import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -32,9 +31,7 @@ public class BulkOperationProcessController
 			.getCommonLogger(BulkOperationProcessController.class);
 
 	private BulkOperationProcessController()
-	{
-		
-	}
+	{}
 
 	public static BulkOperationProcessController getBulkOperationControllerInstance()
 	{
@@ -69,12 +66,6 @@ public class BulkOperationProcessController
 		{
 			throw bulkOprExp;
 		}
-	}
-
-	public void preProcess(BulkOperationClass bulkOperationClass,
-			AbstractBulkOperationAppService bulkOprAppService) throws BulkOperationException
-	{
-
 	}
 
 	public void process(

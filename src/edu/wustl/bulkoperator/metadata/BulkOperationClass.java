@@ -389,7 +389,7 @@ public class BulkOperationClass
 		}
 		return identifier;
 	}
-
+	/*
 	public void invokeSetIdMethod(Object objectOnWhichMethodToInvoke, Long identifier)
 			throws BulkOperationException
 	{
@@ -404,5 +404,5 @@ public class BulkOperationClass
 			exp.printStackTrace();
 			throw new BulkOperationException(exp.getMessage(), exp);
 		}
-	}
+	}*/
 }

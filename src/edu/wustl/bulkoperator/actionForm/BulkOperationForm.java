@@ -99,24 +99,17 @@ public class BulkOperationForm extends AbstractActionForm implements Serializabl
 	@Override
 	public int getFormId()
 	{
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	protected void reset()
-	{
-		// TODO Auto-generated method stub
-	}
+	{}
 
 	@Override
 	public void setAddNewObjectIdentifier(String arg0, Long arg1)
-	{
-		// TODO Auto-generated method stub		
-	}
+	{}
 
 	public void setAllValues(AbstractDomainObject arg0)
-	{
-		// TODO Auto-generated method stub		
-	}
+	{}
 }

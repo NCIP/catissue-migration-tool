@@ -19,9 +19,7 @@ public class BulkOperationControllerFactory
 	private static BulkOperationControllerFactory factory = null;
 
 	private BulkOperationControllerFactory()
-	{
-
-	}
+	{}
 
 	public static BulkOperationControllerFactory getInstance()
 	{
@@ -48,10 +46,13 @@ public class BulkOperationControllerFactory
 					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.creating.de.bulkoperation.class");
 					throw new BulkOperationException(errorkey, null, "");
 				}
-				dynamicBulkOperationClassList.add(new DynEntityBulkOperationProcessor(
+				else
+				{
+					dynamicBulkOperationClassList.add(new DynEntityBulkOperationProcessor(
 						DEbulkOperationClass, serviceInformationObject));
-				logger.debug("In getAllDynamicBulkOperationProcessor method. DE Object list size: " + 
+					logger.debug("In getAllDynamicBulkOperationProcessor method. DE Object list size: " + 
 						dynamicBulkOperationClassList.size());
+				}
 			}
 		}
 		catch (BulkOperationException bulkOprExp)

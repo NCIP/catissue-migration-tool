@@ -25,11 +25,6 @@ public abstract class AbstractBulkOperationProcessor
 	protected BulkOperationClass bulkOperationClass = null;
 	protected AppServiceInformationObject serviceInformationObject = null;
 
-	public AbstractBulkOperationProcessor()
-	{
-
-	}
-
 	public AbstractBulkOperationProcessor(BulkOperationClass bulkOperationClass,
 			AppServiceInformationObject serviceInformationObject)
 	{
@@ -40,11 +35,6 @@ public abstract class AbstractBulkOperationProcessor
 	public final BulkOperationClass getBulkOperationClass()
 	{
 		return bulkOperationClass;
-	}
-
-	public final void setBulkOperationClass(BulkOperationClass bulkOperationClass)
-	{
-		this.bulkOperationClass = bulkOperationClass;
 	}
 
 	protected Object getEntityObject(Map<String, String> csvData) throws BulkOperationException

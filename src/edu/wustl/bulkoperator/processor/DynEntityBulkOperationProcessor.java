@@ -15,12 +15,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			IDynamicBulkOperationProcessor
 {
 	private static final Logger logger = Logger.getCommonLogger(DynEntityBulkOperationProcessor.class);
-	
-	public DynEntityBulkOperationProcessor()
-	{
 
-	}
-	
 	public DynEntityBulkOperationProcessor(BulkOperationClass DEbulkOperationClass,
 			AppServiceInformationObject serviceInformationObject)
 	{
