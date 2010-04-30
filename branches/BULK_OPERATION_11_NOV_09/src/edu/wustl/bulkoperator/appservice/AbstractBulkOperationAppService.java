@@ -10,9 +10,8 @@ import edu.wustl.common.exception.ErrorKey;
 
 public abstract class AbstractBulkOperationAppService
 {
-
-	public AbstractBulkOperationAppService(boolean isAuthenticationRequired, String userName,
-			String password) throws Exception
+	public AbstractBulkOperationAppService(boolean isAuthenticationRequired,
+			String userName, String password) throws Exception
 	{
 		this.isAuthRequired = isAuthenticationRequired;
 		initialize(userName, password);
@@ -26,8 +25,7 @@ public abstract class AbstractBulkOperationAppService
 	}
 
 	public static AbstractBulkOperationAppService getInstance(String migrationAppClassName,
-			boolean isAuthenticationRequired, String userName, String password)
-			throws BulkOperationException
+	boolean isAuthenticationRequired, String userName, String password) throws BulkOperationException
 	{
 		if (migrationAppClassName == null)
 		{
@@ -56,8 +54,7 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract public void initialize(String userName, String password) throws Exception;
 
-	abstract public void authenticate(String userName, String password)
-			throws BulkOperationException;
+	abstract public void authenticate(String userName, String password) throws BulkOperationException;
 
 	public Object insert(Object obj) throws Exception
 	{
@@ -92,9 +89,7 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract protected Object searchObject(Object obj) throws Exception;
 
-	abstract protected Object insertDynExtObject(Object obj1, Object obj2)
-			throws Exception;
+	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
 
-	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject)
-			throws Exception;
+	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
 }

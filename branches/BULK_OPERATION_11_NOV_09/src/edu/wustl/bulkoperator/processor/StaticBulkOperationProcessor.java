@@ -16,11 +16,6 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 {
 	private static final Logger logger = Logger.getCommonLogger(StaticBulkOperationProcessor.class);
 
-	public StaticBulkOperationProcessor()
-	{
-
-	}
-
 	public StaticBulkOperationProcessor(BulkOperationClass bulkOperationClass,
 			AppServiceInformationObject serviceInformationObject)
 	{
@@ -30,7 +25,6 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 	@Override
 	Object processObject(Map<String, String> csvData) throws BulkOperationException
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

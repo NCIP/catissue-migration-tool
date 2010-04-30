@@ -42,6 +42,7 @@ public class BulkOperatorJob extends AbstractJob
 		catch (Exception exp)
 		{
 			logger.error(exp.getMessage(), exp);
+			exp.printStackTrace();
 		}
 	}
 }
