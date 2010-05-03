@@ -81,8 +81,8 @@ function getCSVOutputReport()
 		<tr>
 			<td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
             <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
-            <td width="25%" align="left" valign="middle" class="black_new">
-			<html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:220px">
+            <td width="35%" align="left" valign="middle" class="black_new">
+			<html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:320px" onmouseover="showTip(this.id)" onmouseout="hideTip(this.id)">
 
 
 				<logic:iterate id="element" name="<%=BulkOperationConstants.BULK_OPERATION_LIST%>">
@@ -96,12 +96,12 @@ function getCSVOutputReport()
 										${element.name}
 								</option>
 							</logic:notEqual>
-							</logic:iterate>
+					</logic:iterate>
 			</html:select>
 
 
 			</td>
-			<td colspan="2" width="54%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
+			<td colspan="2" width="44%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
 				<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
 								<bean:message key="bulk.button.download.template" />
 					</html:button>
@@ -117,7 +117,7 @@ function getCSVOutputReport()
 			<td align="left" class="black_ar"><b><bean:message key="bulk.upload.file" /></b>
 			</td>
 			<td align="left" valign="middle" width="20%">
-				<input id="file" type="file" name="csvFile" value="Browse">
+				<input id="file" type="file" name="csvFile" value="Browse" size="34">
 				</input>
 			</td>
 			<td align="left" valign="left" colspan="2">
