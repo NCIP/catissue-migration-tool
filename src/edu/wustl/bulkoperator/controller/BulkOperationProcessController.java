@@ -137,6 +137,7 @@ public class BulkOperationProcessController
 						}
 					}
 				}
+				currentCSVRowCount++;
 			}
 			postProcess(successCount, failureCount, dataList, staticProcessor.getBulkOperationClass()
 					.getTemplateName(), startTime, jobData);
