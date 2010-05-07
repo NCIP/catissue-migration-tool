@@ -108,7 +108,7 @@ function getCSVOutputReport()
 			</td>
 		</tr>
 		<tr>
-			<td colspan="5" width="100%" height="20" align="center" class="black_ar"><span class="blue_ar_b"></span>
+			<td colspan="5" width="100%" height="15" align="center" class="black_ar"><span class="blue_ar_b"></span>
 			</td>
 		</tr>
 		<tr>
