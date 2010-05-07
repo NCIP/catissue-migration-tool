@@ -91,7 +91,7 @@ window.onload=starttime;
 					<tr height="2%">
 						<td align="left" height="2%" class="tr_bg_blue1"><span class="blue_ar_b">&nbsp;<bean:message key="bulk.bulkoperations" /></span></td>
 					</tr>
-					<tr height="25%">
+					<tr height="30%">
 						<td align="left" valign="top" class="showhide">
 							<logic:empty name="noTemplates">
 								<iframe id="bulkTemplate" name="bulkTemplate" src="BulkTemplate.do?pageOf=pageOfBulkOperation" scrolling="no" frameborder="0" style="width:100%;height:100%;" marginheight='0' marginwidth='0' height="100%">
