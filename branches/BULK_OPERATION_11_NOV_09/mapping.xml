@@ -29,9 +29,13 @@
 		<field name="containerId" type="integer">
 			<bind-xml name="containerId" node="attribute"/>
 		</field>
+		<field name="id" type="long">
+			<bind-xml name="id" node="attribute"/>
+		</field>
 		<field name="containmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="referenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="DEAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="categoryAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="attributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
 	</class>
 	
@@ -53,6 +57,9 @@
 		</field>
 		<field name="belongsTo" type="string">
 			<bind-xml name="belongsTo" node="attribute"/>
+		</field>
+		<field name="id" type="long">
+			<bind-xml name="id" node="attribute"/>
 		</field>
 		<field name="discriminatorCollection" type="edu.wustl.bulkoperator.metadata.AttributeDiscriminator" collection="collection" />
 	 </class>

@@ -169,6 +169,48 @@ public class BulkOperationUtility
 		}
 		return null;
 	}
+	
+	public static BulkOperationClass checkForCategoryObject(BulkOperationClass bulkOperationClass)
+	{
+		Iterator<BulkOperationClass> categoryAssoIterator = bulkOperationClass.
+		getCategoryAssociationCollection().iterator();
+		while (categoryAssoIterator.hasNext())
+		{
+			return categoryAssoIterator.next();
+		}
+
+		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass.
+							getContainmentAssociationCollection().iterator();
+		while (containmentAssoIterator.hasNext())
+		{
+			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
+			if(containmentBulkOperationClass.getCategoryAssociationCollection() != null &&
+					!containmentBulkOperationClass.getCategoryAssociationCollection().isEmpty())
+			{
+				return containmentBulkOperationClass.getCategoryAssociationCollection().iterator().next();
+			}
+			else
+			{
+				checkForCategoryObject(containmentBulkOperationClass);
+			}
+		}
+		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass.
+				getReferenceAssociationCollection().iterator();
+		while (referenceAssoIterator.hasNext())
+		{
+			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
+			if(referenceBulkOperationClass.getCategoryAssociationCollection() != null &&
+					!referenceBulkOperationClass.getCategoryAssociationCollection().isEmpty())
+			{
+				return referenceBulkOperationClass.getCategoryAssociationCollection().iterator().next();
+			}
+			else
+			{
+				checkForCategoryObject(referenceBulkOperationClass);
+			}
+		}
+		return null;
+	}
 	/**
 	 * 
 	 * @param name

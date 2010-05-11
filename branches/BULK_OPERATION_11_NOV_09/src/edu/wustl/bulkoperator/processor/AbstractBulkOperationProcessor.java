@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import edu.wustl.bulkoperator.HookingObjectInformation;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -90,7 +91,7 @@ public abstract class AbstractBulkOperationProcessor
 	 * @param validate
 	 * @throws BulkOperationException
 	 */
-	private void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
+	protected void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
 			Map<String, String> csvData, String columnSuffix, boolean validate, 
 			int csvRowNumber) throws BulkOperationException
 	{
@@ -387,12 +388,9 @@ public abstract class AbstractBulkOperationProcessor
 							if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName()
 									+ columnSuffix)))
 							{
-								String csvDataValue = csvData.get(attribute.getCsvColumnName()
-										+ columnSuffix);
-								Object attributeValue = attribute.getValueOfDataType(csvDataValue,
-										validate);
-								mainMigrationClass.invokeSetterMethod(attribute.getName(),
-										new Class[]{dataTypeClass}, mainObj, attributeValue);
+								setValueToObject(mainObj, mainMigrationClass, csvData,
+										columnSuffix, validate, attribute,
+										dataTypeClass);
 							}
 						}//else if ends
 					}//null check if - else ends
@@ -410,6 +408,19 @@ public abstract class AbstractBulkOperationProcessor
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
+	}
+
+	protected void setValueToObject(Object mainObj,
+			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
+			String columnSuffix, boolean validate, Attribute attribute,
+			Class dataTypeClass) throws BulkOperationException {
+		String csvDataValue = csvData.get(attribute.getCsvColumnName()
+				+ columnSuffix);
+		Object attributeValue = attribute.getValueOfDataType(csvDataValue,
+				validate);
+		mainMigrationClass.invokeSetterMethod(attribute.getName(),
+				new Class[]{dataTypeClass}, mainObj, attributeValue);
+		
 	}
 
 	/**

@@ -11,6 +11,7 @@ import java.util.Set;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -67,6 +68,11 @@ public class TemplateValidator
 					deProcessor.processObject(DEdomainObject, DEBulkOperationClass, dataList.getValue(0),
 							"", true, 0);
 					checkForContainerID(DEBulkOperationClass, DEdomainObject);
+				}
+				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility.checkForCategoryObject(bulkOperationClass);
+				if(categoryBulkOperationClass != null)
+				{
+					checkForContainerID(categoryBulkOperationClass, null);
 				}
 			}
 			catch (BulkOperationException bulkExp)

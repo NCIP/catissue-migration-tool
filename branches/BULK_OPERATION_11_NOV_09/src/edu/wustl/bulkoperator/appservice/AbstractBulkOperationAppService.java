@@ -3,6 +3,7 @@ package edu.wustl.bulkoperator.appservice;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.Map;
 
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -92,4 +93,7 @@ public abstract class AbstractBulkOperationAppService
 	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
 
 	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
+	
+	abstract public Long insertData(final Long categoryId,final Map<Long, Object> dataValue)
+			throws Exception;
 }

@@ -15,6 +15,7 @@ public class Attribute
 	private String csvColumnName;
 	private Boolean updateBasedOn;
 	private String belongsTo;
+	private Long id;
 	private Collection<AttributeDiscriminator> discriminatorCollection = new ArrayList<AttributeDiscriminator>();
 
 	/**
@@ -85,7 +86,16 @@ public class Attribute
 	{
 		this.name = name;
 	}
-
+	
+	public Long getId()
+	{
+		return id;
+	}
+	
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
 	public Object getValueOfDataType(String value, boolean validate) throws BulkOperationException
 	{
 		Object valueObject = null;

@@ -32,10 +32,12 @@ public class BulkOperationClass
 	private Integer maxNoOfRecords;
 	private Integer batchSize;
 	private Integer containerId;
+	private Long id;
 	private Class klass;
 	private Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> DEAssociationCollection = new ArrayList<BulkOperationClass>();
+	private Collection<BulkOperationClass> categoryAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
 
 	public Collection<Attribute> getAttributeCollection()
@@ -66,6 +68,16 @@ public class BulkOperationClass
 	public void setContainerId(Integer containerId)
 	{
 		this.containerId = containerId;
+	}
+	
+	public Long getId()
+	{
+		return id;
+	}
+	
+	public void setId(Long id)
+	{
+		this.id = id;
 	}
 
 	public Collection<BulkOperationClass> getReferenceAssociationCollection()
@@ -183,7 +195,17 @@ public class BulkOperationClass
 	{
 		this.maxNoOfRecords = maxNoOfRecords;
 	}
+	public Collection<BulkOperationClass> getCategoryAssociationCollection()
+	{
+		return categoryAssociationCollection;
+	}
 
+	
+	public void setCategoryAssociationCollection(
+			Collection<BulkOperationClass> categoryAssociationCollection)
+	{
+		this.categoryAssociationCollection = categoryAssociationCollection;
+	}
 	public boolean isUpdateOperation()
 	{
 		boolean isUpdateOperation = false;
@@ -269,7 +291,27 @@ public class BulkOperationClass
 		}
 		return isDEObjectPresent;
 	}
-
+	public boolean checkForCategoryAssociationCollectionTag(BulkOperationClass bulkOperationclass)
+	throws BulkOperationException
+	{
+		boolean isCategoryObjectPresent = false;
+		try
+		{
+			Collection<BulkOperationClass> categoryAssociationCollection = getCategoryAssociationCollection();
+			if(categoryAssociationCollection != null &&
+					!categoryAssociationCollection.isEmpty())
+			{
+				isCategoryObjectPresent = true;
+			}
+		}
+		catch (Exception exp)
+		{
+			logger.debug("Error in Checking For categoryAssociationCollection Tag. " + exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.checking.deassociation");
+			throw new BulkOperationException(errorkey, exp, "");
+		}
+		return isCategoryObjectPresent;
+	}
 	public Class getClassObject() throws BulkOperationException
 	{
 		try
