@@ -41,7 +41,9 @@ public class BulkOperationProcessController
 		}
 		return bulkOperationProcessController;
 	}
-
+	
+	
+	
 	public void handleBulkOperationJob(InputStream csvFileInputStream, JobData jobData,
 			AppServiceInformationObject serviceInformationObject, BulkOperationClass bulkOperationClass)
 		throws BulkOperationException
@@ -58,8 +60,7 @@ public class BulkOperationProcessController
 			List<IDynamicBulkOperationProcessor> dynamicBulkOprProcessorList = BulkOperationControllerFactory
 					.getInstance().getAllDynamicBulkOperationProcessor(bulkOperationClass,
 							serviceInformationObject);
-
-			process(staticBulkOprProcessor, dynamicBulkOprProcessorList, startTime,
+			process(staticBulkOprProcessor, dynamicBulkOprProcessorList,startTime,
 					csvFileInputStream, jobData);
 		}
 		catch (BulkOperationException bulkOprExp)
@@ -74,7 +75,7 @@ public class BulkOperationProcessController
 			long startTime, InputStream csvInputStream, JobData jobData)
 			throws BulkOperationException
 	{
-		Object staticDomainObject = null, dynamicDomainObject = null;
+		Object staticDomainObject = null;
 		int failureCount = 0, successCount = 0, currentCSVRowCount = 0;
 		try
 		{
@@ -101,7 +102,7 @@ public class BulkOperationProcessController
 									staticDomainObject);
 							IDynamicBulkOperationProcessor dynProcessorInterface = iterator
 									.next();
-							dynamicDomainObject = dynProcessorInterface.process(csvData,
+							dynProcessorInterface.process(csvData,
 									currentCSVRowCount, hookingObjectInfo);
 						}
 					}

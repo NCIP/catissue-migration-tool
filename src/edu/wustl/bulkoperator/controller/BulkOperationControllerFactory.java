@@ -4,8 +4,10 @@ package edu.wustl.bulkoperator.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.IDynamicBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -50,6 +52,23 @@ public class BulkOperationControllerFactory
 				{
 					dynamicBulkOperationClassList.add(new DynEntityBulkOperationProcessor(
 						DEbulkOperationClass, serviceInformationObject));
+					logger.debug("In getAllDynamicBulkOperationProcessor method. DE Object list size: " + 
+						dynamicBulkOperationClassList.size());
+				}
+			}
+			if (bulkOperationClass.checkForCategoryAssociationCollectionTag(bulkOperationClass))
+			{
+				BulkOperationClass categorybulkOperationClass = BulkOperationUtility.checkForCategoryObject(bulkOperationClass);
+				if(categorybulkOperationClass == null)
+				{
+					logger.error("Error while creating DEAssocationClass instance", null);
+					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.creating.de.bulkoperation.class");
+					throw new BulkOperationException(errorkey, null, "");
+				}
+				else
+				{
+					dynamicBulkOperationClassList.add(new DynCategoryBulkOperationProcessor(
+							categorybulkOperationClass, serviceInformationObject));
 					logger.debug("In getAllDynamicBulkOperationProcessor method. DE Object list size: " + 
 						dynamicBulkOperationClassList.size());
 				}
