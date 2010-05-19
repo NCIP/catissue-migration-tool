@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -204,6 +205,18 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 					if(innerList.get(1) instanceof CLOB)
 					{
 						CLOB clob = (CLOB)innerList.get(1);
+						Reader reader = clob.getCharacterStream();
+						CharArrayWriter writer=new CharArrayWriter();
+						int intVar = -1;
+						while ( (intVar=reader.read())!=-1)
+						{
+							writer.write(intVar);
+						}
+						returnList.add(new String(writer.toCharArray()));
+					}
+					else if(innerList.get(1) instanceof Clob)
+					{
+						Clob clob = (Clob)innerList.get(1);
 						Reader reader = clob.getCharacterStream();
 						CharArrayWriter writer=new CharArrayWriter();
 						int intVar = -1;

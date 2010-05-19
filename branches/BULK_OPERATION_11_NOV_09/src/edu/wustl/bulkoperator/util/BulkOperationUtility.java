@@ -347,33 +347,11 @@ public class BulkOperationUtility
 		Format formatter = new SimpleDateFormat("dd-MM-yy");
 		return formatter.format(date);
 	}
-	public static Properties getBulkOperationProperties() throws BulkOperationException
-	{
-		Properties props = new Properties();
-		try
-		{
-			FileInputStream propFile = new FileInputStream(
-					BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
-			props.load(propFile);
-		}
-		catch (FileNotFoundException fnfException)
-		{
-			logger.debug("Error while accessing caTissueInstall.properties file.", fnfException);
-			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.file.not.found");
-			throw new BulkOperationException(errorKey, fnfException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
-		}
-		catch (IOException ioException)
-		{			
-			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
-			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.file.reading.error");
-			throw new BulkOperationException(errorKey, ioException, "caTissueInstall.properties");
-		}
-		return props;
-	}
+
 	/**
-	 * 
-	 * @return
-	 * @throws BulkOperationException
+	 * Get Class Name From Bulk Operation Properties File.
+	 * @return String String
+	 * @throws BulkOperationException BulkOperationException
 	 */
 	public static String getClassNameFromBulkOperationPropertiesFile() throws BulkOperationException
 	{
@@ -382,7 +360,7 @@ public class BulkOperationUtility
 		return properties.getProperty(BulkOperationConstants.BULK_OPERATION_APPSERVICE_CLASSNAME);		
 	}
 	/**
-	 * Get CatissueInstallProperties.
+	 * Get Install Properties file.
 	 * @return Properties.
 	 */
 	public static Properties getPropertiesFile(String propertiesFileName) throws BulkOperationException
@@ -395,15 +373,15 @@ public class BulkOperationUtility
 		}
 		catch (FileNotFoundException fnfException)
 		{
-			logger.debug("caTissueInstall.properties file not found.", fnfException);
+			logger.debug(propertiesFileName + " file not found.", fnfException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.not.found");
-			throw new BulkOperationException(errorkey, fnfException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
+			throw new BulkOperationException(errorkey, fnfException, propertiesFileName);
 		}
 		catch (IOException ioException)
 		{			
-			logger.debug("Error while accessing caTissueInstall.properties file.", ioException);
+			logger.debug("Error while accessing " + propertiesFileName + " file.", ioException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
-			throw new BulkOperationException(errorkey, ioException, BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES);
+			throw new BulkOperationException(errorkey, ioException, propertiesFileName);
 		}
 		return props;
 	}
@@ -413,9 +391,10 @@ public class BulkOperationUtility
 	 */
 	public static String getDatabaseType() throws BulkOperationException
 	{
-		Properties properties = getPropertiesFile(
-				BulkOperationConstants.CATISSUE_INSTALL_PROPERTIES_FILE);
-		return properties.getProperty("database.type");
+		Properties properties = BulkOperationUtility.getBulkOperationPropertiesInstance();
+		String applnInstallPropFileName = properties.getProperty(BulkOperationConstants.DATABASE_CREDENTIALS_FILE);
+		Properties applnInstallProp = getPropertiesFile("./" + applnInstallPropFileName);
+		return applnInstallProp.getProperty("database.type");
 	}
 	/**
 	 * This method will change the Bulk Operation status from In Progress
@@ -543,5 +522,35 @@ public class BulkOperationUtility
 			throw new BulkOperationException(errorkey, exp, "CSV");
 		}
 		return dataList;
+	}
+	/**
+	 * Get Bulk Operation Properties Instance.
+	 * @return Properties Properties
+	 * @throws BulkOperationException BulkOperationException
+	 */
+	public static Properties getBulkOperationPropertiesInstance() throws BulkOperationException
+	{
+		Properties bulkOprProp = null;
+		try
+		{
+			bulkOprProp = System.getProperties();
+			String configDirectory = bulkOprProp.getProperty(BulkOperationConstants.CONFIG_DIR);			
+			FileInputStream propFile = new FileInputStream(
+					"./" + configDirectory + "/" + BulkOperationConstants.BULKOPERATION_INSTALL_PROPERTIES);		
+			bulkOprProp.load(propFile);
+		}
+		catch (FileNotFoundException fnfException)
+		{
+			logger.debug("bulkOperation.properties file not found.", fnfException);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.not.found");
+			throw new BulkOperationException(errorkey, fnfException, "bulkOperation.properties");
+		}
+		catch (IOException ioException)
+		{			
+			logger.debug("Error while accessing bulkOperation.properties file.", ioException);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
+			throw new BulkOperationException(errorkey, ioException, "bulkOperation.properties");
+		}
+		return bulkOprProp;
 	}
 }

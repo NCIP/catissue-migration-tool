@@ -28,10 +28,8 @@ public class BulkOperationConstants
 	public static final String CATISSUE_THICK_CLIENT_SERVICE = "CaTissueThickClientService";
 	public static final String CA_CORE_MIGRATION_APP_SERVICE = "edu.wustl.bulkoperator.appservice.CaCoreMigrationAppServiceImpl";
 	public static final String BULK_OPEARTION_META_DATA_XML_FILE_NAME = "bulkOperationMetaData.xml";
-	public static final String CATISSUE_INSTALL_PROPERTIES_FILE = "./caTissueInstall.properties";
 	public static final String BULK_OPERATION_INSTALL_PROPERTIES_FILE = "bulkOperation.properties";
 	public static final String BULK_OPERATION_APPSERVICE_CLASSNAME = "bulkoperator.appservice.class";
-	public static final String BULK_OPERATION_MAPPING_XML_FILE_NAME = "catissuecore-properties/mapping.xml";
 	public static final String BULK_OPERATION_LIST = "bulkOperationList";
 	public static final String ORACLE_DATABASE = "ORACLE";
 	public static final String MYSQL_DATABASE = "MYSQL";
@@ -47,8 +45,10 @@ public class BulkOperationConstants
 	public static final String ERROR_CONSOLE_FORMAT = "------------------------ERROR:--------------------------------";
 	public static final String COMMON_ISSUES_ERROR_KEY = "bulk.operation.issues";
 	public static final String JAVA_LANG_STRING_DATATYPE = "java.lang.String";
-	public static final String CATISSUE_INSTALL_PROPERTIES = "caTissueInstall.properties";
+	public static final String BULKOPERATION_INSTALL_PROPERTIES = "bulkOperation.properties";
+	public static final String DATABASE_CREDENTIALS_FILE = "database.credentials.file";
 	public static final String STATUS = "Status";
 	public static final String MESSAGE = "Message";
 	public static final String MAIN_OBJECT_ID = "Main Object Id";
+	public static final String CONFIG_DIR = "config.dir";
 }

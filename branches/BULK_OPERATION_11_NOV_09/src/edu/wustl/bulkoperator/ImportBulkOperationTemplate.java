@@ -92,10 +92,11 @@ public class ImportBulkOperationTemplate
 	{
 		try
 		{
-			//			String operationName = "addContainer";
-			//			String dropdownName = "addContainer";
-			//			String csvFile = "D:\\NewXML\\addContainerData.csv";
-			//			String xmlFile = "D:\\NewXML\\addContainer.xml";
+			/*System.setProperty("config.dir", "clinportal-properties");
+			String operationName = "addContainer";
+			String dropdownName = "addContainer";
+			String csvFile = "D:\\NewXML\\addContainerData.csv";
+			String xmlFile = "D:\\NewXML\\addContainer.xml";*/
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -161,8 +162,9 @@ public class ImportBulkOperationTemplate
 		BulkOperationMetaData metaData = null;
 		try
 		{
+			String configDirectory = System.getProperties().getProperty(BulkOperationConstants.CONFIG_DIR);
 			metaData = new BulkOperationMetadataUtil().unmarshall(xmlFile,
-					"./catissuecore-properties/mapping.xml");
+					"./" + configDirectory + "/mapping.xml");
 		}
 		catch (BulkOperationException exp)
 		{
@@ -450,7 +452,7 @@ public class ImportBulkOperationTemplate
 		catch (SQLException exp)
 		{
 			logger.debug("Error in database operation. Please the database driver and database "
-					+ "properties mentioned in the caTissueInstall.properties file.", exp);
+					+ "properties mentioned in the host application install properties file.", exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error.driver.msg");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
