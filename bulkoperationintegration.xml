@@ -37,11 +37,13 @@
 			struts-config.xml
 		-->
 		<replace file="${deploy.temp.dir}/WEB-INF/${suite.struts.config.file}">
+			<replacefilter token="/WEB-INF/${suite.tiles.def.file}, /WEB-INF/bulkoperation-struts-config.xml" value="/WEB-INF/${suite.tiles.def.file}" />
 			<replacefilter token="/WEB-INF/${suite.tiles.def.file}" value="/WEB-INF/${suite.tiles.def.file}, /WEB-INF/bulkoperation-tiles-defs.xml" />
 		</replace>
 
 		<!-- Inject advancequery-struts-config.xml entry in suite web.xml -->
 		<replace file="${deploy.temp.dir}/WEB-INF/web.xml">
+			<replacefilter token="/WEB-INF/${suite.struts.config.file}, /WEB-INF/bulkoperation-struts-config.xml" value="/WEB-INF/${suite.struts.config.file}" />
 			<replacefilter token="/WEB-INF/${suite.struts.config.file}" value="/WEB-INF/${suite.struts.config.file}, /WEB-INF/bulkoperation-struts-config.xml" />
 		</replace>
 
@@ -55,7 +57,7 @@
 		</concat>
 
 		<!--Copying mapping.xml file-->
-		<copy todir="${deploy.temp.dir}/catissuecore-properties" overwrite="true">
+		<copy todir="${config.dir}" overwrite="true">
 			<fileset dir="${bulkoperation.base.dir}">
 				<include name="mapping.xml" />
 			</fileset>
