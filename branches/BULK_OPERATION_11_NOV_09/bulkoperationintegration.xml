@@ -100,4 +100,23 @@
 		</if>
 	</target>
 
+	<target name="replace-tiles-properties">
+		<copy file="${deploy.temp.dir}/${war.dir}/WEB-INF/classes/BulkOperations.properties" todir="${deploy.temp.dir}/bulkoperation" overwrite="true" />
+		<property file="${deploy.temp.dir}/bulkoperation/BulkOperations.properties" />
+		<replace dir="${deploy.temp.dir}/bulkoperation/" propertyfile="BulkOperations.properties">
+			<include name="bulkoperation-tiles-defs.xml" />
+			<replacefilter token="@@tilesTitle@@" value="${tilesTitle}" />
+			<replacefilter token="@@tilesHeader@@" value="${tilesHeader}" />
+			<replacefilter token="@@tilesAppHeader@@" value="${tilesAppHeader}" />
+			<replacefilter token="@@tilesMainMenu@@" value="${tilesMainMenu}" />
+			<replacefilter token="@@tilesContent@@" value="${tilesContent}" />
+			<replacefilter token="@@tilesAppFooter@@" value="${tilesAppFooter}" />
+		</replace>
+		<copy todir="${deploy.temp.dir}/${war.dir}/WEB-INF" overwrite="true">
+			<fileset dir="${deploy.temp.dir}/bulkoperation/">
+				<include name="bulkoperation-tiles-defs.xml" />
+			</fileset>
+		</copy>
+	</target>
+
 </project>
