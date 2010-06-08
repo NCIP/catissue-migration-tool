@@ -87,7 +87,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		{
 			logger.error(exp.getMessage(), exp);
 			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.dropdown");
-			throw new BulkOperationException(errorKey, exp, ""); 
+			throw new BulkOperationException(errorKey, exp, "");
 		}
 		finally
 		{
@@ -103,7 +103,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @throws BulkOperationException BulkOperationException.
 	 * @throws ApplicationException ApplicationException.
 	 */
-	public File getCSVFile(String dropdownName) throws 
+	public File getCSVFile(String dropdownName) throws
 				BulkOperationException, ApplicationException
 	{
 		File csvFile = null;
@@ -167,7 +167,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		return csvFile;
 	}
-	
+
 	/**
 	 * Get Operation Name And XML.
 	 * @param dropdownName String.
@@ -193,7 +193,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 				query = "select operation, xml_tempalte from " +
 				"catissue_bulk_operation " +
 				"where OPERATION = '" + operationName + "'";
-			}			
+			}
 			List list = AppUtility.executeSQLQuery(query);
 			if(!list.isEmpty())
 			{
@@ -241,7 +241,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		return returnList;
 	}
-	
+
 	/**
 	 * Convert String To XML.
 	 * @param xmlString String.
@@ -335,7 +335,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		}
 		return dataList;
 	}
-	
+
 	/**
 	 * Parse XML String And Get BulkOperator Instance.
 	 * @param operationName String.
@@ -411,13 +411,13 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		JobStatusListener jobStatusListener = new DefaultJobStatusListner();
 
 		String bulkOperationClassName = BulkOperationUtility.getClassNameFromBulkOperationPropertiesFile();
-		
+
 		AppServiceInformationObject serviceInformationObject = new AppServiceInformationObject();
 		serviceInformationObject.setUserName(sessionDataBean.getUserName());
 		serviceInformationObject.setServiceImplementorClassName(bulkOperationClassName);
-		
+
 		BulkOperatorJob bulkOperatorJob = new BulkOperatorJob(operationName,
-			String.valueOf(sessionDataBean.getUserId()), csvFileInputStream, jobStatusListener, 
+				sessionDataBean, csvFileInputStream, jobStatusListener,
 			serviceInformationObject, bulkOperationClass);
 
 		JobManager.getInstance().addJob(bulkOperatorJob);

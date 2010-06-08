@@ -93,10 +93,10 @@ public class ImportBulkOperationTemplate
 		try
 		{
 			/*System.setProperty("config.dir", "clinportal-properties");
-			String operationName = "addContainer";
-			String dropdownName = "addContainer";
-			String csvFile = "D:\\NewXML\\addContainerData.csv";
-			String xmlFile = "D:\\NewXML\\addContainer.xml";*/
+			String operationName = "C";
+			String dropdownName = "C";
+			String csvFile = "F:/Bulk/categoryLabInfo.csv";
+			String xmlFile = "F:/Bulk/ClinLabInfo.xml";*/
 			validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
@@ -107,21 +107,21 @@ public class ImportBulkOperationTemplate
 		catch (BulkOperationException exp)
 		{
 
-			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.info("------------------------ERROR:BulkOperationException--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 		catch (SQLException exp)
 		{
-			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.info("------------------------ERROR:SQLException--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 		catch (Exception exp)
 		{
-			logger.info("------------------------ERROR:--------------------------------\n");
+			logger.info("------------------------ERROR:Exception--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
@@ -193,7 +193,7 @@ public class ImportBulkOperationTemplate
 				}
 				else
 				{
-					logger.info("----------------------ERROR-------------------------");
+					logger.info("----------------------ERROR:errorList-------------------------");
 					for (String error : errorList)
 					{
 						logger.info(error);
@@ -321,7 +321,7 @@ public class ImportBulkOperationTemplate
 	 * @param csvFileData String.
 	 * @param xmlFileData String.
 	 * @throws BulkOperationException BulkOperationException.
-	 * @throws SQLException 
+	 * @throws SQLException
 	 * @throws SQLException SQLException.
 	 */
 	private static void addTemplate(Connection connection, String operationName,

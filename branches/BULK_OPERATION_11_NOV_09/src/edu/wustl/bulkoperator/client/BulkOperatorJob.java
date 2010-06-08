@@ -8,6 +8,7 @@ import edu.wustl.bulkoperator.controller.BulkOperationProcessController;
 import edu.wustl.bulkoperator.jobmanager.AbstractJob;
 import edu.wustl.bulkoperator.jobmanager.JobStatusListener;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperatorJob extends AbstractJob
@@ -19,15 +20,17 @@ public class BulkOperatorJob extends AbstractJob
 	private InputStream csvFileInputStream = null;
 	private BulkOperationClass bulkOperationClass = null;
 	private AppServiceInformationObject serviceInformationObject = null;
+	private SessionDataBean sessionDataBean = null;
 
-	public BulkOperatorJob(String operationName, String userId,
+	public BulkOperatorJob(String operationName, SessionDataBean sessionDataBean,
 			InputStream csvFileInputStream, JobStatusListener jobStatusListener,
 			AppServiceInformationObject serviceInformationObject, BulkOperationClass bulkOperationClass)
 	{
-		super(operationName, userId, jobStatusListener);
+		super(operationName, String.valueOf(sessionDataBean.getUserId()), jobStatusListener);
 		this.serviceInformationObject =serviceInformationObject;
 		this.csvFileInputStream = csvFileInputStream;
 		this.bulkOperationClass = bulkOperationClass;
+		this.sessionDataBean = sessionDataBean;
 	}
 
 	@Override
@@ -37,7 +40,7 @@ public class BulkOperatorJob extends AbstractJob
 		{
 			BulkOperationProcessController.getBulkOperationControllerInstance().
 					handleBulkOperationJob(this.csvFileInputStream, this.getJobData(), serviceInformationObject,
-							bulkOperationClass);
+							bulkOperationClass,sessionDataBean);
 		}
 		catch (Exception exp)
 		{

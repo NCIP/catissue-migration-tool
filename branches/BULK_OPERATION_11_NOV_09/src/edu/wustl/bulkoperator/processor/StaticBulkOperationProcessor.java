@@ -6,6 +6,7 @@ import java.util.Map;
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.util.logger.Logger;
@@ -28,7 +29,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		return null;
 	}
 
-	public Object process(Map<String, String> csvData, int csvRowNumber)
+	public Object process(Map<String, String> csvData, int csvRowNumber, HookingInformation hookingInformation)
 			throws BulkOperationException, Exception
 	{
 		Object staticObject = null;
@@ -42,28 +43,28 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			{
 				String hql = BulkOperationUtility.createHQL(bulkOperationClass, csvData);
 
-				staticObject = bulkOprAppService.search(hql);			
+				staticObject = bulkOprAppService.search(hql);
 				if (staticObject == null)
 				{
-					throw new BulkOperationException("Could not find the specified data in the database.");					
+					throw new BulkOperationException("Could not find the specified data in the database.");
 				}
 				else
 				{
-					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
-					try
+					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber, hookingInformation);
+					/*try
 					{
 						bulkOprAppService.update(staticObject);
 					}
 					catch (BulkOperationException bulkOprExp)
 					{
 						throw bulkOprExp;
-					}
+ 					}*/
 				}
 			}
 			else
 			{
 				staticObject = getEntityObject(csvData);
-				processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
+				processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber,hookingInformation);
 				bulkOprAppService.insert(staticObject);
 			}
 		}

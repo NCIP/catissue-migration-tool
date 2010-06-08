@@ -131,7 +131,7 @@ public class BulkOperationUtility
 	public static BulkOperationClass checkForDEObject(BulkOperationClass bulkOperationClass)
 	{
 		Iterator<BulkOperationClass> DEAssoIterator = bulkOperationClass.
-		getDEAssociationCollection().iterator();
+		getDynExtEntityAssociationCollection().iterator();
 		while (DEAssoIterator.hasNext())
 		{
 			return DEAssoIterator.next();
@@ -142,10 +142,10 @@ public class BulkOperationUtility
 		while (containmentAssoIterator.hasNext())
 		{
 			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
-			if(containmentBulkOperationClass.getDEAssociationCollection() != null &&
-					!containmentBulkOperationClass.getDEAssociationCollection().isEmpty())
+			if(containmentBulkOperationClass.getDynExtEntityAssociationCollection() != null &&
+					!containmentBulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
 			{
-				return containmentBulkOperationClass.getDEAssociationCollection().iterator().next();
+				return containmentBulkOperationClass.getDynExtEntityAssociationCollection().iterator().next();
 			}
 			else
 			{
@@ -157,10 +157,10 @@ public class BulkOperationUtility
 		while (referenceAssoIterator.hasNext())
 		{
 			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
-			if(referenceBulkOperationClass.getDEAssociationCollection() != null &&
-					!referenceBulkOperationClass.getDEAssociationCollection().isEmpty())
+			if(referenceBulkOperationClass.getDynExtEntityAssociationCollection() != null &&
+					!referenceBulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
 			{
-				return referenceBulkOperationClass.getDEAssociationCollection().iterator().next();
+				return referenceBulkOperationClass.getDynExtEntityAssociationCollection().iterator().next();
 			}
 			else
 			{
@@ -173,7 +173,7 @@ public class BulkOperationUtility
 	public static BulkOperationClass checkForCategoryObject(BulkOperationClass bulkOperationClass)
 	{
 		Iterator<BulkOperationClass> categoryAssoIterator = bulkOperationClass.
-		getCategoryAssociationCollection().iterator();
+		getDynExtCategoryAssociationCollection().iterator();
 		while (categoryAssoIterator.hasNext())
 		{
 			return categoryAssoIterator.next();
@@ -184,10 +184,10 @@ public class BulkOperationUtility
 		while (containmentAssoIterator.hasNext())
 		{
 			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
-			if(containmentBulkOperationClass.getCategoryAssociationCollection() != null &&
-					!containmentBulkOperationClass.getCategoryAssociationCollection().isEmpty())
+			if(containmentBulkOperationClass.getDynExtCategoryAssociationCollection() != null &&
+					!containmentBulkOperationClass.getDynExtCategoryAssociationCollection().isEmpty())
 			{
-				return containmentBulkOperationClass.getCategoryAssociationCollection().iterator().next();
+				return containmentBulkOperationClass.getDynExtCategoryAssociationCollection().iterator().next();
 			}
 			else
 			{
@@ -199,10 +199,10 @@ public class BulkOperationUtility
 		while (referenceAssoIterator.hasNext())
 		{
 			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
-			if(referenceBulkOperationClass.getCategoryAssociationCollection() != null &&
-					!referenceBulkOperationClass.getCategoryAssociationCollection().isEmpty())
+			if(referenceBulkOperationClass.getDynExtCategoryAssociationCollection() != null &&
+					!referenceBulkOperationClass.getDynExtCategoryAssociationCollection().isEmpty())
 			{
-				return referenceBulkOperationClass.getCategoryAssociationCollection().iterator().next();
+				return referenceBulkOperationClass.getDynExtCategoryAssociationCollection().iterator().next();
 			}
 			else
 			{

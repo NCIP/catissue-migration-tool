@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
-import edu.wustl.bulkoperator.HookingObjectInformation;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.processor.IDynamicBulkOperationProcessor;
-import edu.wustl.bulkoperator.processor.IStaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.DataList;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
@@ -41,11 +41,11 @@ public class BulkOperationProcessController
 		}
 		return bulkOperationProcessController;
 	}
-	
-	
-	
+
+
+
 	public void handleBulkOperationJob(InputStream csvFileInputStream, JobData jobData,
-			AppServiceInformationObject serviceInformationObject, BulkOperationClass bulkOperationClass)
+			AppServiceInformationObject serviceInformationObject, BulkOperationClass bulkOperationClass, SessionDataBean sessionDataBean)
 		throws BulkOperationException
 	{
 		try
@@ -53,7 +53,7 @@ public class BulkOperationProcessController
 			Long startTime = BulkOperationUtility.getCurrentTimeInSeconds();
 
 			logger.debug("In Bulk Operation controller handle BO Job method");
-			IStaticBulkOperationProcessor staticBulkOprProcessor = null;
+			StaticBulkOperationProcessor staticBulkOprProcessor = null;
 			staticBulkOprProcessor = new StaticBulkOperationProcessor(
 					bulkOperationClass, serviceInformationObject);
 
@@ -61,7 +61,7 @@ public class BulkOperationProcessController
 					.getInstance().getAllDynamicBulkOperationProcessor(bulkOperationClass,
 							serviceInformationObject);
 			process(staticBulkOprProcessor, dynamicBulkOprProcessorList,startTime,
-					csvFileInputStream, jobData);
+					csvFileInputStream, jobData,sessionDataBean);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -70,16 +70,16 @@ public class BulkOperationProcessController
 	}
 
 	public void process(
-			IStaticBulkOperationProcessor staticBulkOprProcessor,
+			StaticBulkOperationProcessor staticBulkOprProcessor,
 			List<IDynamicBulkOperationProcessor> dynBulkOprProcessorList,
-			long startTime, InputStream csvInputStream, JobData jobData)
+			long startTime, InputStream csvInputStream, JobData jobData, SessionDataBean sessionDataBean)
 			throws BulkOperationException
 	{
 		Object staticDomainObject = null;
 		int failureCount = 0, successCount = 0, currentCSVRowCount = 0;
 		try
 		{
-			StaticBulkOperationProcessor staticProcessor = (StaticBulkOperationProcessor) staticBulkOprProcessor;
+			StaticBulkOperationProcessor staticProcessor = staticBulkOprProcessor;
 			int batchSize = getBatchSize(staticProcessor.getBulkOperationClass());
 			CSVReader reader = BulkOperationUtility.getDataReader(csvInputStream);
 			DataList dataList = BulkOperationUtility.readCSVColumnNames(reader);
@@ -90,27 +90,27 @@ public class BulkOperationProcessController
 				{
 					dataList = BulkOperationUtility.readCSVDataRow(newValues, dataList);
 					Map<String, String> csvData = dataList.getValue(currentCSVRowCount);
-	
-					staticDomainObject = staticBulkOprProcessor.process(csvData, currentCSVRowCount);
+					HookingInformation hookingInformation = new HookingInformation();;
+					staticDomainObject = staticBulkOprProcessor.process(csvData, currentCSVRowCount, hookingInformation);
 					if (!dynBulkOprProcessorList.isEmpty())
 					{
+						hookingInformation.setStaticObject(staticDomainObject);
+						hookingInformation.setSessionDataBean(sessionDataBean);
 						Iterator<IDynamicBulkOperationProcessor> iterator =
 							dynBulkOprProcessorList.iterator();
 						while (iterator.hasNext())
 						{
-							HookingObjectInformation hookingObjectInfo = new HookingObjectInformation(
-									staticDomainObject);
 							IDynamicBulkOperationProcessor dynProcessorInterface = iterator
 									.next();
 							dynProcessorInterface.process(csvData,
-									currentCSVRowCount, hookingObjectInfo);
+									currentCSVRowCount, hookingInformation);
 						}
 					}
 					dataList.addStatusMessage(currentCSVRowCount, "Success", " ",
 							String.valueOf(staticProcessor.getBulkOperationClass().invokeGetIdMethod(
 									staticDomainObject)));
 					successCount++;
-				}			
+				}
 				catch (BulkOperationException exp)
 				{
 					failureCount++;
@@ -200,5 +200,5 @@ public class BulkOperationProcessController
 			logger.error(exp.getMessage(), exp);
 			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
 		}
-	}	
+	}
 }

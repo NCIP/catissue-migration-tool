@@ -11,7 +11,7 @@ import java.util.Set;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -31,9 +31,9 @@ public class TemplateValidator
 	/**
 	 * errorList of ArrayList format containing error messages in String format.
 	 */
-	private transient List<String> errorList = new ArrayList<String>();
+	private transient final List<String> errorList = new ArrayList<String>();
 	private transient int globalRecordsCount = 0;
-	private transient boolean isDiscriminator = false;
+	private transient final boolean isDiscriminator = false;
 
 	/**
 	 * Validate Xml And Csv.
@@ -57,17 +57,17 @@ public class TemplateValidator
 				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
 						null);
 				staticProcessor.processObject(domainObject, bulkOperationClass, dataList.getValue(0),
-						"", true, 0);
-				BulkOperationClass DEBulkOperationClass = BulkOperationUtility.checkForDEObject(bulkOperationClass);
-				if(DEBulkOperationClass != null)
+						"", true, 0,null);
+				BulkOperationClass dynExtEntityBulkOperationClass = BulkOperationUtility.checkForDEObject(bulkOperationClass);
+				if(dynExtEntityBulkOperationClass != null)
 				{
-					Object DEdomainObject = DEBulkOperationClass.getClassObject().getConstructor().newInstance(
+					Object dynExtEntityDomainObject = dynExtEntityBulkOperationClass.getClassObject().getConstructor().newInstance(
 							null);
 					DynEntityBulkOperationProcessor deProcessor =
-						new DynEntityBulkOperationProcessor(DEBulkOperationClass, null);
-					deProcessor.processObject(DEdomainObject, DEBulkOperationClass, dataList.getValue(0),
-							"", true, 0);
-					checkForContainerID(DEBulkOperationClass, DEdomainObject);
+						new DynEntityBulkOperationProcessor(dynExtEntityBulkOperationClass, null);
+					deProcessor.processObject(dynExtEntityDomainObject, dynExtEntityBulkOperationClass, dataList.getValue(0),
+							"", true, 0,null);
+					checkForContainerID(dynExtEntityBulkOperationClass, dynExtEntityDomainObject);
 				}
 				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility.checkForCategoryObject(bulkOperationClass);
 				if(categoryBulkOperationClass != null)
@@ -85,23 +85,16 @@ public class TemplateValidator
 				logger.debug(exp.getMessage(), exp);
 				ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
 				throw new BulkOperationException(errorKey, exp, exp.getMessage());
-			}			
+			}
 		}
 		return new HashSet<String>(errorList);
 	}
-	
+
 	private void checkForContainerID(BulkOperationClass DEBulkOperationClass, Object DEdomainObject)
 	{
-		if(DEBulkOperationClass.getContainerId() == null)
+		if(((List<HookingInformation>)DEBulkOperationClass.getHookingInformation()).get(0).getContainerId() == null)
 		{
 			checkForNullData(DEBulkOperationClass, "containerId");
-		}
-		else if(DEBulkOperationClass.getContainerId() <= 0)
-		{
-			logger.error("The 'containerID' value mentioned for " + DEBulkOperationClass.getClassName()
-				+ " is incorrect. The value should be greater than '0'.");
-			errorList.add("The 'containerID' value mentioned for " + DEBulkOperationClass.getClassName()
-				+ " is incorrect. The value should be greater than '0'.");
 		}
 	}
 
@@ -284,14 +277,16 @@ public class TemplateValidator
 			validateContainmentReference(operationName, referenceClassList, csvColumnNames,
 					maxRowNumbers);
 		}
-		if (bulkOperationClass.getDEAssociationCollection() != null
-				&& !bulkOperationClass.getDEAssociationCollection().isEmpty())
+		if (bulkOperationClass.getDynExtEntityAssociationCollection() != null
+				&& !bulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
 		{
-			Collection<BulkOperationClass> DEAssociationClassList = bulkOperationClass
-					.getDEAssociationCollection();
-			validateContainmentReference(operationName, DEAssociationClassList, csvColumnNames,
+			Collection<BulkOperationClass> dynExtEntityAssociationClassList = bulkOperationClass
+					.getDynExtEntityAssociationCollection();
+			validateContainmentReference(operationName, dynExtEntityAssociationClassList, csvColumnNames,
 					maxRowNumbers);
 		}
+		//category
+		//hookinginformation
 	}
 
 	/**
