@@ -19,7 +19,7 @@ public class BulkOperationClass
 {
 
 	/**
-	 * 
+	 *
 	 */
 	private static Logger logger = Logger.getCommonLogger(BulkOperationClass.class);
 
@@ -31,14 +31,26 @@ public class BulkOperationClass
 	private String templateName;
 	private Integer maxNoOfRecords;
 	private Integer batchSize;
-	private Integer containerId;
 	private Long id;
 	private Class klass;
 	private Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
-	private Collection<BulkOperationClass> DEAssociationCollection = new ArrayList<BulkOperationClass>();
-	private Collection<BulkOperationClass> categoryAssociationCollection = new ArrayList<BulkOperationClass>();
+	private Collection<BulkOperationClass> dynExtEntityAssociationCollection = new ArrayList<BulkOperationClass>();
+	private Collection<BulkOperationClass> dynExtCategoryAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
+	private Collection<HookingInformation> hookingInformation = new ArrayList<HookingInformation>();
+
+
+
+	public void setHookingInformation(Collection<HookingInformation> hookingInformation)
+	{
+		this.hookingInformation = hookingInformation;
+	}
+
+	public Collection<HookingInformation> getHookingInformation()
+	{
+		return hookingInformation;
+	}
 
 	public Collection<Attribute> getAttributeCollection()
 	{
@@ -60,21 +72,11 @@ public class BulkOperationClass
 		this.templateName = templateName;
 	}
 
-	public Integer getContainerId()
-	{
-		return containerId;
-	}
-
-	public void setContainerId(Integer containerId)
-	{
-		this.containerId = containerId;
-	}
-	
 	public Long getId()
 	{
 		return id;
 	}
-	
+
 	public void setId(Long id)
 	{
 		this.id = id;
@@ -86,21 +88,22 @@ public class BulkOperationClass
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
-	public Collection<BulkOperationClass> getDEAssociationCollection()
+	public Collection<BulkOperationClass> getDynExtEntityAssociationCollection()
 	{
-		return DEAssociationCollection;
+		return dynExtEntityAssociationCollection;
 	}
 
 	/**
-	 * 
+	 *
 	 * @param associationCollection
 	 */
-	public void setDEAssociationCollection(Collection<BulkOperationClass> associationCollection)
+	public void setDynExtEntityAssociationCollection(
+			Collection<BulkOperationClass> associationCollection)
 	{
-		DEAssociationCollection = associationCollection;
+		dynExtEntityAssociationCollection = associationCollection;
 	}
 
 	/**
@@ -195,17 +198,18 @@ public class BulkOperationClass
 	{
 		this.maxNoOfRecords = maxNoOfRecords;
 	}
-	public Collection<BulkOperationClass> getCategoryAssociationCollection()
+
+	public Collection<BulkOperationClass> getDynExtCategoryAssociationCollection()
 	{
-		return categoryAssociationCollection;
+		return dynExtCategoryAssociationCollection;
 	}
 
-	
-	public void setCategoryAssociationCollection(
-			Collection<BulkOperationClass> categoryAssociationCollection)
+	public void setDynExtCategoryAssociationCollection(
+			Collection<BulkOperationClass> dynExtCategoryAssociationCollection)
 	{
-		this.categoryAssociationCollection = categoryAssociationCollection;
+		this.dynExtCategoryAssociationCollection = dynExtCategoryAssociationCollection;
 	}
+
 	public boolean isUpdateOperation()
 	{
 		boolean isUpdateOperation = false;
@@ -222,8 +226,8 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(Map<String, String> valueList,
-			String columnSuffix) throws BulkOperationException
+	public Object getClassDiscriminator(Map<String, String> valueList, String columnSuffix)
+			throws BulkOperationException
 	{
 		Object object = null;
 		try
@@ -265,53 +269,56 @@ public class BulkOperationClass
 	}
 
 	/**
-	 * 
+	 *
 	 * @param bulkOperationclass
 	 * @return
 	 * @throws BulkOperationException
 	 */
-	public boolean checkForDEAssociationCollectionTag(BulkOperationClass bulkOperationclass)
-		throws BulkOperationException
+	public boolean checkForDynEntityAssociationCollectionTag(
+			BulkOperationClass bulkOperationclass) throws BulkOperationException
 	{
-		boolean isDEObjectPresent = false;
+		boolean isDynExtEntityPresent = false;
 		try
 		{
-			Collection<BulkOperationClass> DEAssociationCollection = getDEAssociationCollection();
-			if(DEAssociationCollection != null &&
-					!DEAssociationCollection.isEmpty())
+			Collection<BulkOperationClass> dynEntityAssociationCollection = getDynExtEntityAssociationCollection();
+			if (dynEntityAssociationCollection != null
+					&& !dynEntityAssociationCollection.isEmpty())
 			{
-				isDEObjectPresent = true;
+				isDynExtEntityPresent = true;
 			}
 		}
 		catch (Exception exp)
 		{
-			logger.debug("Error in Checking For DEAssociationCollection Tag. " + exp.getMessage(), exp);
+			logger.debug("Error in Checking For DynExtEntityAssociationCollection Tag. "
+					+ exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.checking.deassociation");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
-		return isDEObjectPresent;
+		return isDynExtEntityPresent;
 	}
-	public boolean checkForCategoryAssociationCollectionTag(BulkOperationClass bulkOperationclass)
-	throws BulkOperationException
+
+	public boolean checkForDynExtCategoryAssociationCollectionTag(BulkOperationClass bulkOperationclass)
+			throws BulkOperationException
 	{
 		boolean isCategoryObjectPresent = false;
 		try
 		{
-			Collection<BulkOperationClass> categoryAssociationCollection = getCategoryAssociationCollection();
-			if(categoryAssociationCollection != null &&
-					!categoryAssociationCollection.isEmpty())
+			Collection<BulkOperationClass> categoryAssociationCollection = getDynExtCategoryAssociationCollection();
+			if (categoryAssociationCollection != null && !categoryAssociationCollection.isEmpty())
 			{
 				isCategoryObjectPresent = true;
 			}
 		}
 		catch (Exception exp)
 		{
-			logger.debug("Error in Checking For categoryAssociationCollection Tag. " + exp.getMessage(), exp);
+			logger.debug("Error in Checking For categoryAssociationCollection Tag. "
+					+ exp.getMessage(), exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.checking.deassociation");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
 		return isCategoryObjectPresent;
 	}
+
 	public Class getClassObject() throws BulkOperationException
 	{
 		try
@@ -324,7 +331,8 @@ public class BulkOperationClass
 		catch (ClassNotFoundException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return klass;
@@ -340,7 +348,8 @@ public class BulkOperationClass
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return returnObject;
@@ -355,7 +364,7 @@ public class BulkOperationClass
 			String functionName = BulkOperationUtility.getGetterFunctionName(roleName);
 			returnObject = Class.forName(className).getMethod(functionName, parameterTypes).invoke(
 					objectOnWhichMethodToInvoke, args);
-			if(returnObject instanceof HibernateProxy)
+			if (returnObject instanceof HibernateProxy)
 			{
 				returnObject = HibernateMetaData.getProxyObjectImpl(returnObject);
 			}
@@ -363,7 +372,8 @@ public class BulkOperationClass
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 		return returnObject;
@@ -396,25 +406,28 @@ public class BulkOperationClass
 				catch (Exception e2)
 				{
 					logger.debug(e2.getMessage(), e2);
-					ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+					ErrorKey errorkey = ErrorKey
+							.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 					throw new BulkOperationException(errorkey, e, e2.getMessage());
 				}
 			}
 			catch (Exception e4)
 			{
 				logger.debug(e4.getMessage(), e4);
-				ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+				ErrorKey errorkey = ErrorKey
+						.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 				throw new BulkOperationException(errorkey, e, e4.getMessage());
 			}
 		}
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 	}
-	
+
 	public Long invokeGetIdMethod(Object objectOnWhichMethodToInvoke) throws BulkOperationException
 	{
 		Long identifier = null;
