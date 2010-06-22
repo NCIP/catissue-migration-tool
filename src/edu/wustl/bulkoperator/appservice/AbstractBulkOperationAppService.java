@@ -2,6 +2,7 @@
 package edu.wustl.bulkoperator.appservice;
 
 import java.lang.reflect.Constructor;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +80,7 @@ public abstract class AbstractBulkOperationAppService
 
 	public List<Object> hookStaticDEObject(Object hookingInformationObject) throws Exception
 	{
-		return hookStaticDynExtObject(hookingInformationObject);		
+		return hookStaticDynExtObject(hookingInformationObject);
 	}
 
 	abstract protected Object insertObject(Object obj) throws Exception;
@@ -93,7 +94,7 @@ public abstract class AbstractBulkOperationAppService
 	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
 
 	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
-	
-	abstract public Long insertData(final Long categoryId,final Map<Long, Object> dataValue)
+
+	abstract public Long insertData(final Long categoryId,final Map<Long, Object> dataValue,Date encounterDate)
 			throws Exception;
 }
