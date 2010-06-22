@@ -47,7 +47,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			Map<Long, Object> categoryDataValueMap = (Map<Long, Object>) dynExtObject;
 
 			Long recordId = bulkOprAppService.insertData(bulkOperationClass.getId(),
-					categoryDataValueMap);
+					categoryDataValueMap,hookingObjectInformation.getEncounterDate());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setStaticObject(hookingObjectInformation.getStaticObject());
 			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation.getSessionDataBean());
