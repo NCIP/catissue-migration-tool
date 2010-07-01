@@ -51,14 +51,14 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				else
 				{
 					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber, hookingInformation);
-					/*try
+					try
 					{
 						bulkOprAppService.update(staticObject);
 					}
 					catch (BulkOperationException bulkOprExp)
 					{
 						throw bulkOprExp;
- 					}*/
+ 					}
 				}
 			}
 			else
