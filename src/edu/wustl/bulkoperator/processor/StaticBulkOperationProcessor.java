@@ -6,7 +6,6 @@ import java.util.Map;
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.util.logger.Logger;
@@ -29,7 +28,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		return null;
 	}
 
-	public Object process(Map<String, String> csvData, int csvRowNumber, HookingInformation hookingInformation)
+	public Object process(Map<String, String> csvData, int csvRowNumber)
 			throws BulkOperationException, Exception
 	{
 		Object staticObject = null;
@@ -50,7 +49,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				}
 				else
 				{
-					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber, hookingInformation);
+					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
 					try
 					{
 						bulkOprAppService.update(staticObject);
@@ -64,7 +63,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			else
 			{
 				staticObject = getEntityObject(csvData);
-				processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber,hookingInformation);
+				processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
 				bulkOprAppService.insert(staticObject);
 			}
 		}

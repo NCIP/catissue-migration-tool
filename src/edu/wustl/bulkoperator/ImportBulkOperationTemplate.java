@@ -93,11 +93,11 @@ public class ImportBulkOperationTemplate
 		try
 		{
 			/*System.setProperty("config.dir", "clinportal-properties");
-			String operationName = "C";
-			String dropdownName = "C";
-			String csvFile = "F:/Bulk/categoryLabInfo.csv";
-			String xmlFile = "F:/Bulk/ClinLabInfo.xml";*/
-			validateParameters(args);
+			String operationName = "STIR_3monthFollowupSurvey";
+			String dropdownName = "STIR_3monthFollowupSurvey";
+			String csvFile = "D:/E/Bulk Data Files/NEC_maternal_data 2.0.csv";
+			String xmlFile = "D:/E/Bulk/NEC_maternal_data 2.xml";*/
+			//validateParameters(args);
 			String operationName = args[0];
 			String dropdownName = args[1];
 			String csvFile = args[2];

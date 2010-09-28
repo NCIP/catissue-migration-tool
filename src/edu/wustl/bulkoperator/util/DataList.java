@@ -161,7 +161,14 @@ public class DataList
 				
 				for(int j=0;j<headerListSize;j++)
 				{
-					line.append(valueTable.get(headerList.get(j))+",");
+					if(valueTable.get(headerList.get(j)).contains(","))
+					{
+						line.append("\"" + valueTable.get(headerList.get(j))+"\"" + ",");
+					}
+					else
+					{
+						line.append(valueTable.get(headerList.get(j))+",");
+					}
 				}
 				line.deleteCharAt(line.length()-1);
 				line.append("\n");

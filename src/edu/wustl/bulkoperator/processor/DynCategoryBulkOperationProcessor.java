@@ -35,23 +35,22 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			HookingInformation hookingObjectInformation) throws BulkOperationException,
 			Exception
 	{
-		Object dynExtObject = new HashMap<Long, Object>();
 
+		HashMap<String,Object> dynExtObject=new HashMap<String, Object>();
+		Long recordId=null;
 		try
 		{
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService
 					.getInstance(serviceInformationObject.getServiceImplementorClassName(), true,
 							serviceInformationObject.getUserName(), null);
-			processObject(dynExtObject, bulkOperationClass, csvData, "", false, csvRowCounter,hookingObjectInformation);
+			processObject(dynExtObject, bulkOperationClass, csvData, "", false, csvRowCounter);
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
-			Map<Long, Object> categoryDataValueMap = (Map<Long, Object>) dynExtObject;
-
-			Long recordId = bulkOprAppService.insertData(bulkOperationClass.getId(),
-					categoryDataValueMap,hookingObjectInformation.getEncounterDate());
+			getinformationForHookingData(csvData,hookingInformationFromTag);
+			recordId = bulkOprAppService.insertData(bulkOperationClass.getClassName(),
+					dynExtObject);
+			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
-			hookingInformationFromTag.setStaticObject(hookingObjectInformation.getStaticObject());
 			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation.getSessionDataBean());
-			hookingInformationFromTag.setEncounterDate(hookingObjectInformation.getEncounterDate());
 			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
@@ -64,7 +63,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			logger.error(exp.getMessage(), exp);
 			throw exp;
 		}
-		return dynExtObject;
+		return recordId;
 	}
 
 	@Override
@@ -75,12 +74,12 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 
 	protected void setValueToObject(Object mainObj, BulkOperationClass mainMigrationClass,
 			Map<String, String> csvData, String columnSuffix, boolean validate,
-			Attribute attribute, Class dataTypeClass,HookingInformation hookingInformation) throws BulkOperationException
+			Attribute attribute, Class dataTypeClass) throws BulkOperationException
 	{
 		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
 		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate);
-		Map<Long, Object> categoryDataValueMap = (Map<Long, Object>) mainObj;
-		categoryDataValueMap.put(attribute.getId(), attributeValue);
+		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
+		categoryDataValueMap.put(attribute.getName(), attributeValue);
 	}
 
 	/**
@@ -93,12 +92,12 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 	 * @throws BulkOperationException
 	 */
 	protected void processContainments(Object mainObj, BulkOperationClass bulkOperationClass,
-			Map<String, String> csvData, String columnSuffix, boolean validate, int csvRowNumber,HookingInformation hookingInformation)
+			Map<String, String> csvData, String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException
 	{
 		try
 		{
-			Map<Long, Object> categoryDataValueMap = (Map<Long, Object>) mainObj;
+			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
 
 			Iterator<BulkOperationClass> containmentItert = bulkOperationClass
 					.getContainmentAssociationCollection().iterator();
@@ -120,20 +119,21 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 						{
 							Object obj = new HashMap<Long, Object>();
 							processObject(obj, containmentObjectCollection, csvData, columnSuffix
-									+ "#" + i, validate, csvRowNumber,hookingInformation);
+									+ "#" + i, validate, csvRowNumber);
 							list.add((Map<Long, Object>) obj);
 						}
-						categoryDataValueMap.put(containmentObjectCollection.getId(), list);
+						categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
 					}
 				}
 				else if (cardinality != null && cardinality.equals("1"))
 				{
 					List<Map<Long, Object>> list = new ArrayList<Map<Long, Object>>();
 					Object obj = new HashMap<Long, Object>();
-					processObject(obj, containmentObjectCollection, csvData, "", false, csvRowNumber,hookingInformation);
+					processObject(obj, containmentObjectCollection, csvData, columnSuffix
+							+ "#" + 1, false, csvRowNumber);
 
 					list.add((Map<Long, Object>) obj);
-					categoryDataValueMap.put(containmentObjectCollection.getId(), list);
+					categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
 				}
 			}
 		}
