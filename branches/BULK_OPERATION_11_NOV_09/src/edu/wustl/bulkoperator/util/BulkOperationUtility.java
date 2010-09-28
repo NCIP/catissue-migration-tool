@@ -38,7 +38,7 @@ public class BulkOperationUtility
 	 */
 	private static final Logger logger = Logger.getCommonLogger(BulkOperationUtility.class);
 	/**
-	 * 
+	 *
 	 * @param bulkOperationclass
 	 * @param columnNameHashTable
 	 * @return
@@ -85,7 +85,6 @@ public class BulkOperationUtility
 				}
 			}
 		}
-		logger.info("---------- " + hql + " --------------");
 		return hql.toString();
 	}
 
@@ -122,9 +121,9 @@ public class BulkOperationUtility
 		}
 		return attributeList;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 * @return
 	 */
@@ -169,7 +168,7 @@ public class BulkOperationUtility
 		}
 		return null;
 	}
-	
+
 	public static BulkOperationClass checkForCategoryObject(BulkOperationClass bulkOperationClass)
 	{
 		Iterator<BulkOperationClass> categoryAssoIterator = bulkOperationClass.
@@ -212,7 +211,7 @@ public class BulkOperationUtility
 		return null;
 	}
 	/**
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -262,9 +261,9 @@ public class BulkOperationUtility
 	}
 
 	/**
-	 * @param query 
+	 * @param query
 	 * String , query whose result is to be evaluate
-	 * @return result set 
+	 * @return result set
 	 */
 	public static Properties getMigrationInstallProperties()
 	{
@@ -287,7 +286,7 @@ public class BulkOperationUtility
 	}
 
 	/**
-	 * 
+	 *
 	 * @param csvFile
 	 * @param zipFileName
 	 * @return
@@ -297,7 +296,7 @@ public class BulkOperationUtility
 	{
 		File zipFile = null;
 		try
-		{		
+		{
 			if (!csvFile.exists())
 			{
 				throw new FileNotFoundException("CSV File Not Found");
@@ -338,7 +337,7 @@ public class BulkOperationUtility
 		return zipFile;
 	}
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public static String getUniqueKey()
@@ -357,7 +356,7 @@ public class BulkOperationUtility
 	{
 		String fileName = System.getProperty("bulkoperator.appservice.class");
 		Properties properties = BulkOperationUtility.getPropertiesFile(fileName);
-		return properties.getProperty(BulkOperationConstants.BULK_OPERATION_APPSERVICE_CLASSNAME);		
+		return properties.getProperty(BulkOperationConstants.BULK_OPERATION_APPSERVICE_CLASSNAME);
 	}
 	/**
 	 * Get Install Properties file.
@@ -378,7 +377,7 @@ public class BulkOperationUtility
 			throw new BulkOperationException(errorkey, fnfException, propertiesFileName);
 		}
 		catch (IOException ioException)
-		{			
+		{
 			logger.debug("Error while accessing " + propertiesFileName + " file.", ioException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
 			throw new BulkOperationException(errorkey, ioException, propertiesFileName);
@@ -398,7 +397,7 @@ public class BulkOperationUtility
 	}
 	/**
 	 * This method will change the Bulk Operation status from In Progress
-	 * to Failed. The method should be called whenever the application 
+	 * to Failed. The method should be called whenever the application
 	 * server and stops.
 	 * @param sessionData SessionDataBean
 	 */
@@ -422,7 +421,7 @@ public class BulkOperationUtility
 			throw daoExp;
 		}
 	}
-	
+
 	public static boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
 			Map<String, String> csvData)
 	{
@@ -440,7 +439,7 @@ public class BulkOperationUtility
 		}
 		return hasValue;
 	}
-	
+
 	public static boolean checkIfColumnHasAValue(int index, String headerName, Map<String, String> csvData)
 	{
 		boolean hasValue = false;
@@ -451,7 +450,7 @@ public class BulkOperationUtility
 		}
 		return hasValue;
 	}
-	
+
 	public static CSVReader getDataReader(InputStream csvFileInputStream) throws BulkOperationException
 	{
 		CSVReader reader = null;
@@ -498,7 +497,7 @@ public class BulkOperationUtility
 		}
 		return dataList;
 	}
-	
+
 	public static DataList readCSVDataRow(String[] csvColumnValues, DataList dataList)
 		throws BulkOperationException
 	{
@@ -509,10 +508,10 @@ public class BulkOperationUtility
 			for(int m = 0; m < newValues.length; m++)
 			{
 				newValues[m] = new String();
-			}			
+			}
 			for(int j = 0; j < csvColumnValues.length; j++)
 			{
-				newValues[j] = csvColumnValues[j]; 
+				newValues[j] = csvColumnValues[j];
 			}
 			dataList.addNewValue(newValues);
 		}
@@ -534,9 +533,9 @@ public class BulkOperationUtility
 		try
 		{
 			bulkOprProp = System.getProperties();
-			String configDirectory = bulkOprProp.getProperty(BulkOperationConstants.CONFIG_DIR);			
+			String configDirectory = bulkOprProp.getProperty(BulkOperationConstants.CONFIG_DIR);
 			FileInputStream propFile = new FileInputStream(
-					"./" + configDirectory + "/" + BulkOperationConstants.BULKOPERATION_INSTALL_PROPERTIES);		
+					"./" + configDirectory + "/" + BulkOperationConstants.BULKOPERATION_INSTALL_PROPERTIES);
 			bulkOprProp.load(propFile);
 		}
 		catch (FileNotFoundException fnfException)
@@ -546,7 +545,7 @@ public class BulkOperationUtility
 			throw new BulkOperationException(errorkey, fnfException, "bulkOperation.properties");
 		}
 		catch (IOException ioException)
-		{			
+		{
 			logger.debug("Error while accessing bulkOperation.properties file.", ioException);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.file.reading.error");
 			throw new BulkOperationException(errorkey, ioException, "bulkOperation.properties");

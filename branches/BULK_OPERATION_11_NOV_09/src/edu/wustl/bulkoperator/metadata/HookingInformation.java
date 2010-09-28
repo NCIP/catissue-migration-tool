@@ -1,24 +1,56 @@
 
 package edu.wustl.bulkoperator.metadata;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.wustl.common.beans.SessionDataBean;
 
 public class HookingInformation
 {
 	private Object staticObject;
-	private Long dynamicExtensionObjectId;
-	private Long containerId;
-	private String clinicalStudyTitle;
-	private String clinicalStudyEventLabel;
-	private String formLabel;
-	private Date encounterDate;
 	private SessionDataBean sessionDataBean;
+	private Long dynamicExtensionObjectId;
+	private Long rootContainerId;
+	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
+	private Map<String,Object> dataHookingInformation=new HashMap<String, Object>();
+	private String categoryName=null;
 
 
+	public String getCategoryName()
+	{
+		return categoryName;
+	}
 
 
+	public void setCategoryName(String categoryName)
+	{
+		this.categoryName = categoryName;
+	}
+
+	public Long getRootContainerId()
+	{
+		return rootContainerId;
+	}
+
+	public void setRootContainerId(Long rootContainerId)
+	{
+		this.rootContainerId = rootContainerId;
+	}
+
+
+	public Map<String, Object> getDataHookingInformation()
+	{
+		return dataHookingInformation;
+	}
+
+
+	public void setDataHookingInformation(Map<String, Object> map)
+	{
+		this.dataHookingInformation = map;
+	}
 
 	public HookingInformation()
 	{
@@ -45,26 +77,6 @@ public class HookingInformation
 		this.dynamicExtensionObjectId = dynamicExtensionObjectId;
 	}
 
-	public final Date getEncounterDate()
-	{
-		return encounterDate;
-	}
-
-	public final void setEncounterDate(Date encounterDate)
-	{
-		this.encounterDate = encounterDate;
-	}
-
-	public final Long getContainerId()
-	{
-		return containerId;
-	}
-
-	public final void setContainerId(Long containerId)
-	{
-		this.containerId = containerId;
-	}
-
 	public final Object getStaticObject()
 	{
 		return staticObject;
@@ -75,33 +87,13 @@ public class HookingInformation
 		this.staticObject = staticObject;
 	}
 
-	public final String getClinicalStudyTitle()
+	public Collection<Attribute> getAttributeCollection()
 	{
-		return clinicalStudyTitle;
+		return attributeCollection;
 	}
 
-	public final void setClinicalStudyTitle(String clinicalStudyTitle)
+	public void setAttributeCollection(Collection<Attribute> attributeCollection)
 	{
-		this.clinicalStudyTitle = clinicalStudyTitle;
-	}
-
-	public final String getClinicalStudyEventLabel()
-	{
-		return clinicalStudyEventLabel;
-	}
-
-	public final void setClinicalStudyEventLabel(String clinicalStudyEventLabel)
-	{
-		this.clinicalStudyEventLabel = clinicalStudyEventLabel;
-	}
-
-	public final String getFormLabel()
-	{
-		return formLabel;
-	}
-
-	public final void setFormLabel(String formLabel)
-	{
-		this.formLabel = formLabel;
+		this.attributeCollection = attributeCollection;
 	}
 }

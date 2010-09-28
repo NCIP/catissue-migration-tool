@@ -4,6 +4,7 @@ package edu.wustl.bulkoperator.validator;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
+import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -57,7 +59,7 @@ public class TemplateValidator
 				domainObject = bulkOperationClass.getClassObject().getConstructor().newInstance(
 						null);
 				staticProcessor.processObject(domainObject, bulkOperationClass, dataList.getValue(0),
-						"", true, 0,null);
+						"", true, 0);
 				BulkOperationClass dynExtEntityBulkOperationClass = BulkOperationUtility.checkForDEObject(bulkOperationClass);
 				if(dynExtEntityBulkOperationClass != null)
 				{
@@ -66,13 +68,29 @@ public class TemplateValidator
 					DynEntityBulkOperationProcessor deProcessor =
 						new DynEntityBulkOperationProcessor(dynExtEntityBulkOperationClass, null);
 					deProcessor.processObject(dynExtEntityDomainObject, dynExtEntityBulkOperationClass, dataList.getValue(0),
-							"", true, 0,null);
+							"", true, 0);
 					checkForContainerID(dynExtEntityBulkOperationClass, dynExtEntityDomainObject);
 				}
 				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility.checkForCategoryObject(bulkOperationClass);
 				if(categoryBulkOperationClass != null)
 				{
-					checkForContainerID(categoryBulkOperationClass, null);
+					HashMap<String,Object> dynExtObject=new HashMap<String, Object>();
+					DynCategoryBulkOperationProcessor deProcessor =
+						new DynCategoryBulkOperationProcessor(categoryBulkOperationClass, null);
+					deProcessor.processObject(dynExtObject, categoryBulkOperationClass, dataList.getValue(0),
+							"", true, 0);
+					HookingInformation hookingInformationFromTag=((List<HookingInformation>)categoryBulkOperationClass.getHookingInformation()).get(0);
+					Collection<Attribute> attributes=hookingInformationFromTag.getAttributeCollection();
+					for (Attribute attribute : attributes)
+					{
+						if(dataList.getValue(0).get(attribute.getCsvColumnName())==null)
+						{
+							logger
+							.error("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
+							errorList.add("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
+
+						}
+					}
 				}
 			}
 			catch (BulkOperationException bulkExp)
@@ -92,7 +110,7 @@ public class TemplateValidator
 
 	private void checkForContainerID(BulkOperationClass DEBulkOperationClass, Object DEdomainObject)
 	{
-		if(((List<HookingInformation>)DEBulkOperationClass.getHookingInformation()).get(0).getContainerId() == null)
+		if(((List<HookingInformation>)DEBulkOperationClass.getHookingInformation()).get(0).getRootContainerId() == null)
 		{
 			checkForNullData(DEBulkOperationClass, "containerId");
 		}

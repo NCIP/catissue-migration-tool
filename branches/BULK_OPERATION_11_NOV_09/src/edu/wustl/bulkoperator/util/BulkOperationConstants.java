@@ -52,4 +52,8 @@ public class BulkOperationConstants
 	public static final String MAIN_OBJECT_ID = "Main Object Id";
 	public static final String CONFIG_DIR = "config.dir";
 	public static final String ENCOUNTER_DATE = "encounterDate";
+	public static final String FORM_LABEL="formLabel";
+	public static final String CLINICAL_STUDY_EVENT_LABEL="clinicalStudyEventLabel";
+	public static final String CLINICAL_STUDY_TITLE="clinicalStudyTitle";
+	public static final String PARTICIPANT_ID="participantId";
 }

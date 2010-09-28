@@ -4,7 +4,7 @@ package edu.wustl.bulkoperator.processor;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -61,25 +61,25 @@ public abstract class AbstractBulkOperationProcessor
 	 */
 	public void processObject(Object mainObj, BulkOperationClass migrationClass,
 			Map<String, String> csvData, String columnSuffix, boolean validate,
-			int csvRowNumber,HookingInformation hookingInformation)
+			int csvRowNumber)
 			throws BulkOperationException
 	{
 		if (migrationClass.getAttributeCollection() != null
 				&& !migrationClass.getAttributeCollection().isEmpty())
 		{
-			processAttributes(mainObj, migrationClass, csvData, columnSuffix, validate,hookingInformation);
+			processAttributes(mainObj, migrationClass, csvData, columnSuffix, validate);
 		}
 
 		if (migrationClass.getContainmentAssociationCollection() != null
 				&& !migrationClass.getContainmentAssociationCollection().isEmpty())
 		{
-			processContainments(mainObj, migrationClass, csvData, columnSuffix, validate, csvRowNumber,hookingInformation);
+			processContainments(mainObj, migrationClass, csvData, columnSuffix, validate, csvRowNumber);
 		}
 
 		if (migrationClass.getReferenceAssociationCollection() != null
 				&& !migrationClass.getReferenceAssociationCollection().isEmpty())
 		{
-			processAssociations(mainObj, migrationClass, csvData, columnSuffix, validate, csvRowNumber,hookingInformation);
+			processAssociations(mainObj, migrationClass, csvData, columnSuffix, validate, csvRowNumber);
 		}
 	}
 
@@ -94,7 +94,7 @@ public abstract class AbstractBulkOperationProcessor
 	 */
 	protected void processContainments(Object mainObj, BulkOperationClass mainMigrationClass,
 			Map<String, String> csvData, String columnSuffix, boolean validate,
-			int csvRowNumber,HookingInformation hookingInformation) throws BulkOperationException
+			int csvRowNumber) throws BulkOperationException
 	{
 		try
 		{
@@ -140,7 +140,7 @@ public abstract class AbstractBulkOperationProcessor
 								}
 							}
 							processObject(containmentObject, containmentMigrationClass,
-									csvData, columnSuffix + "#" + i, validate, csvRowNumber,hookingInformation);
+									csvData, columnSuffix + "#" + i, validate, csvRowNumber);
 							if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
 									.equals(containmentMigrationClass.getClassName()))
 							{
@@ -184,7 +184,7 @@ public abstract class AbstractBulkOperationProcessor
 							containmentObject = constructor.newInstance();
 						}
 						processObject(containmentObject, containmentMigrationClass, csvData, columnSuffix,
-								validate, csvRowNumber,hookingInformation);
+								validate, csvRowNumber);
 						String roleName = containmentMigrationClass.getRoleName();
 						mainMigrationClass.invokeSetterMethod(roleName,
 								new Class[]{containmentObject.getClass()}, mainObj,
@@ -217,7 +217,7 @@ public abstract class AbstractBulkOperationProcessor
 	 */
 	private void processAssociations(Object mainObj, BulkOperationClass mainMigrationClass,
 			Map<String, String> csvData, String columnSuffix, boolean validate,
-			int csvRowNumber,HookingInformation hookingInformation) throws BulkOperationException
+			int csvRowNumber) throws BulkOperationException
 	{
 		try
 		{
@@ -264,7 +264,7 @@ public abstract class AbstractBulkOperationProcessor
 								}
 							}
 							processObject(referenceObject, associationMigrationClass, csvData, columnSuffix
-									+ "#" + i, validate, csvRowNumber,hookingInformation);
+									+ "#" + i, validate, csvRowNumber);
 							if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
 									.equals(associationMigrationClass.getClassName()))
 							{
@@ -307,7 +307,7 @@ public abstract class AbstractBulkOperationProcessor
 							associatedObject = constructor.newInstance();
 						}
 						processObject(associatedObject, associationMigrationClass, csvData, columnSuffix,
-								validate, csvRowNumber,hookingInformation);
+								validate, csvRowNumber);
 						String roleName = associationMigrationClass.getRoleName();
 						mainMigrationClass
 								.invokeSetterMethod(roleName, new Class[]{associatedObject
@@ -339,7 +339,7 @@ public abstract class AbstractBulkOperationProcessor
 	 * @throws BulkOperationException
 	 */
 	private void processAttributes(Object mainObj, BulkOperationClass mainMigrationClass,
-			Map<String, String> csvData, String columnSuffix, boolean validate,HookingInformation hookingInformation) throws BulkOperationException
+			Map<String, String> csvData, String columnSuffix, boolean validate) throws BulkOperationException
 	{
 		try
 		{
@@ -392,7 +392,7 @@ public abstract class AbstractBulkOperationProcessor
 							{
 								setValueToObject(mainObj, mainMigrationClass, csvData,
 										columnSuffix, validate, attribute,
-										dataTypeClass,hookingInformation);
+										dataTypeClass);
 							}
 						}//else if ends
 					}//null check if - else ends
@@ -415,17 +415,13 @@ public abstract class AbstractBulkOperationProcessor
 	protected void setValueToObject(Object mainObj,
 			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
 			String columnSuffix, boolean validate, Attribute attribute,
-			Class dataTypeClass,HookingInformation hookingInformation) throws BulkOperationException {
+			Class dataTypeClass) throws BulkOperationException {
 		String csvDataValue = csvData.get(attribute.getCsvColumnName()
 				+ columnSuffix);
 		Object attributeValue = attribute.getValueOfDataType(csvDataValue,
 				validate);
 		mainMigrationClass.invokeSetterMethod(attribute.getName(),
 				new Class[]{dataTypeClass}, mainObj, attributeValue);
-		if(hookingInformation!=null && BulkOperationConstants.ENCOUNTER_DATE.equals(attribute.getName()))
-		{
-			hookingInformation.setEncounterDate((Date)attributeValue);
-		}
 	}
 
 	/**
@@ -450,5 +446,23 @@ public abstract class AbstractBulkOperationProcessor
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
 			throw new BulkOperationException(errorkey, null, "");
 		}
+	}
+	protected void getinformationForHookingData(Map<String, String> csvData,HookingInformation hookingInformation) throws ClassNotFoundException, BulkOperationException
+	{
+		Iterator<Attribute> attributeItertor = hookingInformation.getAttributeCollection()
+		.iterator();
+		Map<String,Object> map=new HashMap<String, Object>();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+
+			if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName())))
+			{
+				String csvDataValue = csvData.get(attribute.getCsvColumnName());
+				Object attributeValue = attribute.getValueOfDataType(csvDataValue,false);
+				map.put(attribute.getName(), attributeValue);
+			}
+		}
+		hookingInformation.setDataHookingInformation(map);
 	}
 }
