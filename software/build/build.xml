@@ -797,18 +797,20 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 		<!-- you would want to use this value instead and you can get rid of the mkdir below
 		<property name="ivy-repo.base.dir" location="${software.dir}/../../ivy-repo"/>
 		-->
+		<copy  file="${dist.dir}/bulkoperator.zip" todir="${local.repo.dir}"/>
 		<mkdir dir="${user.home}/tmp"/>
 		<ivy-module-add2repo
 			ivy-repo.base.url="https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk"
 			ivy-repo.base.dir="${user.home}/tmp/ivy-repo"
 			ivy.add.org="gov.nih.nci.bulkoperation"
 			ivy.add.module="bulkoperation"
-			ivy.add.version="1.1.2.1"
+			ivy.add.version="2.0"
 			ivy.add.module.src.dir="${local.repo.dir}"
 			ivy.add.module.src.file.list="bulkoperator.jar,bulkoperator.zip"
 			ivy.add.xml.src.location="${local.repo.dir}/ivy.xml"
-
 			/>
+
+
 	</target>
 
 	<target name="database:prep" description="Copies db files with filtering">
