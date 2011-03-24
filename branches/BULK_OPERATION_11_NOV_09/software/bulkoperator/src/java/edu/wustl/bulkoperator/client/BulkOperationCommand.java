@@ -209,6 +209,9 @@ public class BulkOperationCommand
 					while(checkStatus(jobDetails.getStatus()));
 				}
 			}
+
+			bulkOperationService.logout(bulkOperationCommand.url);
+
 		}
 	}
 

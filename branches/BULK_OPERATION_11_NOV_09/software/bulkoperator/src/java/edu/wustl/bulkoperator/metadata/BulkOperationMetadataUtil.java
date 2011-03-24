@@ -18,6 +18,7 @@ import edu.wustl.common.util.logger.Logger;
 
 public class BulkOperationMetadataUtil
 {
+
 	/**
 	 * logger.
 	 */
@@ -28,14 +29,14 @@ public class BulkOperationMetadataUtil
 	{
 		BulkOperationMetaData bulkOperationMetaData = null;
 		try
-		{			
+		{
 			// -- Load a mapping file
 			Mapping mapping = new Mapping();
 			mapping.loadMapping(xmlMappingFile);
-			
+
 			Unmarshaller unmarshaller = new Unmarshaller(BulkOperationMetaData.class);
 			unmarshaller.setMapping(mapping);
-	
+			unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
 			// -- Read in the migration.xml using the mapping
 			FileReader fileReader = new FileReader(bulkOperationMetaDataXmlFile);
 			bulkOperationMetaData = (BulkOperationMetaData) unmarshaller.unmarshal(fileReader);
@@ -46,85 +47,97 @@ public class BulkOperationMetadataUtil
 			logger.debug(exp.getMessage(), exp);
 			//logger.info(exp.getMessage());
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (ValidationException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (IOException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (MappingException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		return bulkOperationMetaData;
 	}
-	
+
 	public BulkOperationMetaData unmarshall(InputSource bulkOperationMetaDataXml,
 			InputSource xmlMappingFile) throws BulkOperationException
-		{BulkOperationMetaData bulkOperationMetaData = null;
+	{
+		BulkOperationMetaData bulkOperationMetaData = null;
 		try
 		{
 			// -- Load a mapping file
 			Mapping mapping = new Mapping();
 			mapping.loadMapping(xmlMappingFile);
-			
+
 			Unmarshaller unmarshaller = new Unmarshaller(BulkOperationMetaData.class);
 			unmarshaller.setMapping(mapping);
-	
+			unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
+
 			// -- Read in the migration.xml using the mapping
-			
-			bulkOperationMetaData = (BulkOperationMetaData) unmarshaller.unmarshal(bulkOperationMetaDataXml);
+
+			bulkOperationMetaData = (BulkOperationMetaData) unmarshaller
+					.unmarshal(bulkOperationMetaDataXml);
 		}
 		catch (MarshalException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			//logger.info(exp.getMessage());
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (ValidationException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (MappingException exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
 		}
 		catch (Exception exp)
 		{
 			logger.debug(exp.getMessage(), exp);
 			String editedExceptionMsg = exp.getMessage().replaceAll(":", " ");
-			ErrorKey errorkey = ErrorKey.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
+			ErrorKey errorkey = ErrorKey
+					.getErrorKey(BulkOperationConstants.COMMON_ISSUES_ERROR_KEY);
 			throw new BulkOperationException(errorkey, exp, editedExceptionMsg);
-		}	
+		}
 		return bulkOperationMetaData;
 	}
 }

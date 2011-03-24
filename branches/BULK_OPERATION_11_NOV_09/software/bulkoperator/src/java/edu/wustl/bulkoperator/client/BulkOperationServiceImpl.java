@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -272,6 +273,34 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			postMethod.releaseConnection();
 		}
 		return jobMessage;
+	}
+
+	/**
+	 * Logout.
+	 *
+	 * @param url the url
+	 * @param applicationUserName the application user name
+	 * @param applicationUserPassword the application user password
+	 * @param keyStoreLocation the key store location
+	 *
+	 * @throws HttpException the http exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public void logout(String url) throws HttpException, IOException
+	{
+		setApplicationDetails(url,applicationUserName,
+				applicationUserPassword,keyStoreLocation);
+		PostMethod postMethod = new PostMethod(url+"/Logout.do");
+		try
+		{
+			postMethod.addParameter(USER_NAME, applicationUserName);
+			postMethod.addParameter(PASSWORD,applicationUserPassword);
+			client.executeMethod(postMethod);
+		}
+		finally
+		{
+			postMethod.releaseConnection();
+		}
 	}
 
 	/**

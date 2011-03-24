@@ -32,25 +32,26 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 	}
 
 	public Object process(Map<String, String> csvData, int csvRowCounter,
-			HookingInformation hookingObjectInformation) throws BulkOperationException,
-			Exception
+			HookingInformation hookingObjectInformation) throws BulkOperationException, Exception
 	{
 
-		HashMap<String,Object> dynExtObject=new HashMap<String, Object>();
-		Long recordId=null;
+		HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
+		Long recordId = null;
 		try
 		{
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService
 					.getInstance(serviceInformationObject.getServiceImplementorClassName(), true,
 							serviceInformationObject.getUserName(), null);
 			processObject(dynExtObject, bulkOperationClass, csvData, "", false, csvRowCounter);
-			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
-			getinformationForHookingData(csvData,hookingInformationFromTag);
-			recordId = bulkOprAppService.insertData(bulkOperationClass.getClassName(),
-					dynExtObject);
+			HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
+					.getHookingInformation()).get(0);
+			getinformationForHookingData(csvData, hookingInformationFromTag);
+			recordId = bulkOprAppService
+					.insertData(bulkOperationClass.getClassName(), dynExtObject);
 			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
-			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation.getSessionDataBean());
+			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
+					.getSessionDataBean());
 			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
@@ -77,10 +78,17 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			Attribute attribute, Class dataTypeClass) throws BulkOperationException
 	{
 		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
-		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
-				attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
 		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
-		categoryDataValueMap.put(attribute.getName(), attributeValue);
+		if (csvDataValue == null || "".equals(csvDataValue))
+		{
+			categoryDataValueMap.put(attribute.getName(), "");
+		}
+		else
+		{
+			Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+					attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
+			categoryDataValueMap.put(attribute.getName(), attributeValue);
+		}
 	}
 
 	/**
@@ -105,18 +113,15 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			while (containmentItert.hasNext())
 			{
 				BulkOperationClass containmentObjectCollection = containmentItert.next();
-				String cardinality = containmentObjectCollection.getCardinality();
-				if (cardinality != null && cardinality.equals("*"))
+				if (containmentObjectCollection.getCardinality() != null)
 				{
 					List<Map<Long, Object>> list = new ArrayList<Map<Long, Object>>();
 
 					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						List<String> attributeList = BulkOperationUtility.getAttributeList(
-								containmentObjectCollection, columnSuffix + "#" + i);
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(csvRowNumber,
-								attributeList, csvData) || validate)
+						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
+										columnSuffix + "#" + i,csvData))
 						{
 							Object obj = new HashMap<Long, Object>();
 							processObject(obj, containmentObjectCollection, csvData, columnSuffix
@@ -125,16 +130,6 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 						}
 						categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
 					}
-				}
-				else if (cardinality != null && cardinality.equals("1"))
-				{
-					List<Map<Long, Object>> list = new ArrayList<Map<Long, Object>>();
-					Object obj = new HashMap<Long, Object>();
-					processObject(obj, containmentObjectCollection, csvData, columnSuffix
-							+ "#" + 1, false, csvRowNumber);
-
-					list.add((Map<Long, Object>) obj);
-					categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
 				}
 			}
 		}

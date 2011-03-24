@@ -33,10 +33,12 @@ import edu.wustl.dao.exception.DAOException;
 
 public class BulkOperationUtility
 {
+
 	/**
 	 * logger Logger - Generic logger.
 	 */
 	private static final Logger logger = Logger.getCommonLogger(BulkOperationUtility.class);
+
 	/**
 	 *
 	 * @param bulkOperationclass
@@ -81,8 +83,7 @@ public class BulkOperationUtility
 		return hql.toString();
 	}
 
-	public static List<String> getAttributeList(BulkOperationClass bulkOperationClass,
-			String suffix)
+	public static List<String> getAttributeList(BulkOperationClass bulkOperationClass, String suffix)
 	{
 		List<String> attributeList = new ArrayList<String>();
 		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
@@ -98,8 +99,7 @@ public class BulkOperationUtility
 		while (containmentItert.hasNext())
 		{
 			BulkOperationClass containmentMigrationClass = containmentItert.next();
-			List<String> subAttributeList = getAttributeList(containmentMigrationClass,
-					suffix);
+			List<String> subAttributeList = getAttributeList(containmentMigrationClass, suffix);
 			attributeList.addAll(subAttributeList);
 		}
 
@@ -108,8 +108,7 @@ public class BulkOperationUtility
 		while (referenceItert.hasNext())
 		{
 			BulkOperationClass referenceMigrationClass = referenceItert.next();
-			List<String> subAttributeList = getAttributeList(referenceMigrationClass,
-					suffix);
+			List<String> subAttributeList = getAttributeList(referenceMigrationClass, suffix);
 			attributeList.addAll(subAttributeList);
 		}
 		return attributeList;
@@ -122,37 +121,41 @@ public class BulkOperationUtility
 	 */
 	public static BulkOperationClass checkForDEObject(BulkOperationClass bulkOperationClass)
 	{
-		Iterator<BulkOperationClass> DEAssoIterator = bulkOperationClass.
-		getDynExtEntityAssociationCollection().iterator();
+		Iterator<BulkOperationClass> DEAssoIterator = bulkOperationClass
+				.getDynExtEntityAssociationCollection().iterator();
 		while (DEAssoIterator.hasNext())
 		{
 			return DEAssoIterator.next();
 		}
 
-		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass.
-							getContainmentAssociationCollection().iterator();
+		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass
+				.getContainmentAssociationCollection().iterator();
 		while (containmentAssoIterator.hasNext())
 		{
 			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
-			if(containmentBulkOperationClass.getDynExtEntityAssociationCollection() != null &&
-					!containmentBulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
+			if (containmentBulkOperationClass.getDynExtEntityAssociationCollection() != null
+					&& !containmentBulkOperationClass.getDynExtEntityAssociationCollection()
+							.isEmpty())
 			{
-				return containmentBulkOperationClass.getDynExtEntityAssociationCollection().iterator().next();
+				return containmentBulkOperationClass.getDynExtEntityAssociationCollection()
+						.iterator().next();
 			}
 			else
 			{
 				checkForDEObject(containmentBulkOperationClass);
 			}
 		}
-		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass.
-				getReferenceAssociationCollection().iterator();
+		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass
+				.getReferenceAssociationCollection().iterator();
 		while (referenceAssoIterator.hasNext())
 		{
 			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
-			if(referenceBulkOperationClass.getDynExtEntityAssociationCollection() != null &&
-					!referenceBulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
+			if (referenceBulkOperationClass.getDynExtEntityAssociationCollection() != null
+					&& !referenceBulkOperationClass.getDynExtEntityAssociationCollection()
+							.isEmpty())
 			{
-				return referenceBulkOperationClass.getDynExtEntityAssociationCollection().iterator().next();
+				return referenceBulkOperationClass.getDynExtEntityAssociationCollection()
+						.iterator().next();
 			}
 			else
 			{
@@ -164,37 +167,41 @@ public class BulkOperationUtility
 
 	public static BulkOperationClass checkForCategoryObject(BulkOperationClass bulkOperationClass)
 	{
-		Iterator<BulkOperationClass> categoryAssoIterator = bulkOperationClass.
-		getDynExtCategoryAssociationCollection().iterator();
+		Iterator<BulkOperationClass> categoryAssoIterator = bulkOperationClass
+				.getDynExtCategoryAssociationCollection().iterator();
 		while (categoryAssoIterator.hasNext())
 		{
 			return categoryAssoIterator.next();
 		}
 
-		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass.
-							getContainmentAssociationCollection().iterator();
+		Iterator<BulkOperationClass> containmentAssoIterator = bulkOperationClass
+				.getContainmentAssociationCollection().iterator();
 		while (containmentAssoIterator.hasNext())
 		{
 			BulkOperationClass containmentBulkOperationClass = containmentAssoIterator.next();
-			if(containmentBulkOperationClass.getDynExtCategoryAssociationCollection() != null &&
-					!containmentBulkOperationClass.getDynExtCategoryAssociationCollection().isEmpty())
+			if (containmentBulkOperationClass.getDynExtCategoryAssociationCollection() != null
+					&& !containmentBulkOperationClass.getDynExtCategoryAssociationCollection()
+							.isEmpty())
 			{
-				return containmentBulkOperationClass.getDynExtCategoryAssociationCollection().iterator().next();
+				return containmentBulkOperationClass.getDynExtCategoryAssociationCollection()
+						.iterator().next();
 			}
 			else
 			{
 				checkForCategoryObject(containmentBulkOperationClass);
 			}
 		}
-		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass.
-				getReferenceAssociationCollection().iterator();
+		Iterator<BulkOperationClass> referenceAssoIterator = bulkOperationClass
+				.getReferenceAssociationCollection().iterator();
 		while (referenceAssoIterator.hasNext())
 		{
 			BulkOperationClass referenceBulkOperationClass = referenceAssoIterator.next();
-			if(referenceBulkOperationClass.getDynExtCategoryAssociationCollection() != null &&
-					!referenceBulkOperationClass.getDynExtCategoryAssociationCollection().isEmpty())
+			if (referenceBulkOperationClass.getDynExtCategoryAssociationCollection() != null
+					&& !referenceBulkOperationClass.getDynExtCategoryAssociationCollection()
+							.isEmpty())
 			{
-				return referenceBulkOperationClass.getDynExtCategoryAssociationCollection().iterator().next();
+				return referenceBulkOperationClass.getDynExtCategoryAssociationCollection()
+						.iterator().next();
 			}
 			else
 			{
@@ -203,6 +210,7 @@ public class BulkOperationUtility
 		}
 		return null;
 	}
+
 	/**
 	 *
 	 * @param name
@@ -295,7 +303,7 @@ public class BulkOperationUtility
 				throw new FileNotFoundException("CSV File Not Found");
 			}
 			byte[] buffer = new byte[18024];
-			 zipFile = new File(zipFileName + ".zip");
+			zipFile = new File(zipFileName + ".zip");
 			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFile));
 			out.setLevel(Deflater.DEFAULT_COMPRESSION);
 			FileInputStream fileInptStream = new FileInputStream(csvFile);
@@ -329,6 +337,7 @@ public class BulkOperationUtility
 		}
 		return zipFile;
 	}
+
 	/**
 	 *
 	 * @return
@@ -345,17 +354,20 @@ public class BulkOperationUtility
 	 * @return String String
 	 * @throws BulkOperationException BulkOperationException
 	 */
-	public static String getClassNameFromBulkOperationPropertiesFile() throws BulkOperationException
+	public static String getClassNameFromBulkOperationPropertiesFile()
+			throws BulkOperationException
 	{
 		String fileName = System.getProperty("bulkoperator.appservice.class");
 		Properties properties = BulkOperationUtility.getPropertiesFile(fileName);
 		return properties.getProperty(BulkOperationConstants.BULK_OPERATION_APPSERVICE_CLASSNAME);
 	}
+
 	/**
 	 * Get Install Properties file.
 	 * @return Properties.
 	 */
-	public static Properties getPropertiesFile(String propertiesFileName) throws BulkOperationException
+	public static Properties getPropertiesFile(String propertiesFileName)
+			throws BulkOperationException
 	{
 		Properties props = new Properties();
 		try
@@ -377,6 +389,7 @@ public class BulkOperationUtility
 		}
 		return props;
 	}
+
 	/**
 	 * Get Database Type.
 	 * @return String.
@@ -384,10 +397,12 @@ public class BulkOperationUtility
 	public static String getDatabaseType() throws BulkOperationException
 	{
 		Properties properties = BulkOperationUtility.getBulkOperationPropertiesInstance();
-		String applnInstallPropFileName = properties.getProperty(BulkOperationConstants.DATABASE_CREDENTIALS_FILE);
+		String applnInstallPropFileName = properties
+				.getProperty(BulkOperationConstants.DATABASE_CREDENTIALS_FILE);
 		Properties applnInstallProp = getPropertiesFile("./" + applnInstallPropFileName);
 		return applnInstallProp.getProperty("database.type");
 	}
+
 	/**
 	 * This method will change the Bulk Operation status from In Progress
 	 * to Failed. The method should be called whenever the application
@@ -402,29 +417,33 @@ public class BulkOperationUtility
 			final JDBCDAO jdbcDao = DAOConfigFactory.getInstance().getDAOFactory(appName)
 					.getJDBCDAO();
 			jdbcDao.openSession(null);
-			jdbcDao.executeUpdate("update job_details set job_status = 'Failed' where job_status = 'In Progress'");
+			jdbcDao
+					.executeUpdate("update job_details set job_status = 'Failed' where job_status = 'In Progress'");
 			jdbcDao.commit();
 			jdbcDao.closeSession();
 		}
 		catch (final DAOException daoExp)
 		{
-			logger.error("Could not update the table Job Details with the " +
-				"status column value from inprogess to failed." + daoExp.getMessage(), daoExp);
+			logger
+					.error(
+							"Could not update the table Job Details with the "
+									+ "status column value from inprogess to failed."
+									+ daoExp.getMessage(), daoExp);
 			logger.error(daoExp.getMessage(), daoExp);
 			throw daoExp;
 		}
 	}
 
-	public static boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
+	public static boolean checkIfAtLeastOneColumnHasAValue(int index, List<String> attributeList,
 			Map<String, String> csvData)
 	{
 		boolean hasValue = false;
-		if(!attributeList.isEmpty())
+		if (!attributeList.isEmpty())
 		{
-			for(int i=0;i<attributeList.size();i++)
+			for (int i = 0; i < attributeList.size(); i++)
 			{
-				hasValue = checkIfColumnHasAValue(index,attributeList.get(i), csvData);
-				if(hasValue)
+				hasValue = checkIfColumnHasAValue(index, attributeList.get(i), csvData);
+				if (hasValue)
 				{
 					break;
 				}
@@ -433,18 +452,20 @@ public class BulkOperationUtility
 		return hasValue;
 	}
 
-	public static boolean checkIfColumnHasAValue(int index, String headerName, Map<String, String> csvData)
+	public static boolean checkIfColumnHasAValue(int index, String headerName,
+			Map<String, String> csvData)
 	{
 		boolean hasValue = false;
 		Object value = csvData.get(headerName);
-		if(value!=null && !"".equals(value.toString()))
+		if (value != null && !"".equals(value.toString()))
 		{
 			hasValue = true;
 		}
 		return hasValue;
 	}
 
-	public static CSVReader getDataReader(InputStream csvFileInputStream) throws BulkOperationException
+	public static CSVReader getDataReader(InputStream csvFileInputStream)
+			throws BulkOperationException
 	{
 		CSVReader reader = null;
 		try
@@ -459,17 +480,16 @@ public class BulkOperationUtility
 		return reader;
 	}
 
-	public static DataList readCSVColumnNames(CSVReader reader)
-		throws BulkOperationException
+	public static DataList readCSVColumnNames(CSVReader reader) throws BulkOperationException
 	{
 		DataList dataList = new DataList();;
- 		String[] headers = null;
+		String[] headers = null;
 		try
 		{
-			if(reader != null)
+			if (reader != null)
 			{
 				headers = reader.readNext();
-				for(int i=0;i<headers.length;i++)
+				for (int i = 0; i < headers.length; i++)
 				{
 					dataList.addHeader(headers[i].trim());
 				}
@@ -492,17 +512,17 @@ public class BulkOperationUtility
 	}
 
 	public static DataList readCSVDataRow(String[] csvColumnValues, DataList dataList)
-		throws BulkOperationException
+			throws BulkOperationException
 	{
 		String[] newValues = null;
- 		try
+		try
 		{
 			newValues = new String[dataList.getHeaderList().size() + 3];
-			for(int m = 0; m < newValues.length; m++)
+			for (int m = 0; m < newValues.length; m++)
 			{
 				newValues[m] = new String();
 			}
-			for(int j = 0; j < csvColumnValues.length; j++)
+			for (int j = 0; j < csvColumnValues.length; j++)
 			{
 				newValues[j] = csvColumnValues[j];
 			}
@@ -515,6 +535,7 @@ public class BulkOperationUtility
 		}
 		return dataList;
 	}
+
 	/**
 	 * Get Bulk Operation Properties Instance.
 	 * @return Properties Properties
@@ -527,8 +548,8 @@ public class BulkOperationUtility
 		{
 			bulkOprProp = System.getProperties();
 			String configDirectory = bulkOprProp.getProperty(BulkOperationConstants.CONFIG_DIR);
-			FileInputStream propFile = new FileInputStream(
-					"./" + configDirectory + "/" + BulkOperationConstants.BULKOPERATION_INSTALL_PROPERTIES);
+			FileInputStream propFile = new FileInputStream("./" + configDirectory + "/"
+					+ BulkOperationConstants.BULKOPERATION_INSTALL_PROPERTIES);
 			bulkOprProp.load(propFile);
 		}
 		catch (FileNotFoundException fnfException)
@@ -544,5 +565,37 @@ public class BulkOperationUtility
 			throw new BulkOperationException(errorkey, ioException, "bulkOperation.properties");
 		}
 		return bulkOprProp;
+	}
+	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainment(int index,BulkOperationClass bulkOperationClass, String suffix,Map<String, String> csvData)
+	{
+		boolean hasValue=false;
+		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
+				.iterator();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName()+suffix, csvData))
+			{
+				hasValue=true;
+			}
+		}
+		if(!hasValue)
+		{
+			Iterator<BulkOperationClass> containmentItert = bulkOperationClass
+					.getContainmentAssociationCollection().iterator();
+			while (containmentItert.hasNext())
+			{
+				BulkOperationClass containmentMigrationClass=containmentItert.next();
+				if (containmentMigrationClass.getCardinality() != null)
+				{
+					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+						hasValue=checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix + "#" + i,csvData);
+					}
+				}
+			}
+		}
+		return hasValue;
 	}
 }

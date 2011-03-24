@@ -90,11 +90,9 @@ public class DBManagerImpl
 		}
 		catch (Exception exp)
 		{
-			logger
-					.debug(
-							"Error in creating database connection."
-									+ " Please check the database driver or the host applications install " +
-									"properties have some missing database properties.", exp);
+			logger.debug("Error in creating database connection."
+					+ " Please check the database driver or the host applications install "
+					+ "properties have some missing database properties.", exp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.database.error.driver.msg");
 			throw new BulkOperationException(errorkey, exp, "");
 		}

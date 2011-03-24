@@ -113,12 +113,45 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 			jdbcDao = AppUtility.openJDBCSession();
 			String query = "select csv_template from catissue_bulk_operation where " +
 					"DROPDOWN_NAME like '" + dropdownName +"'";
-			List list = jdbcDao.executeQuery(query);
+			List list = AppUtility.executeSQLQuery(query);
 			if(!list.isEmpty())
 			{
 				List innerList = (List)list.get(0);
-				String commaSeparatedString = (String)innerList.get(0);
-				csvFile = writeCSVFile(commaSeparatedString, dropdownName);
+				if(!innerList.isEmpty())
+				{
+					if(innerList.get(0) instanceof CLOB)
+					{
+						CLOB clob = (CLOB)innerList.get(0);
+						Reader reader = clob.getCharacterStream();
+						CharArrayWriter writer=new CharArrayWriter();
+						int intVar = -1;
+						while ( (intVar=reader.read())!=-1)
+						{
+							writer.write(intVar);
+						}
+						String commaSeparatedString = writer.toString();
+						csvFile = writeCSVFile(commaSeparatedString, dropdownName);
+					}
+					else if(innerList.get(0) instanceof Clob)
+					{
+						Clob clob = (Clob)innerList.get(0);
+						Reader reader = clob.getCharacterStream();
+						CharArrayWriter writer=new CharArrayWriter();
+						int intVar = -1;
+						while ( (intVar=reader.read())!=-1)
+						{
+							writer.write(intVar);
+						}
+						String commaSeparatedString = writer.toString();
+						csvFile = writeCSVFile(commaSeparatedString, dropdownName);
+					}
+					else
+					{
+						String commaSeparatedString = innerList.get(0).toString();
+						csvFile = writeCSVFile(commaSeparatedString, dropdownName);
+					}
+				}
+
 			}
 		}
 		catch (Exception exp)

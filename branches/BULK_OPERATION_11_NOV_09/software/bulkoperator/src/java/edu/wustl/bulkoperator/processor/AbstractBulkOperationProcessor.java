@@ -387,13 +387,9 @@ public abstract class AbstractBulkOperationProcessor
 								attribute.getBelongsTo()))
 						{
 							Class dataTypeClass = Class.forName(attribute.getDataType());
-							if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName()
-									+ columnSuffix)))
-							{
-								setValueToObject(mainObj, mainMigrationClass, csvData,
+							setValueToObject(mainObj, mainMigrationClass, csvData,
 										columnSuffix, validate, attribute,
 										dataTypeClass);
-							}
 						}//else if ends
 					}//null check if - else ends
 				}//data type null check ends
@@ -416,12 +412,16 @@ public abstract class AbstractBulkOperationProcessor
 			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
 			String columnSuffix, boolean validate, Attribute attribute,
 			Class dataTypeClass) throws BulkOperationException {
-		String csvDataValue = csvData.get(attribute.getCsvColumnName()
-				+ columnSuffix);
-		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
-				attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
-		mainMigrationClass.invokeSetterMethod(attribute.getName(),
-				new Class[]{dataTypeClass}, mainObj, attributeValue);
+		if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName()
+				+ columnSuffix)))
+		{
+			String csvDataValue = csvData.get(attribute.getCsvColumnName()
+					+ columnSuffix);
+			Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+					attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
+			mainMigrationClass.invokeSetterMethod(attribute.getName(),
+					new Class[]{dataTypeClass}, mainObj, attributeValue);
+		}
 	}
 
 	/**

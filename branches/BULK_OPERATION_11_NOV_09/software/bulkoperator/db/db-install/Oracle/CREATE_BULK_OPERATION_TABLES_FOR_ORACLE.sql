@@ -5,7 +5,7 @@ create table catissue_bulk_operation
 (
 	IDENTIFIER number(19,0) not null,
 	OPERATION VARCHAR(255) not null unique,
-	CSV_TEMPLATE VARCHAR(2000) not null,
+	CSV_TEMPLATE CLOB not null,
 	XML_TEMPALTE CLOB not null,
 	DROPDOWN_NAME VARCHAR(100) not null unique,
 	CONSTRAINT CATISSUE_BULK_OPERATION_SEQ PRIMARY KEY (IDENTIFIER)
