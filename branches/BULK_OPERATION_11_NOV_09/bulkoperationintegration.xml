@@ -11,13 +11,13 @@
 
 		<!--Copying css files -->
 		<copy todir="${deploy.temp.dir}/css" overwrite="false">
-			<fileset file="${bulkoperation.base.dir}/css/catissue_suite.css" />
+			<fileset file="${bulkoperation.base.dir}/css/bulkOperator.css" />
 		</copy>
 
 		<!--Copying jss files -->
 		<copy todir="${deploy.temp.dir}/jss" overwrite="false">
-			<fileset file="${bulkoperation.base.dir}/jss/ajax.js" />
-			<fileset file="${bulkoperation.base.dir}/jss/javaScript.js" />
+			<fileset file="${bulkoperation.base.dir}/jss/bulkOperatorAjax.js" />
+			<fileset file="${bulkoperation.base.dir}/jss/bulkOperatorScripts.js" />
 		</copy>
 
 		<!--Copying struts config and tiles defs files -->
@@ -118,5 +118,40 @@
 			</fileset>
 		</copy>
 	</target>
+
+	<target name="alter_bulk_operation_table" description="alter the colum type from varchar2 to CLOB">
+			<if>
+				<equals arg1="${database.type}" arg2="oracle"/>
+				<then>
+					<sql driver="${database.driver}"
+						url="${database.url}"
+						userid="${database.username}" password="${database.password}" rdbms="oracle">
+						<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/ALTER_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
+						<transaction>commit;</transaction>
+						<classpath>
+							<fileset dir="${parent.base.dir}">
+								<include name="*.jar" />
+							</fileset>
+						</classpath>
+					</sql>
+				</then>
+			<elseif>
+				<equals arg1="${database.type}" arg2="mysql"/>
+				<then>
+					<sql driver="${database.driver}"
+						url="${database.url}"
+							userid="${database.username}" password="${database.password}" >
+						<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/ALTER_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
+						<transaction>commit;</transaction>
+						<classpath>
+							<fileset dir="${parent.base.dir}">
+								<include name="*.jar" />
+							</fileset>
+						</classpath>
+					</sql>
+				</then>
+			</elseif>
+			</if>
+		</target>
 
 </project>
