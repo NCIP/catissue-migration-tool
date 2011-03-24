@@ -77,7 +77,8 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			Attribute attribute, Class dataTypeClass) throws BulkOperationException
 	{
 		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
-		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate);
+		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+				attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
 		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
 		categoryDataValueMap.put(attribute.getName(), attributeValue);
 	}
