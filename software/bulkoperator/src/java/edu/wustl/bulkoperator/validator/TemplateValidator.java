@@ -564,9 +564,9 @@ public class TemplateValidator
 				if (!fieldDataType.toString().equals("class " + dataType.trim()))
 				{
 					logger.debug("The fieldDataType value " + dataType + " is for "
-							+ bulkOperationClass.getClassName() + " is incorrect.");
+							+ bulkOperationClass.getClassName() + "-" + attributeName + " is incorrect.");
 					errorList.add("The fieldDataType value " + dataType + " is for "
-							+ bulkOperationClass.getClassName() + " is incorrect.");
+							+ bulkOperationClass.getClassName() + "-" + attributeName + " is incorrect.");
 				}
 			}
 		}

@@ -1,5 +1,8 @@
 package edu.wustl.bulkoperator.client;
 import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.httpclient.HttpException;
 
 import edu.wustl.bulkoperator.action.JobMessage;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -32,6 +35,17 @@ public interface BulkOperationService
 	JobMessage login(String url,String applicationUserName,
 			String applicationUserPassword,String keyStoreLocation)
 				throws BulkOperationException;
+
+	/**
+	 * Logout.
+	 *
+	 * @param url the url
+	 * @throws BulkOperationException the bulk operation exception
+	 * @throws IOException
+	 * @throws HttpException
+	 */
+	void logout(String url)
+				throws BulkOperationException, HttpException, IOException;
 
 	/**
 	 * This method will be called to start the bulk operation.

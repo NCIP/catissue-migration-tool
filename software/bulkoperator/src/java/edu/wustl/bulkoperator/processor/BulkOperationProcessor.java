@@ -35,14 +35,14 @@ public class BulkOperationProcessor
 	private transient BulkOperationClass bulkOperationclass = null;
 	private transient BulkOperationClass DEBulkOperationClass = null;
 	private transient DataList dataList = null;
-	private transient long timetaken = System.currentTimeMillis() / 1000;
+	private transient final long timetaken = System.currentTimeMillis() / 1000;
 	private transient boolean isUpdateOperation = false;
 	private transient int currentRowIndex = 0;
 	private transient JobData jobData = null;
 	private transient BulkOperationUtility bulkOperationUtility = null;
 
 	/**
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 * @param bulkOprAppService
 	 * @param list
@@ -61,7 +61,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws BulkOperationException
 	 */
 	public void process() throws BulkOperationException
@@ -117,7 +117,7 @@ public class BulkOperationProcessor
 						}
 					}
 					else
-					{	
+					{
 						staticObject = bulkOperationclass.getClassDiscriminator(valueTable, "");
 						if(staticObject == null)
 						{
@@ -189,9 +189,7 @@ public class BulkOperationProcessor
 		if (DEObject != null)
 		{
 			bulkOprAppService.insertDEObject(DEObject, staticObject);
-			Long dynExtObjectId = DEBulkOperationClass.invokeGetIdMethod(DEObject);
-//			bulkOprAppService.hookStaticDEObject(staticObject,
-//					dynExtObjectId, DEBulkOperationClass.getContainerId());
+			DEBulkOperationClass.invokeGetIdMethod(DEObject);
 		}
 		return DEObject;
 	}
@@ -229,7 +227,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mainObj
 	 * @param migrationClass
 	 * @param columnSuffix
@@ -259,7 +257,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param columnSuffix
@@ -291,7 +289,7 @@ public class BulkOperationProcessor
 					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						List<String> attributeList = bulkOperationUtility.getAttributeList(
+						bulkOperationUtility.getAttributeList(
 								containmentMigrationClass, columnSuffix + "#" + i);
 						if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList)
@@ -338,7 +336,7 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && !cardinality.equals(""))
 				{
-					List<String> attributeList = bulkOperationUtility.getAttributeList(
+					bulkOperationUtility.getAttributeList(
 							containmentMigrationClass, columnSuffix);
 					if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
 							|| */validate)
@@ -380,7 +378,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param columnSuffix
@@ -413,7 +411,7 @@ public class BulkOperationProcessor
 					int maxNoOfRecords = associationMigrationClass.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						List<String> attributeList = bulkOperationUtility.getAttributeList(
+						bulkOperationUtility.getAttributeList(
 								associationMigrationClass, columnSuffix + "#" + i);
 						if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex,
 								attributeList)
@@ -459,7 +457,7 @@ public class BulkOperationProcessor
 				}
 				else if (cardinality != null && cardinality.equals("1") && !cardinality.equals(""))
 				{
-					List<String> attributeList = bulkOperationUtility.getAttributeList(
+					bulkOperationUtility.getAttributeList(
 							associationMigrationClass, columnSuffix);
 					if (/*dataList.checkIfAtLeastOneColumnHasAValue(currentRowIndex, attributeList)
 							|| */validate)
@@ -501,7 +499,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param columnSuffix
@@ -586,7 +584,7 @@ public class BulkOperationProcessor
 	}
 
 	/**
-	 * 
+	 *
 	 * @param mainMigrationClass
 	 * @param validate
 	 * @param attribute

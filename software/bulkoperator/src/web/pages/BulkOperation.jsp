@@ -11,7 +11,7 @@
 <%@ page import="java.io.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="javax.servlet.*"%>
-<script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
+<script language="JavaScript" type="text/javascript" src="jss/bulkOperatorScripts.js"></script>
 <script type="text/javascript" src="jss/wz_tooltip.js"></script>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <script>
@@ -75,7 +75,7 @@ window.onload=starttime;
 
 <head>
 	<LINK href="css/styleSheet.css" type="text/css" rel="stylesheet">
-	<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
+	<link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>

@@ -8,9 +8,9 @@
 <%@ page import="edu.wustl.common.util.global.ApplicationProperties" %>
 <head>
 <link rel="STYLESHEET" type="text/css" href="dhtml_comp/css/dhtmlXGrid.css"/>
-<script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
-<script type="text/javascript" src="jss/ajax.js"></script>
-<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
+<script language="JavaScript" type="text/javascript" src="jss/bulkOperatorScripts.js"></script>
+<script type="text/javascript" src="jss/bulkOperatorAjax.js"></script>
+<link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
 <script  src="dhtml_comp/js/dhtmlXCommon.js"></script>
 <script  src="dhtml_comp/js/dhtmlXGrid.js"></script>
 <script  src="dhtml_comp/js/dhtmlXGridCell.js"></script>

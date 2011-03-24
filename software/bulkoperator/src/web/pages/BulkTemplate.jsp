@@ -11,9 +11,9 @@
 <%@ page import="java.io.*"%>
 <%@ page import="java.util.*"%>
 <%@ page import="javax.servlet.*"%>
-<script language="JavaScript" type="text/javascript" src="jss/javaScript.js"></script>
+<script language="JavaScript" type="text/javascript" src="jss/bulkOperatorScripts.js"></script>
 <LINK href="css/styleSheet.css" type="text/css" rel="stylesheet">
-<link href="css/catissue_suite.css" rel="stylesheet" type="text/css" />
+<link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
 
 <script>
 function onDownLoadTemplate()
