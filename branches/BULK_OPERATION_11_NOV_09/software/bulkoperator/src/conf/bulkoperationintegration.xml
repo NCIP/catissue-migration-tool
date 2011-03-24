@@ -153,5 +153,39 @@
 			</elseif>
 			</if>
 		</target>
+		<target name="upgrade_bulk_operation_table" description="upgrade bulk operation tables">
+			<if>
+							<equals arg1="${database.type}" arg2="oracle"/>
+							<then>
+								<sql driver="${database.driver}"
+									url="${database.url}"
+									userid="${database.username}" password="${database.password}" rdbms="oracle">
+									<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/UPGRADE_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
+									<transaction>commit;</transaction>
+									<classpath>
+										<fileset dir="${parent.base.dir}">
+											<include name="*.jar" />
+										</fileset>
+									</classpath>
+								</sql>
+							</then>
+						<elseif>
+							<equals arg1="${database.type}" arg2="mysql"/>
+							<then>
+								<sql driver="${database.driver}"
+									url="${database.url}"
+										userid="${database.username}" password="${database.password}" >
+									<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/UPGRADE_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
+									<transaction>commit;</transaction>
+									<classpath>
+										<fileset dir="${parent.base.dir}">
+											<include name="*.jar" />
+										</fileset>
+									</classpath>
+								</sql>
+							</then>
+						</elseif>
+						</if>
+		</target>
 
 </project>
