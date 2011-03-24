@@ -263,7 +263,7 @@
 		<delete dir="${zip.dir}" />
 		<mkdir dir="${zip.dir}" />
 		<copy todir="${zip.dir}" overwrite="true">
-			<fileset file="mapping.xml" />
+			<fileset file="${src.dir}/conf/mapping.xml" />
 			<fileset file="${src.dir}/java/ApplicationResources.properties" />
 			<fileset file="${src.dir}/java/bulkoperation-struts-config.xml" />
 			<fileset file="${src.dir}/java/bulkoperation-tiles-defs.xml" />
