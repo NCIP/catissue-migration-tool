@@ -534,8 +534,8 @@ public class BulkOperationProcessor
 							{
 								String csvData = valueTable.get(attribute.getCsvColumnName()
 										+ columnSuffix);
-								Object attributeValue = attribute.getValueOfDataType(csvData,
-										validate);
+								Object attributeValue = attribute.getValueOfDataType(csvData, validate,
+										attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
 								((StringBuffer) mainObj).append(attributeValue);
 							}
 						}
@@ -562,8 +562,8 @@ public class BulkOperationProcessor
 							{
 								String csvData = valueTable.get(attribute.getCsvColumnName()
 										+ columnSuffix);
-								Object attributeValue = attribute.getValueOfDataType(csvData,
-										validate);
+								Object attributeValue = attribute.getValueOfDataType(csvData, validate,
+										attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
 								mainMigrationClass.invokeSetterMethod(attribute.getName(),
 										new Class[]{dataTypeClass}, mainObj, attributeValue);
 							}

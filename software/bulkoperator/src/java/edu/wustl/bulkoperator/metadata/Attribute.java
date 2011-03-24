@@ -1,11 +1,15 @@
 
 package edu.wustl.bulkoperator.metadata;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.ApplicationProperties;
 
 public class Attribute
 {
@@ -96,9 +100,40 @@ public class Attribute
 	{
 		this.id = id;
 	}
-	public Object getValueOfDataType(String value, boolean validate) throws BulkOperationException
+	public Object getValueOfDataType(String value, boolean validate,
+			String csvColumnName, String dataType) throws BulkOperationException
 	{
 		Object valueObject = null;
+		if(!validate && dataType.equals("java.util.Date"))
+        {
+			SimpleDateFormat sdf = null;
+			Date testDate = null;
+			try 
+			{
+				if(value.indexOf(":")>-1)
+				{
+					String DATE_FORMAT_WITH_TIME = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
+					sdf = new SimpleDateFormat(DATE_FORMAT_WITH_TIME);
+					testDate = sdf.parse(value);
+				}
+				else
+				{
+					String DATE_FORMAT = ApplicationProperties.getValue("bulk.date.valid.format");
+					sdf = new SimpleDateFormat(DATE_FORMAT);
+					testDate = sdf.parse(value);
+				}
+				if(!sdf.format(testDate).equals(value))
+				{
+					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
+					throw new BulkOperationException(errorkey, null, csvColumnName);						
+				}
+			}
+			catch (ParseException parseExp) 
+			{
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.date.format.error");
+				throw new BulkOperationException(errorkey, parseExp, csvColumnName);
+			}
+		}
 		try
 		{
 			if(!validate)
@@ -106,10 +141,10 @@ public class Attribute
 				valueObject = Class.forName(dataType).getConstructor(String.class).newInstance(value);
 			}			
 		}
-		catch (Exception exp)
+		catch (Exception ex)
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-			throw new BulkOperationException(errorkey, exp, value);
+			throw new BulkOperationException(errorkey, null, csvColumnName);
 		}
 		return valueObject;
 	}

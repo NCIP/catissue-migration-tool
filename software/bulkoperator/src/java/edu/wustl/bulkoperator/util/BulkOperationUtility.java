@@ -57,16 +57,9 @@ public class BulkOperationUtility
 				String dataType = attribute.getDataType();
 				String name = attribute.getName();
 				String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
-				if (csvData != null && !"".equals(csvData))
+				if (csvData != null)
 				{
-					if ("java.lang.String".equals(dataType) || "java.util.Date".equals(dataType))
-					{
-						whereClause.add(name + " = '" + csvData + "' ");
-					}
-					else
-					{
-						whereClause.add(name + " = " + csvData);
-					}
+					whereClause.add(name + " = '" + csvData + "' ");					
 				}
 			}
 		}

@@ -364,8 +364,8 @@ public abstract class AbstractBulkOperationProcessor
 							{
 								String csvDataValue = csvData.get(attribute.getCsvColumnName()
 										+ columnSuffix);
-								Object attributeValue = attribute.getValueOfDataType(csvDataValue,
-										validate);
+								Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+										attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
 								((StringBuffer) mainObj).append(attributeValue);
 							}
 						}
@@ -418,8 +418,8 @@ public abstract class AbstractBulkOperationProcessor
 			Class dataTypeClass) throws BulkOperationException {
 		String csvDataValue = csvData.get(attribute.getCsvColumnName()
 				+ columnSuffix);
-		Object attributeValue = attribute.getValueOfDataType(csvDataValue,
-				validate);
+		Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+				attribute.getCsvColumnName() + columnSuffix,attribute.getDataType());
 		mainMigrationClass.invokeSetterMethod(attribute.getName(),
 				new Class[]{dataTypeClass}, mainObj, attributeValue);
 	}
@@ -459,7 +459,8 @@ public abstract class AbstractBulkOperationProcessor
 			if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName())))
 			{
 				String csvDataValue = csvData.get(attribute.getCsvColumnName());
-				Object attributeValue = attribute.getValueOfDataType(csvDataValue,false);
+				Object attributeValue = attribute.getValueOfDataType(csvDataValue, false,
+						attribute.getCsvColumnName(), attribute.getDataType());
 				map.put(attribute.getName(), attributeValue);
 			}
 		}
