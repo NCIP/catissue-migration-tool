@@ -17,6 +17,6 @@ CREATE TABLE JOB_DETAILS (
 	JOB_STARTED_BY bigint(20) default NULL,
 	START_TIME datetime default NULL,
 	CURRENT_RECORDS_PROCESSED bigint(20) default NULL,
-	LOG_FILE_NAME varchar(50) default NULL,
+	LOG_FILE_NAME varchar(1024) default NULL,
 	PRIMARY KEY (`IDENTIFIER`)
 );
