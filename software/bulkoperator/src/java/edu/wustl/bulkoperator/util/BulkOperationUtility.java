@@ -56,12 +56,11 @@ public class BulkOperationUtility
 			Attribute attribute = attributeItertor.next();
 			if (attribute.getUpdateBasedOn())
 			{
-				String dataType = attribute.getDataType();
 				String name = attribute.getName();
 				String csvData = columnNameHashTable.get(attribute.getCsvColumnName());
 				if (csvData != null)
 				{
-					whereClause.add(name + " = '" + csvData + "' ");					
+					whereClause.add(name + " = '" + csvData + "' ");
 				}
 			}
 		}
@@ -577,6 +576,7 @@ public class BulkOperationUtility
 			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName()+suffix, csvData))
 			{
 				hasValue=true;
+				break;
 			}
 		}
 		if(!hasValue)
@@ -591,10 +591,20 @@ public class BulkOperationUtility
 					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						hasValue=checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix + "#" + i,csvData);
+
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix + "#" + i,csvData))
+						{
+							hasValue=true;
+							break;
+						}
 					}
 				}
+				if(hasValue)
+				{
+					break;
+				}
 			}
+
 		}
 		return hasValue;
 	}
