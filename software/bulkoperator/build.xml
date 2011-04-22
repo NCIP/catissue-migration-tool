@@ -253,9 +253,22 @@
             </manifest>
         </jar>
 	</target>
+	
+	<property name="meta.dir" value="${dist.dir}/META-INF" />
+	<target name="version_info">
+		<delete file="${meta.dir}/MANIFEST.MF" />
+		<mkdir dir="${meta.dir}" />
+		<manifest file="${meta.dir}/MANIFEST.MF">
+			<section name="${bulkoperator.jar.details}">
+				<attribute name="Version" value="${bulkoperator.jar.version}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Build-on" value="${TODAY} ${TSTAMP}" />
+				<attribute name="SVN-URL" value="${dist.revision}" />
+			</section>
+		</manifest>
+	</target>
 
 	<target name="create_bulkoperator_zip" description="bulk operator zip file is created">
-
 		<property name="zip.dir" value="${dist.dir}" />
 		<property name="zip.file" value="${dist.dir}/bulkoperator.zip" />
 
@@ -282,6 +295,7 @@
 		<copy todir="${zip.dir}/pages" overwrite="true">
 			<fileset dir="${web.dir}/pages" />
 		</copy>
+		<antcall target="version_info"/>
 		<!--<zip destfile="${zip.file}" basedir="${zip.dir}" />
 		<delete dir="${zip.dir}" /> -->
 	</target>
