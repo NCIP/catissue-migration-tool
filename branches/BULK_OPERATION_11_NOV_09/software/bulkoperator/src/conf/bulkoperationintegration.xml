@@ -153,7 +153,7 @@
 			</elseif>
 			</if>
 		</target>
-		<target name="upgrade_bulk_operation_table" description="upgrade bulk operation tables">
+		<target name="upgrade_bulk_operation_table" depends="alter_bulk_operation_table" description="upgrade bulk operation tables">
 			<if>
 							<equals arg1="${database.type}" arg2="oracle"/>
 							<then>
