@@ -565,7 +565,10 @@ public class BulkOperationUtility
 		}
 		return bulkOprProp;
 	}
-	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainment(int index,BulkOperationClass bulkOperationClass, String suffix,Map<String, String> csvData)
+
+	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainment(int index,
+			BulkOperationClass bulkOperationClass, String suffix, Map<String, String> csvData)
+			throws BulkOperationException
 	{
 		boolean hasValue=false;
 		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
@@ -573,9 +576,15 @@ public class BulkOperationUtility
 		while (attributeItertor.hasNext())
 		{
 			Attribute attribute = attributeItertor.next();
-			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName()+suffix, csvData))
+			if (csvData.get(attribute.getCsvColumnName() + suffix) == null)
 			{
-				hasValue=true;
+
+				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
+
+			}
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvData))
+			{
+				hasValue = true;
 				break;
 			}
 		}
@@ -607,5 +616,21 @@ public class BulkOperationUtility
 
 		}
 		return hasValue;
+	}
+
+	public static void throwExceptionForColumnNameNotFound(BulkOperationClass mainMigrationClass, boolean validate,
+			Attribute attribute) throws BulkOperationException
+	{
+		if (validate)
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change.validation");
+			throw new BulkOperationException(errorkey, null, attribute.getCsvColumnName() + ":" + attribute.getName()
+					+ ":" + mainMigrationClass.getClassName());
+		}
+		else
+		{
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
+			throw new BulkOperationException(errorkey, null, "");
+		}
 	}
 }
