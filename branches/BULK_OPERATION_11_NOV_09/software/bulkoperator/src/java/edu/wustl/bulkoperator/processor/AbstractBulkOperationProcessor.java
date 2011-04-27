@@ -353,7 +353,8 @@ public abstract class AbstractBulkOperationProcessor
 				{
 					if (csvData.get(attribute.getCsvColumnName() + columnSuffix) == null)
 					{
-						throwExceptionForColumnNameNotFound(mainMigrationClass, validate, attribute);
+						BulkOperationUtility.throwExceptionForColumnNameNotFound(mainMigrationClass, validate,
+								attribute);
 					}
 					else
 					{
@@ -431,23 +432,25 @@ public abstract class AbstractBulkOperationProcessor
 	 * @param attribute
 	 * @throws BulkOperationException
 	 */
-	private void throwExceptionForColumnNameNotFound(BulkOperationClass mainMigrationClass,
-			boolean validate, Attribute attribute) throws BulkOperationException
+	/*protected void throwExceptionForColumnNameNotFound(BulkOperationClass mainMigrationClass, boolean validate,
+			Attribute attribute) throws BulkOperationException
 	{
 		if (validate)
 		{
-			ErrorKey errorkey = ErrorKey
-					.getErrorKey("bulk.error.csv.column.name.change.validation");
-			throw new BulkOperationException(errorkey, null, attribute.getCsvColumnName() + ":"
-					+ attribute.getName() + ":" + mainMigrationClass.getClassName());
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change.validation");
+			throw new BulkOperationException(errorkey, null, attribute.getCsvColumnName() + ":" + attribute.getName()
+					+ ":" + mainMigrationClass.getClassName());
 		}
 		else
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
 			throw new BulkOperationException(errorkey, null, "");
 		}
-	}
-	protected void getinformationForHookingData(Map<String, String> csvData,HookingInformation hookingInformation) throws ClassNotFoundException, BulkOperationException
+	}*/
+
+
+	protected void getinformationForHookingData(Map<String, String> csvData, HookingInformation hookingInformation)
+			throws ClassNotFoundException, BulkOperationException
 	{
 		Iterator<Attribute> attributeItertor = hookingInformation.getAttributeCollection()
 		.iterator();
