@@ -69,14 +69,11 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 			String xmlFile) throws BulkOperationException, DAOException, IOException
 	{
 		PreparedStatement preparedStatement = null;
-		String databaseType = null;
 		Connection connection = null;
 		try
 		{
 			connection = DBManagerImpl.getConnection();
-			databaseType = BulkOperationUtility.getDatabaseType();
-			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(databaseType))
-			{
+			BulkOperationUtility.getDatabaseType();
 				String query = "update catissue_bulk_operation set OPERATION = ?, "
 						+ "CSV_TEMPLATE = ?, XML_TEMPALTE = ?,  DROPDOWN_NAME = ? "
 						+ "where OPERATION = ? or DROPDOWN_NAME= ? ";
@@ -93,8 +90,8 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 				preparedStatement.setString(4, dropdownName);
 				preparedStatement.setString(5, operationName);
 				preparedStatement.setString(6, dropdownName);
-			}
-			else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
+
+			/*else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(databaseType))
 			{
 				String query = "update catissue_bulk_operation set OPERATION = ?, "
 						+ "CSV_TEMPLATE = ?, XML_TEMPALTE = ?,  DROPDOWN_NAME = ? "
@@ -106,7 +103,7 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 				preparedStatement.setString(4, dropdownName);
 				preparedStatement.setString(5, operationName);
 				preparedStatement.setString(6, dropdownName);
-			}
+			}*/
 			int rowCount = preparedStatement.executeUpdate();
 			if (rowCount > 0)
 			{
@@ -200,9 +197,15 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 				String query = "insert into catissue_bulk_operation (OPERATION, "
 						+ "CSV_TEMPLATE, XML_TEMPALTE, DROPDOWN_NAME ) values (?, ?, ?, ?)";
 				preparedStatement = connection.prepareStatement(query);
+				String csvFileData = getCSVTemplateFileData(csvFile);
+				String xmlFileData = getXMLTemplateFileData(xmlFile);
+				StringReader csvReader = new StringReader(csvFileData);
+				preparedStatement.setCharacterStream(2, csvReader, csvFileData.length());
+				StringReader reader = new StringReader(xmlFileData);
+				preparedStatement.setCharacterStream(3, reader, xmlFileData.length());
+
 				preparedStatement.setString(1, operationName);
-				preparedStatement.setString(2, csvFile);
-				preparedStatement.setString(3, xmlFile);
+
 				preparedStatement.setString(4, dropdownName);
 			}
 			int rowCount = preparedStatement.executeUpdate();
@@ -291,8 +294,12 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 		{
 			try
 			{
-				resultSet.close();
-				preparedStatement.close();
+				if(resultSet!=null)
+				{
+					resultSet.close();
+
+					preparedStatement.close();
+				}
 			}
 			catch (SQLException exception)
 			{
