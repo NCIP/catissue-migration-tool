@@ -36,7 +36,7 @@ public class BulkOperationMetadataUtil
 
 			Unmarshaller unmarshaller = new Unmarshaller(BulkOperationMetaData.class);
 			unmarshaller.setMapping(mapping);
-			unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
+			//unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
 			// -- Read in the migration.xml using the mapping
 			FileReader fileReader = new FileReader(bulkOperationMetaDataXmlFile);
 			bulkOperationMetaData = (BulkOperationMetaData) unmarshaller.unmarshal(fileReader);
@@ -98,7 +98,7 @@ public class BulkOperationMetadataUtil
 
 			Unmarshaller unmarshaller = new Unmarshaller(BulkOperationMetaData.class);
 			unmarshaller.setMapping(mapping);
-			unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
+			//unmarshaller.setProperty("org.exolab.castor.xml.naming", "mixed");
 
 			// -- Read in the migration.xml using the mapping
 

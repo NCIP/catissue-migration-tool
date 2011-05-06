@@ -56,4 +56,14 @@ public class BulkOperationConstants
 	public static final String CLINICAL_STUDY_EVENT_LABEL="clinicalStudyEventLabel";
 	public static final String CLINICAL_STUDY_TITLE="clinicalStudyTitle";
 	public static final String PARTICIPANT_ID="participantId";
+	public static final String PPI="ppi";
+	public static final String COLLECTION_PROTOCOL_LABEL="collectionProtocol";
+	public static final String SPECIMEN_LABEL="specimenLabel";
+	public static final String SPECIMEN_BARCODE="specimenBarcode";
+	public static final String SCG_NAME="scgName";
+	public static final String SCG_BARCODE="scgBarcode";
+	public static final String SCG_ID="scgId";
+	public static final String SPECIMEN_ID="specimenId";
+
+
 }
