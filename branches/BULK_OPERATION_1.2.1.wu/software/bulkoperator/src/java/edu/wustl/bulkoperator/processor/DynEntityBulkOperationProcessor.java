@@ -1,14 +1,20 @@
 
 package edu.wustl.bulkoperator.processor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 
 public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProcessor
@@ -27,29 +33,26 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			int csvRowCounter, HookingInformation hookingObjectInformation)
 			throws BulkOperationException, Exception
 	{
-		Object dynExtObject = null;
+		Long recordId=null;
 		try
 		{
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService.getInstance(
 					serviceInformationObject.getServiceImplementorClassName(), true,
 					serviceInformationObject.getUserName(), null);
-
-			dynExtObject = bulkOperationClass.getClassDiscriminator(csvData, "");
-			if (dynExtObject == null)
-			{
-				dynExtObject = bulkOperationClass.getNewInstance();
-			}
+			HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
 			processObject(dynExtObject, bulkOperationClass, csvData, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
 			getinformationForHookingData(csvData,hookingInformationFromTag);
+			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
+			recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
 
-			bulkOprAppService.insertDEObject(dynExtObject, hookingObjectInformation.getStaticObject());
-			hookingObjectInformation.setDynamicExtensionObjectId(
-					getBulkOperationClass().invokeGetIdMethod(dynExtObject));
-			hookingObjectInformation.setRootContainerId(hookingInformationFromTag.getRootContainerId());
-
-			bulkOprAppService.hookStaticDEObject(hookingObjectInformation);
+			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
+			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
+			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
+			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
+					.getSessionDataBean());
+			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -61,7 +64,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			logger.error(exp.getMessage(), exp);
 			throw exp;
 		}
-		return dynExtObject;
+		return recordId;
 	}
 
 	@Override
@@ -69,5 +72,78 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/**
+	 *
+	 * @param mainObj
+	 * @param bulkOperationClass
+	 * @param csvData
+	 * @param columnSuffix
+	 * @param validate
+	 * @throws BulkOperationException
+	 */
+	protected void processContainments(Object mainObj, BulkOperationClass bulkOperationClass,
+			Map<String, String> csvData, String columnSuffix, boolean validate, int csvRowNumber)
+			throws BulkOperationException
+	{
+		try
+		{
+			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
+
+			Iterator<BulkOperationClass> containmentItert = bulkOperationClass
+					.getContainmentAssociationCollection().iterator();
+			while (containmentItert.hasNext())
+			{
+				BulkOperationClass containmentObjectCollection = containmentItert.next();
+				if (containmentObjectCollection.getCardinality() != null)
+				{
+					List<Map<Long, Object>> list = new ArrayList<Map<Long, Object>>();
+
+					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
+										columnSuffix + "#" + i,csvData))
+						{
+							Object obj = new HashMap<Long, Object>();
+							processObject(obj, containmentObjectCollection, csvData, columnSuffix
+									+ "#" + i, validate, csvRowNumber);
+							list.add((Map<Long, Object>) obj);
+						}
+						categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
+					}
+				}
+			}
+		}
+		catch (BulkOperationException bulkExp)
+		{
+			logger.error(bulkExp.getMessage(), bulkExp);
+			throw new BulkOperationException(bulkExp.getErrorKey(), bulkExp, bulkExp.getMsgValues());
+		}
+		catch (Exception exp)
+		{
+			logger.error(exp.getMessage(), exp);
+			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorkey, exp, exp.getMessage());
+		}
+	}
+
+	protected void setValueToObject(Object mainObj, BulkOperationClass mainMigrationClass,
+			Map<String, String> csvData, String columnSuffix, boolean validate,
+			Attribute attribute, Class dataTypeClass) throws BulkOperationException
+	{
+		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
+		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
+		if (csvDataValue == null || "".equals(csvDataValue))
+		{
+			categoryDataValueMap.put(attribute.getName(), "");
+		}
+		else
+		{
+			Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
+					attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
+			categoryDataValueMap.put(attribute.getName(), attributeValue);
+		}
 	}
 }

@@ -62,7 +62,7 @@ public class BulkOperationProcessController
 							serviceInformationObject);
 
 			process(staticBulkOprProcessor, dynamicBulkOprProcessorList,startTime,
-					csvFileInputStream, jobData,sessionDataBean,bulkOperationClass.checkForDynExtCategoryAssociationCollectionTag(bulkOperationClass));
+					csvFileInputStream, jobData,sessionDataBean);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -73,8 +73,7 @@ public class BulkOperationProcessController
 	public void process(
 			StaticBulkOperationProcessor staticBulkOprProcessor,
 			List<IDynamicBulkOperationProcessor> dynBulkOprProcessorList,
-			long startTime, InputStream csvInputStream, JobData jobData, SessionDataBean sessionDataBean,
-			boolean isDynCategoryTagExist)
+			long startTime, InputStream csvInputStream, JobData jobData, SessionDataBean sessionDataBean)
 			throws BulkOperationException
 	{
 		Object staticDomainObject = null;
@@ -96,11 +95,11 @@ public class BulkOperationProcessController
 					Map<String, String> csvData = dataList.getValue(currentCSVRowCount);
 
 
-					if(!isDynCategoryTagExist)
+					if(dynBulkOprProcessorList.isEmpty())
 					{
 						staticDomainObject = staticBulkOprProcessor.process(csvData, currentCSVRowCount);
 					}
-					if (!dynBulkOprProcessorList.isEmpty())
+					else
 					{
 						HookingInformation hookingInformation = new HookingInformation();
 						hookingInformation.setStaticObject(staticDomainObject);

@@ -63,13 +63,13 @@ public class TemplateValidator
 				BulkOperationClass dynExtEntityBulkOperationClass = BulkOperationUtility.checkForDEObject(bulkOperationClass);
 				if(dynExtEntityBulkOperationClass != null)
 				{
-					Object dynExtEntityDomainObject = dynExtEntityBulkOperationClass.getClassObject().getConstructor().newInstance(
-							null);
+					HashMap<String,Object> dynExtObject=new HashMap<String, Object>();
 					DynEntityBulkOperationProcessor deProcessor =
 						new DynEntityBulkOperationProcessor(dynExtEntityBulkOperationClass, null);
-					deProcessor.processObject(dynExtEntityDomainObject, dynExtEntityBulkOperationClass, dataList.getValue(0),
+					deProcessor.processObject(dynExtObject, dynExtEntityBulkOperationClass, dataList.getValue(0),
 							"", true, 0);
-					checkForContainerID(dynExtEntityBulkOperationClass, dynExtEntityDomainObject);
+					HookingInformation hookingInformationFromTag=((List<HookingInformation>)dynExtEntityBulkOperationClass.getHookingInformation()).get(0);
+					validateHookingInformation(dataList,hookingInformationFromTag);
 				}
 				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility.checkForCategoryObject(bulkOperationClass);
 				if(categoryBulkOperationClass != null)
@@ -80,17 +80,7 @@ public class TemplateValidator
 					deProcessor.processObject(dynExtObject, categoryBulkOperationClass, dataList.getValue(0),
 							"", true, 0);
 					HookingInformation hookingInformationFromTag=((List<HookingInformation>)categoryBulkOperationClass.getHookingInformation()).get(0);
-					Collection<Attribute> attributes=hookingInformationFromTag.getAttributeCollection();
-					for (Attribute attribute : attributes)
-					{
-						if(dataList.getValue(0).get(attribute.getCsvColumnName())==null)
-						{
-							logger
-							.error("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
-							errorList.add("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
-
-						}
-					}
+					validateHookingInformation(dataList,hookingInformationFromTag);
 				}
 			}
 			catch (BulkOperationException bulkExp)
@@ -108,13 +98,21 @@ public class TemplateValidator
 		return new HashSet<String>(errorList);
 	}
 
-	private void checkForContainerID(BulkOperationClass DEBulkOperationClass, Object DEdomainObject)
-	{
-		if(((List<HookingInformation>)DEBulkOperationClass.getHookingInformation()).get(0).getRootContainerId() == null)
+	private void validateHookingInformation(DataList dataList,
+			HookingInformation hookingInformationFromTag) {
+		Collection<Attribute> attributes=hookingInformationFromTag.getAttributeCollection();
+		for (Attribute attribute : attributes)
 		{
-			checkForNullData(DEBulkOperationClass, "containerId");
+			if(dataList.getValue(0).get(attribute.getCsvColumnName())==null)
+			{
+				logger
+				.error("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
+				errorList.add("Column name "+attribute.getCsvColumnName()+" does not exist in CSV.");
+
+			}
 		}
 	}
+
 
 	/**
 	 * Validate Bulk Operation Main Class..
@@ -295,14 +293,14 @@ public class TemplateValidator
 			validateContainmentReference(operationName, referenceClassList, csvColumnNames,
 					maxRowNumbers);
 		}
-		if (bulkOperationClass.getDynExtEntityAssociationCollection() != null
+		/*if (bulkOperationClass.getDynExtEntityAssociationCollection() != null
 				&& !bulkOperationClass.getDynExtEntityAssociationCollection().isEmpty())
 		{
 			Collection<BulkOperationClass> dynExtEntityAssociationClassList = bulkOperationClass
 					.getDynExtEntityAssociationCollection();
 			validateContainmentReference(operationName, dynExtEntityAssociationClassList, csvColumnNames,
 					maxRowNumbers);
-		}
+		}*/
 		//category
 		//hookinginformation
 	}

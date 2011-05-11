@@ -17,8 +17,26 @@ public class HookingInformation
 	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
 	private Map<String,Object> dataHookingInformation=new HashMap<String, Object>();
 	private String categoryName=null;
+	private String entityGroupName;
+	private String entityName;
 
 
+	public String getEntityGroupName()
+	{
+		return entityGroupName;
+	}
+	public void setEntityGroupName(String entityGroupName)
+	{
+		this.entityGroupName = entityGroupName;
+	}
+	public String getEntityName()
+	{
+		return entityName;
+	}
+	public void setEntityName(String entityName)
+	{
+		this.entityName = entityName;
+	}
 	public String getCategoryName()
 	{
 		return categoryName;
@@ -49,7 +67,7 @@ public class HookingInformation
 
 	public void setDataHookingInformation(Map<String, Object> map)
 	{
-		this.dataHookingInformation = map;
+		dataHookingInformation = map;
 	}
 
 	public HookingInformation()

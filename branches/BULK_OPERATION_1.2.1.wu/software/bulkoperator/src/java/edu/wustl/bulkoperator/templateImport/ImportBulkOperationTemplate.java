@@ -35,8 +35,7 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	public ImportBulkOperationTemplate(String operationName, String dropdownName, String csvFile,
 			String xmlFile)
 	{
-		importTemplates(operationName, dropdownName, csvFile, xmlFile, "./"
-				+ System.getProperties().getProperty(BulkOperationConstants.CONFIG_DIR)
+		importTemplates(operationName, dropdownName, csvFile, xmlFile, "./"+System.getProperties().getProperty(BulkOperationConstants.CONFIG_DIR)
 				+ "/mapping.xml");
 	}
 
@@ -46,6 +45,8 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	 */
 	public static void main(String[] args)
 	{
+		/*args=new String[]{"SpecimenAnnotation_specimenBarcode","SpecimenAnnotation_specimenBarcode","G:/Dynamicxtensions/caTissue_v1.2_RC6_TAG/XMLAndCSVTemplate/SpecimenAnnotation_specimenBarcode.csv","G:/Dynamicxtensions/caTissue_v1.2_RC6_TAG/XMLAndCSVTemplate/SpecimenAnnotation_specimenBarcode.xml"};
+		System.setProperty("config.dir", "G:/Dynamicxtensions/bo_cp/software/bulkoperator/src/conf");*/
 		String operationName = args[0];
 		String dropdownName = args[1];
 		String csvFile = args[2];
