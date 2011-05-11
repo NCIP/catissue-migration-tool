@@ -14,7 +14,7 @@ public abstract class AbstractBulkOperationAppService
 	public AbstractBulkOperationAppService(boolean isAuthenticationRequired,
 			String userName, String password) throws Exception
 	{
-		this.isAuthRequired = isAuthenticationRequired;
+		isAuthRequired = isAuthenticationRequired;
 		initialize(userName, password);
 	}
 
@@ -62,10 +62,8 @@ public abstract class AbstractBulkOperationAppService
 		return insertObject(obj);
 	}
 
-	public Object insertDEObject(Object dynExtObject, Object staticObject) throws Exception
-	{
-		return insertDynExtObject(dynExtObject, staticObject);
-	}
+	public abstract Long insertDEObject(String entityGroupName,String entityName,final Map<String, Object> dataValue) throws Exception;
+
 
 	public Object search(Object obj) throws Exception
 	{
@@ -90,7 +88,6 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract protected Object searchObject(Object obj) throws Exception;
 
-	abstract protected Object insertDynExtObject(Object obj1, Object obj2) throws Exception;
 
 	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
 
