@@ -36,7 +36,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 	{
 
 		HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
-		Long recordId = null;
+		Long recordEntryId = null;
 		try
 		{
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService
@@ -46,13 +46,13 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
 					.getHookingInformation()).get(0);
 			getinformationForHookingData(csvData, hookingInformationFromTag);
-			recordId = bulkOprAppService
+			Long recordId = bulkOprAppService
 					.insertData(bulkOperationClass.getClassName(), dynExtObject);
 			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
 					.getSessionDataBean());
-			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -64,7 +64,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			logger.error(exp.getMessage(), exp);
 			throw exp;
 		}
-		return recordId;
+		return recordEntryId;
 	}
 
 	@Override
