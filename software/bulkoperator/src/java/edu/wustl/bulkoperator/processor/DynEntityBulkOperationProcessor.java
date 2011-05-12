@@ -33,7 +33,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			int csvRowCounter, HookingInformation hookingObjectInformation)
 			throws BulkOperationException, Exception
 	{
-		Long recordId=null;
+		Long recordEntryId=null;
 		try
 		{
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService.getInstance(
@@ -45,14 +45,14 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
 			getinformationForHookingData(csvData,hookingInformationFromTag);
 			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
-			recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
+			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
 
 			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
 					.getSessionDataBean());
-			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -64,7 +64,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			logger.error(exp.getMessage(), exp);
 			throw exp;
 		}
-		return recordId;
+		return recordEntryId;
 	}
 
 	@Override
