@@ -130,6 +130,7 @@ public class Attribute
 						String DATE_FORMAT_WITH_TIME = ApplicationProperties
 								.getValue("bulk.date.valid.format.withtime");
 						sdf = new SimpleDateFormat(DATE_FORMAT_WITH_TIME);
+						sdf.setLenient(false);
 						testDate = sdf.parse(value);
 						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
 					}
@@ -138,13 +139,9 @@ public class Attribute
 						String DATE_FORMAT = ApplicationProperties
 								.getValue("bulk.date.valid.format");
 						sdf = new SimpleDateFormat(DATE_FORMAT);
+						sdf.setLenient(false);
 						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
-					}
-					if (!sdf.format(testDate).equals(value))
-					{
-						ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-						throw new BulkOperationException(errorkey, null, csvColumnName);
+						format=ApplicationProperties.getValue("bulk.date.valid.format");
 					}
 				}
 				catch (ParseException parseExp)
@@ -159,11 +156,6 @@ public class Attribute
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
 				simpleDateFormat.setLenient(false);
 				valueObject = simpleDateFormat.parse(value);
-				if (!simpleDateFormat.format(valueObject).equals(value))
-				{
-					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-					throw new BulkOperationException(errorkey, null, csvColumnName);
-				}
 			}
 			catch (ParseException parseExp)
 			{
