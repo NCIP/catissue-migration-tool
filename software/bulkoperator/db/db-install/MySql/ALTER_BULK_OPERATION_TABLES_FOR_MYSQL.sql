@@ -7,7 +7,7 @@ ALTER TABLE  catissue_bulk_operation DROP column  CSV_TEMPLATE_TEMP;
 commit;
 
 ALTER TABLE  catissue_bulk_operation ADD(XML_TEMPALTE_TEMP LONGTEXT );
-UPDATE catissue_bulk_operation set XML_TEMPALTE_TEMP=CSV_TEMPLATE;
+UPDATE catissue_bulk_operation set XML_TEMPALTE_TEMP=XML_TEMPALTE;
 alter TABLE  catissue_bulk_operation DROP column  XML_TEMPALTE;
 ALTER TABLE  catissue_bulk_operation ADD(XML_TEMPALTE LONGTEXT);
 UPDATE catissue_bulk_operation set XML_TEMPALTE=XML_TEMPALTE_TEMP;
