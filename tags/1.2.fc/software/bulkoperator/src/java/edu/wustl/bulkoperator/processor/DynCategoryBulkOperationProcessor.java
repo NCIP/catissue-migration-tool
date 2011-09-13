@@ -46,13 +46,13 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
 					.getHookingInformation()).get(0);
 			getinformationForHookingData(csvData, hookingInformationFromTag);
-			recordId = bulkOprAppService
-					.insertData(bulkOperationClass.getClassName(), dynExtObject);
+
 			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
-			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
 					.getSessionDataBean());
-			bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			//bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			recordId = bulkOprAppService.insertData(bulkOperationClass.getClassName(),
+					dynExtObject, hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -120,8 +120,10 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
-										columnSuffix + "#" + i,csvData))
+						if (BulkOperationUtility
+								.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,
+										containmentObjectCollection, columnSuffix + "#" + i,
+										csvData))
 						{
 							Object obj = new HashMap<Long, Object>();
 							processObject(obj, containmentObjectCollection, csvData, columnSuffix
