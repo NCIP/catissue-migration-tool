@@ -44,12 +44,12 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
 			getinformationForHookingData(csvData,hookingInformationFromTag);
 
-			bulkOprAppService.insertDEObject(dynExtObject, hookingObjectInformation.getStaticObject());
+			
 			hookingObjectInformation.setDynamicExtensionObjectId(
 					getBulkOperationClass().invokeGetIdMethod(dynExtObject));
 			hookingObjectInformation.setRootContainerId(hookingInformationFromTag.getRootContainerId());
-
-			bulkOprAppService.hookStaticDEObject(hookingObjectInformation);
+			bulkOprAppService.insertDEObject(dynExtObject, hookingObjectInformation.getStaticObject());
+			
 		}
 		catch (BulkOperationException bulkOprExp)
 		{

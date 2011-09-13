@@ -94,6 +94,6 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract protected List<Object> hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
 
-	abstract public Long insertData(final String categoryName,final Map<String, Object> dataValue)
+	abstract public Long insertData(final String categoryName,final Map<String, Object> dataValue,Object hookingInformationObject)
 			throws Exception;
 }
