@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions>
+
+	<definition name=".catissuecore.homePageDef" path="/pages/Layout.jsp">
+		@@tilesTitle@@
+		@@tilesHeader@@
+		@@tilesAppHeader@@
+		@@tilesMainMenu@@
+		@@tilesContent@@
+		@@tilesAppFooter@@
+	</definition>
+
+	<definition name=".catissuecore.bulkOperationDef" extends=".catissuecore.homePageDef">
+		<put name="content" value="/pages/content/manageBioSpecimen/bulkOperations/BulkOperation.jsp" />
+	</definition>
+
+</tiles-definitions>
