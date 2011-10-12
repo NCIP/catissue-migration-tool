@@ -16,7 +16,7 @@
 			<headfilter lines="1" skip="4"/>
 		</filterchain>
 	</loadfile>
-	<property name="software.dir" location=".." />
+	<property name="software.dir" location="../../" />
 	<property name="src.dir" location="${software.dir}/bulkoperator/src"/>
 	<property name="web.dir" location="${src.dir}/web"/>
 	<property name="java.dir" location="${software.dir}/bulkoperator/src/java" />
