@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Ant Script to setup configuration files for test cases-->
 
-<project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="../">
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
-			<pathelement location="./lib/ant-contrib.jar" />
+			<pathelement location="${basedir}/src/lib/ant-contrib.jar" />
 		</classpath>
 	</taskdef>
 
-	<property file="./bulkOperation.properties"/>
+	<property file="${basedir}/conf/bulkOperation.properties"/>
 
 	<loadfile property="dist.revision" srcFile="./.svn/entries">
 		<filterchain>
 			<headfilter lines="1" skip="4"/>
 		</filterchain>
 	</loadfile>
-	<property name="software.dir" location="../../" />
-	<property name="src.dir" location="${software.dir}/bulkoperator/src"/>
-	<property name="web.dir" location="${src.dir}/web"/>
-	<property name="java.dir" location="${software.dir}/bulkoperator/src/java" />
+
+	<property name="software.dir" location="${basedir}/../" />
+	<property name="src.dir" location="${basedir}/src/main/java"/>
+	<property name="web.dir" location="${basedir}/src/main/web"/>
+	<property name="dist.dir" location="${basedir}/dist"/>
+
 	<property name="common.dir" location="${software.dir}/common" />
 	<property name="local.repo.dir" location="${software.dir}/local-ivy-repo" />
 	<property name="target.dir" location="${software.dir}/target" />
@@ -83,7 +85,7 @@
 
 	<condition property="local.cbiit-ivy-repo.dir" value="">
 		<or>
-		<os family="unix" />
+		    <os family="unix" />
 			<os family="mac" />
 		</or>
 	</condition>
@@ -110,7 +112,7 @@
 
 
 	<path id="cp">
-		<fileset dir="${src.dir}/lib">
+		<fileset dir="${basedir}/src/lib">
 			<include name="**/*.jar"/>
 		</fileset>
 		<fileset dir="${target.dir}/lib/app_lib">
@@ -121,6 +123,7 @@
 	</path>
 
     <target name="init">
+        <mkdir dir="${dist.dir}" />
     	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
 		<if>
 			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
@@ -151,7 +154,8 @@
     </target>
 
 	<target name="clean" description="cleans the previous complied java class files">
-		<delete includeemptydirs="true">
+		<delete dir="${dist.dir}" />
+        <delete includeemptydirs="true">
 			<fileset dir="${temp.dir}">
 				<include name="**/*" />
 			</fileset>
@@ -195,10 +199,10 @@
 
 	<target name="compile" depends="clean,retrieve-ivy-files" description="java classes are compiled">
 		<echo message="Compling classes................" />
-		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5">
-    		<src path="${java.dir}"/>
+		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
+    		<src path="${src.dir}"/>
             <classpath>
-       			<fileset dir="${src.dir}/lib">
+       			<fileset dir="${basedir}/src/lib">
         			<include name="**/*.jar"/>
         	  	</fileset>
 				<fileset dir="${target.dir}/lib/app_lib">
@@ -207,12 +211,12 @@
             </classpath>
         </javac>
 		<copy todir="${temp.dir}" overwrite="true">
-			<fileset dir="${java.dir}" >
+			<fileset dir="${src.dir}" >
 				<include name="**/*.hbm.xml" />
 			</fileset>
 		</copy>
 		<copy todir="${temp.dir}" overwrite="true">
-			<fileset dir="${java.dir}" >
+			<fileset dir="${src.dir}" >
 				<include name="ApplicationResources.properties" />
 			</fileset>
 		</copy>
@@ -276,12 +280,12 @@
 		<delete dir="${zip.dir}" />
 		<mkdir dir="${zip.dir}" />
 		<copy todir="${zip.dir}" overwrite="true">
-			<fileset file="${src.dir}/conf/mapping.xml" />
-			<fileset file="${src.dir}/java/ApplicationResources.properties" />
-			<fileset file="${src.dir}/java/bulkoperation-struts-config.xml" />
-			<fileset file="${src.dir}/java/bulkoperation-tiles-defs.xml" />
-			<fileset file="${src.dir}/java/log4j.properties" />
-			<fileset file="${src.dir}/conf/bulkoperationintegration.xml" />
+			<fileset file="${basedir}/conf/mapping.xml" />
+			<fileset file="${src.dir}/ApplicationResources.properties" />
+			<fileset file="${src.dir}/bulkoperation-struts-config.xml" />
+			<fileset file="${src.dir}/bulkoperation-tiles-defs.xml" />
+			<fileset file="${src.dir}/log4j.properties" />
+			<fileset file="${basedir}/conf/bulkoperationintegration.xml" />
 		</copy>
 		<copy todir="${zip.dir}/css" overwrite="true">
 			<fileset dir="${web.dir}/css" />
@@ -300,7 +304,7 @@
 		<delete dir="${zip.dir}" /> -->
 	</target>
 
-	<target name="dist" depends="create_bulkoperator_jar,create_bulkoperator_zip">
+	<target name="dist" depends="create_bulkoperator_jar, create_bulkoperator_zip">
 	</target>
 
 </project>
