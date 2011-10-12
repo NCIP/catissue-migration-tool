@@ -4,6 +4,11 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/main/web" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/software/bulkoperator/src/test/resources" isTestSource="true" />
     </content>
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
