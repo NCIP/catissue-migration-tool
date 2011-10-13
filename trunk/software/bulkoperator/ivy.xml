@@ -1,0 +1,31 @@
+<ivy-module version="2.0">
+    <info organisation="gov.nih.nci.catissue" module="ivyTest"/>
+    <dependencies>
+
+<!-- LOCAL SVN REPO -->
+		<dependency org="local" name="MigrationTool" rev="1.0"/>
+
+<!-- PUBLIC REPO -->
+        <dependency org="log4j" name="log4j" rev="1.2.14"/>
+        <dependency org="junit" name="junit" rev="4.5" />
+        <dependency org="dozer" name="dozer-osgi" rev="5.2.1"/>
+        <dependency org="javax.activation" name="activation" rev="1.1.1"/>
+        <dependency org="net.sourceforge.addressing" name="addressing" rev="1.1"/>
+        <dependency org="ant-contrib" name="ant-contrib" rev="1.0b2"/>
+        <dependency org="antlr" name="antlr" rev="2.7.5"/>
+        <dependency org="asm" name="asm" rev="1.5.3"/>
+        <dependency org="asm" name="asm-attrs" rev="1.5.3"/>
+        <dependency org="c3p0" name="c3p0" rev="0.9.0"/>
+        <dependency org="castor" name="castor" rev="0.9.9"/>
+        <dependency org="cglib" name="cglib" rev="2.2.2"/>
+        <dependency org="ncicb" name="clm" rev="3.2"/>
+        <dependency org="globus" name="jcog" rev="1.2"/>
+        <dependency org="commons-beanutils" name="commons-beanutils" rev="1.6"/>
+        <dependency org="commons-codec" name="commons-codec" rev="1.3"/>
+        <dependency org="commons-collections" name="commons-collections" rev="3.2"/>
+        <dependency org="commons-digester" name="commons-digester" rev="1.5"/>
+        <dependency org="commons-discovery" name="commons-discovery" rev="0.2"/>
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.1"/>
+		
+    </dependencies>
+</ivy-module>

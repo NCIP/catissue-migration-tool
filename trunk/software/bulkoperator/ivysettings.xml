@@ -1,0 +1,29 @@
+<ivysettings>
+	<settings defaultResolver="default-resolver" validate="false" />
+
+	<resolvers>
+		<chain name="default-resolver" returnFirst="true">
+
+
+            <filesystem name="localResolver" local="true" >
+                  <ivy pattern="${user.home}/.ivy2/cache/[organisation]/[module]/ivy-[revision].xml"/>
+                  <artifact pattern="${user.home}/.ivy2/cache/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+            </filesystem>
+
+            <url name="cbiit-ivy-repo">
+                <artifact pattern="https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
+                <ivy pattern="https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/[organisation]/[module]/[revision]/ivy.xml" />
+            </url>
+
+            <ibiblio name="mvn.repo" root="http://repo1.maven.org/maven2/" m2compatible="true" changingPattern=".*SNAPSHOT" />
+
+			<filesystem name="local-repo-jars">
+             	<ivy pattern="${ivy.local.jars}/ivy.xml"/>
+             	<artifact pattern="${ivy.local.jars}/[artifact].[ext]"/>
+        	</filesystem>
+
+        </chain>
+
+	</resolvers>
+</ivysettings>
+

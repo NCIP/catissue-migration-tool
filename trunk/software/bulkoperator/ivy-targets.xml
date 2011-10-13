@@ -1,0 +1,56 @@
+
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property name="ivy.install.version" value="2.0.0-beta1"/>
+    <property name="ivy.install.version" value="2.0.0-beta1"/>
+    <property name="ivy.jar.dir" value="${user.home}/.ivy"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+    <property name="ivy.local.jars" value="${basedir}/ivy.local.jars"/>
+
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="organization" value="gov.nih.nci.catissue"/>
+
+    <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
+    <property name="pub.revision" value="1.2"/>
+    <property name="revision" value="1.2"/>
+    <property name="module" value="AdvancedQuery"/>
+
+
+    <!-- IVY -->
+	<target name="clean-ivy" description="Clean the ivy installation">
+		<delete dir="${ivy.jar.dir}"/>
+	</target>
+	
+	<target name="clean-cache" depends="init-ivy" description="--&gt; clean the ivy cache">
+		<ivy:cleancache/>
+	</target>
+
+    <target name="resolve" depends="init-ivy" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve pattern="${basedir}/lib/[artifact]-[revision].[ext]" />
+    </target>
+
+    <target name="download-ivy" unless="skip.download">
+    	<mkdir dir="${ivy.jar.dir}"/>
+		<echo message="Installing ivy..."/>
+    	<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+    </target>
+
+    <target name="init-ivy" depends="download-ivy">
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="publish" depends="init-ivy">
+        <ivy:publish resolver="localResolver"
+                     pubrevision="${pub.revision}"
+                     overwrite="true"
+                     organisation="${organization}"
+                     module="${module}"
+                     status="release"
+                     revision="${revision}"
+                     artifactspattern="${dist.dir}/[artifact].[ext]"/>
+    </target>
+
+</project>

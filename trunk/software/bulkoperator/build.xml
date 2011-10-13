@@ -3,6 +3,8 @@
 
 <project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
 
+    <import file="ivy-targets.xml" />
+
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
 			<pathelement location="${basedir}/src/lib/ant-contrib.jar" />
@@ -23,14 +25,10 @@
 	<property name="dist.dir" location="${basedir}/dist"/>
 
 	<property name="common.dir" location="${software.dir}/common" />
-	<property name="local.repo.dir" location="${software.dir}/local-ivy-repo" />
 	<property name="target.dir" location="${software.dir}/target" />
-	<property name="bda-download.dir" location="${common.dir}/bda-download" />
-	<property name="ivy.settings.dir" location="${common.dir}/ivy" />
 	<property name="lib.dir" location="${target.dir}/lib" />
 	<property name="temp.dir" location="${target.dir}/temp" />
 	<property name="reports.dir" location="${target.dir}/reports" />
-	<property name="bda-utils.dir" location="${target.dir}/bda-utils" />
 	<property name="log.dir" location="${target.dir}/logs" />
 	<property name="dist.exploded" location="${target.dir}/dist/exploded" />
 	<property name="download.dir" location="${target.dir}/download" />
@@ -71,45 +69,7 @@
 
 	<property name="conf.dir" value="${basedir}\conf" />
 
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${bda-utils.dir}/ant-contrib-1.0nci.jar" />
-		</classpath>
-	</taskdef>
-
-	<property name="bda-utils.dir" location="${target.dir}/bda-utils" />
-	<property name="project.properties.file" value="${software.dir}/build/project.properties" />
-	<property file="${project.properties.file}" />
-	<import file="${bda-utils.dir}/bda-build-utils-${bda.version}.xml" />
-
-
-	<condition property="local.cbiit-ivy-repo.dir" value="">
-		<or>
-		    <os family="unix" />
-			<os family="mac" />
-		</or>
-	</condition>
-
-	<condition property="local.cbiit-ivy-repo.dir" value="c:/">
-		<os family="windows" />
-	</condition>
-
-
-	<path id="bda-utils.classpath">
-		<fileset dir="${bda-utils.dir}">
-			<include name="**/*.jar" />
-		</fileset>
-	</path>
-	<path id="ivy.classpath">
-		<fileset dir="${lib.dir}">
-			<include name="ivy-2.0.0.jar" />
-		</fileset>
-	</path>
-
-	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath" />
-	<taskdef name="xmltask" classname="com.oopsconsultancy.xmltask.ant.XmlTask"  classpathref="bda-utils.classpath"/>
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="bda-utils.classpath"/>
-
+	<property file="${software.dir}/build/project.properties" />
 
 	<path id="cp">
 		<fileset dir="${basedir}/src/lib">
@@ -164,40 +124,7 @@
 
 
 
-	<property name="ivy.settings.file" location="${common.dir}/ivy/cbiit-ivy-settings.xml" />
-		<target name="ivy-settings">
-			<property name="ivy.dep.file" value="${common.dir}/bda-download/ivy-bda.xml"/>
-			<ivy:settings file="${ivy.settings.file}"/>
-		</target>
-
-	<!--<target name="ivy-retrieve-dao" depends="ivy-settings" description="Updates the local ivy repository">
-			 <ivy:resolve refresh="true" conf="app_lib"/>
-			 <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" conf="app_lib" />
-		</target>
-
-		<target name="ivy-retrieve-commonpack" depends="ivy-settings" description="Updates the local ivy repository">
-			 <ivy:resolve refresh="true" conf="commonpackage"/>
-			 <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" conf="commonpackage" />
-		</target>
-
-		<target name="ivy-retrieve-securitymanager" depends="ivy-settings" description="Updates the local ivy repository">
-			 <ivy:resolve refresh="true" conf="securitymanager"/>
-			 <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" conf="securitymanager" />
-		</target>
-
-		<target name="ivy-retrieve-washu-commons" depends="ivy-settings" description="Updates the local ivy repository">
-			 <ivy:resolve refresh="true" conf="washu-commons"/>
-			 <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" conf="washu-commons" />
-		</target> -->
-
-	<target name="retrieve-ivy-files" depends="ivy-settings"  description="Updates the local ivy repository">
-		<ivy:resolve refresh="true" conf="app_lib"/>
-		 <ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision].[ext]" conf="app_lib" />
-
-	</target>
-
-
-	<target name="compile" depends="clean,retrieve-ivy-files" description="java classes are compiled">
+	<target name="compile" depends="clean, resolve" description="java classes are compiled">
 		<echo message="Compling classes................" />
 		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
     		<src path="${src.dir}"/>
