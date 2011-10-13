@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Ant Script to setup configuration files for test cases-->
 
-<project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="../">
+<project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
