@@ -11,8 +11,8 @@
     <property name="organization" value="gov.nih.nci.catissue"/>
 
     <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
-    <property name="pub.revision" value="1.2"/>
-    <property name="revision" value="1.2"/>
+    <property name="pub.revision" value="${bulkoperator.jar.version}"/>
+    <property name="revision" value="${bulkoperator.jar.version}"/>
     <property name="module" value="AdvancedQuery"/>
 
 

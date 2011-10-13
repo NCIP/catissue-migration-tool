@@ -83,7 +83,6 @@
 	</path>
 
     <target name="init">
-        <mkdir dir="${dist.dir}" />
     	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
 		<if>
 			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
@@ -114,7 +113,6 @@
     </target>
 
 	<target name="clean" description="cleans the previous complied java class files">
-		<delete dir="${dist.dir}" />
         <delete includeemptydirs="true">
 			<fileset dir="${temp.dir}">
 				<include name="**/*" />
@@ -172,7 +170,7 @@
 
 	<target name="create_bulkoperator_jar" depends="compile" description="bulk operator jar is created">
 
-		<jar destfile="${local.repo.dir}/bulkoperator.jar" basedir="${temp.dir}">
+		<jar destfile="${dist.dir}/bulkoperator.jar" basedir="${temp.dir}">
             <manifest>
 				<section name="${bulkoperator.jar.details}">
 					<attribute name="Main-Class" value="edu.wustl.bulkoperator.BulkOperator"/>
@@ -186,6 +184,7 @@
 	</target>
 	
 	<property name="meta.dir" value="${dist.dir}/META-INF" />
+
 	<target name="version_info">
 		<delete file="${meta.dir}/MANIFEST.MF" />
 		<mkdir dir="${meta.dir}" />
@@ -200,12 +199,13 @@
 	</target>
 
 	<target name="create_bulkoperator_zip" description="bulk operator zip file is created">
-		<property name="zip.dir" value="${dist.dir}" />
+		<property name="zip.dir" value="${dist.dir}/zip" />
 		<property name="zip.file" value="${dist.dir}/bulkoperator.zip" />
 
 		<delete file="${zip.file}" />
 		<delete dir="${zip.dir}" />
 		<mkdir dir="${zip.dir}" />
+
 		<copy todir="${zip.dir}" overwrite="true">
 			<fileset file="${basedir}/conf/mapping.xml" />
 			<fileset file="${src.dir}/ApplicationResources.properties" />

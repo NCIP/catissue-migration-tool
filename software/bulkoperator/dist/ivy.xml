@@ -2,7 +2,6 @@
 <ivy-module version="2.0">
 	<info organisation="gov.nih.nci.catissue" module="MigrationTool" revision="1.2" status="release" />
 	<publications>
-		<artifact name="AdvancedQuery" ext="jar" type="jar" />
-		<artifact name="query" ext="war" type="war" />
+		<artifact name="bulkoperator" ext="jar" type="jar" />
 	</publications>
 </ivy-module>
