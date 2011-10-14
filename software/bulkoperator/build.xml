@@ -7,7 +7,7 @@
 
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
-			<pathelement location="${basedir}/src/lib/ant-contrib.jar" />
+			<pathelement location="${basedir}/lib/ant-contrib.jar" />
 		</classpath>
 	</taskdef>
 
@@ -72,7 +72,7 @@
 	<property file="${software.dir}/build/project.properties" />
 
 	<path id="cp">
-		<fileset dir="${basedir}/src/lib">
+		<fileset dir="${basedir}/lib">
 			<include name="**/*.jar"/>
 		</fileset>
 		<fileset dir="${target.dir}/lib/app_lib">
@@ -127,7 +127,7 @@
 		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
     		<src path="${src.dir}"/>
             <classpath>
-       			<fileset dir="${basedir}/src/lib">
+       			<fileset dir="${basedir}/lib">
         			<include name="**/*.jar"/>
         	  	</fileset>
 				<fileset dir="${target.dir}/lib/app_lib">
