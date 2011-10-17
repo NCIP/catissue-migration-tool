@@ -2,6 +2,11 @@
     <info organisation="gov.nih.nci.catissue" module="ivyTest"/>
     <dependencies>
 
+<!--
+    ToDo Move dependencies to cbiit + maven
+    https://bugzilla.wustl.edu/bugzilla/show_bug.cgi?id=21223
+-->
+
 <!-- LOCAL SVN REPO -->
 		<dependency org="local" name="MigrationTool" rev="1.0"/>
 
