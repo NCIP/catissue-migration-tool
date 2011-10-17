@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--Ant Script to setup configuration files for test cases-->
 
-<project name="Bulk Operation" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
+<project name="Bulk Operation" default="dist" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
 
     <import file="ivy-targets.xml" />
-
-	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-		<classpath>
-			<pathelement location="${basedir}/lib/ant-contrib.jar" />
-		</classpath>
-	</taskdef>
+    <target name="postResolve" depends="resolve">
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+            <classpath>
+                <fileset dir="${basedir}/lib"><include name="ant-contrib*.jar" /></fileset>
+            </classpath>
+        </taskdef>
+    </target>
 
 	<property file="${basedir}/conf/bulkOperation.properties"/>
 
@@ -23,6 +24,7 @@
 	<property name="src.dir" location="${basedir}/src/main/java"/>
 	<property name="web.dir" location="${basedir}/src/main/web"/>
 	<property name="dist.dir" location="${basedir}/dist"/>
+	<property name="target.dir" location="${software.dir}/target"/>
 
 	<property name="common.dir" location="${software.dir}/common" />
 	<property name="target.dir" location="${software.dir}/target" />
