@@ -1,0 +1,21 @@
+<ivy-module version="2.0">
+    <info organisation="gov.nih.nci.catissue" module="ivyTest"/>
+    <dependencies>
+
+<!--
+    ToDo Move dependencies to cbiit + maven
+    https://bugzilla.wustl.edu/bugzilla/show_bug.cgi?id=21223
+-->
+
+<!-- LOCAL SVN REPO -->
+		<dependency org="local" name="MigrationTool" rev="1.0"/>
+
+<!-- PUBLIC REPO -->
+        <dependency org="log4j" name="log4j" rev="1.2.14"/>
+        <dependency org="gov.nih.nci.commonpackage" name="commonpackage" rev="1.1.8.1" />
+        <dependency org="gov.nih.nci.dao" name="dao" rev="1.1.9.1" />
+        <dependency org="gov.nih.nci.securitymanager" name="securitymanager" rev="1.1.7.1" />
+        <dependency org="gov.nih.nci.washu-commons" name="washu-commons" rev="1.1.7" />
+
+    </dependencies>
+</ivy-module>
