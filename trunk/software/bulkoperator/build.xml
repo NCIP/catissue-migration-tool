@@ -85,6 +85,7 @@
 	</path>
 
     <target name="init">
+    	
     	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
 		<if>
 			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
@@ -115,7 +116,7 @@
     </target>
 
 	<target name="clean" description="cleans the previous complied java class files">
-        <delete includeemptydirs="true">
+        <delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${temp.dir}">
 				<include name="**/*" />
 			</fileset>
@@ -125,6 +126,7 @@
 
 
 	<target name="compile" depends="clean, resolve" description="java classes are compiled">
+		<mkdir dir="${temp.dir}" />
 		<echo message="Compling classes................" />
 		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
     		<src path="${src.dir}"/>
@@ -132,9 +134,6 @@
        			<fileset dir="${basedir}/lib">
         			<include name="**/*.jar"/>
         	  	</fileset>
-				<fileset dir="${target.dir}/lib/app_lib">
-            		<include name="**/*.jar"/>
-            	</fileset>
             </classpath>
         </javac>
 		<copy todir="${temp.dir}" overwrite="true">
