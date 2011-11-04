@@ -8,7 +8,7 @@
     <property name="ivy.local.jars" value="${basedir}/ivy.local.jars"/>
 
     <property name="dist.dir" value="${basedir}/dist"/>
-    <property name="organization" value="gov.nih.nci.catissue"/>
+    <property name="organization" value="gov.nih.nci.bulkoperation"/>
 
     <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
     <property name="pub.revision" value="${bulkoperator.jar.version}"/>
