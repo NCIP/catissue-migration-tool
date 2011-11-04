@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="gov.nih.nci.catissue" module="ivyTest"/>
+    <info organisation="gov.nih.nci.catissue" module="bulk-operations"/>
     <dependencies>
 
 <!--
