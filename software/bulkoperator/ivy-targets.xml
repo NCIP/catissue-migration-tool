@@ -13,7 +13,7 @@
     <!-- CHANGE THE NEXT PROPERTIES TO MATCH YOUR PROJECT -->
     <property name="pub.revision" value="${bulkoperator.jar.version}"/>
     <property name="revision" value="${bulkoperator.jar.version}"/>
-    <property name="module" value="AdvancedQuery"/>
+    <property name="module" value="bulkoperation"/>
 
 
     <!-- IVY -->
