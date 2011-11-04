@@ -15,7 +15,6 @@
     <property name="revision" value="${bulkoperator.jar.version}"/>
     <property name="module" value="bulk-operations"/>
 
-
     <!-- IVY -->
 	<target name="clean-ivy" description="Clean the ivy installation">
 		<delete dir="${ivy.jar.dir}"/>
