@@ -117,58 +117,25 @@ public class Attribute
 			String dataType) throws BulkOperationException
 	{
 		Object valueObject = null;
-		if (!validate && dataType.equals("java.util.Date"))
-		{
-			if (format == null || "".equals(format))
-			{
-				SimpleDateFormat sdf = null;
-				Date testDate = null;
-				try
-				{
-					if (value.indexOf(":") > -1)
-					{
-						String DATE_FORMAT_WITH_TIME = ApplicationProperties
-								.getValue("bulk.date.valid.format.withtime");
-						sdf = new SimpleDateFormat(DATE_FORMAT_WITH_TIME);
-						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
-					}
-					else
-					{
-						String DATE_FORMAT = ApplicationProperties
-								.getValue("bulk.date.valid.format");
-						sdf = new SimpleDateFormat(DATE_FORMAT);
-						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
-					}
-					if (!sdf.format(testDate).equals(value))
-					{
-						ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-						throw new BulkOperationException(errorkey, null, csvColumnName);
-					}
-				}
-				catch (ParseException parseExp)
-				{
-					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.date.format.error");
-					throw new BulkOperationException(errorkey, parseExp, csvColumnName);
-				}
+		if (!validate && dataType.equals("java.util.Date")) {
+			if (format == null || "".equals(format)) {
+					format = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
 			}
-			try
-			{
+			try {
+				if(format.contains(":") && value!=null && value.contains(":"))
+				{
+					value=value+" 00:00";
+				}
 				Locale locale = CommonServiceLocator.getInstance().getDefaultLocale();
 				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
 				simpleDateFormat.setLenient(false);
 				valueObject = simpleDateFormat.parse(value);
-				if (!simpleDateFormat.format(valueObject).equals(value))
-				{
-					ErrorKey errorkey = ErrorKey.getErrorKey("bulk.incorrect.data.error");
-					throw new BulkOperationException(errorkey, null, csvColumnName);
-				}
-			}
-			catch (ParseException parseExp)
-			{
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.date.format.error");
-				throw new BulkOperationException(errorkey, parseExp, csvColumnName);
+				
+			} catch (ParseException parseExp) {
+				ErrorKey errorkey = ErrorKey
+						.getErrorKey("bulk.date.format.error");
+				throw new BulkOperationException(errorkey, parseExp,
+						csvColumnName);
 			}
 
 		}
@@ -187,5 +154,4 @@ public class Attribute
 		}
 		return valueObject;
 	}
-
 }
