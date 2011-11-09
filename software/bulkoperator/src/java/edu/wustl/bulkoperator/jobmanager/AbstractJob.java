@@ -75,6 +75,7 @@ public abstract class AbstractJob implements Runnable
 	public void run()
 	{
 		jobData = new JobData(jobName, jobStartedBy, jobStatusListener);
+		//this.jobStatusListener.jobStatusCreated(jobData);
 		doJob();
 	}
 
