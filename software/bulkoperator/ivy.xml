@@ -1,5 +1,11 @@
 <ivy-module version="2.0">
-    <info organisation="gov.nih.nci.catissue" module="bulk-operations"/>
+	<info organisation="gov.nih.nci.catissue" module="bulk-operations" revision="${bulkoperator.jar.version}" status="integration" />
+	
+	<publications>
+		<artifact name="bulkoperator" ext="jar" type="jar" />
+		<artifact name="bulkoperator" type="pom" ext="pom" />
+	</publications>
+	
     <dependencies>
 
 <!--
