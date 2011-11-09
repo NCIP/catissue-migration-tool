@@ -336,14 +336,6 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 					retrievedOperationName, xmlTemplateInputSource);
 			validateBulkOperation(retrievedOperationName,dataList,bulkOperator);
 			BulkOperationClass bulkOperationClass = bulkOperator.getMetadata().getBulkOperationClass().iterator().next();
-			if(bulkOperationClass.getTemplateName()==null)
-			{
-				bulkOperationClass.setTemplateName(bulkOperator.getMetadata().getTemplateName());
-			}
-			if(bulkOperationClass.getBatchSize()==null || bulkOperationClass.getBatchSize()==0)
-			{
-				bulkOperationClass.setBatchSize(bulkOperator.getMetadata().getBatchSize());
-			}
 			jobId = startBulkOperation(retrievedOperationName, csvFileInputStream,
 					sessionDataBean, bulkOperationClass);
 		}
@@ -392,10 +384,11 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		try
 		{
 			String mappingFilePath = CommonServiceLocator.getInstance().getPropDirPath()
-					+ File.separator + "bulkOperatorXMLTemplateRules.xml";
+					+ File.separator + "mapping.xml";
 			logger.info(mappingFilePath);
 			logger.info("templateInputSource : "+templateInputSource);
-			bulkOperator = new BulkOperator(templateInputSource, mappingFilePath);
+			InputSource mappingFileInputSource = new InputSource(mappingFilePath);
+			bulkOperator = new BulkOperator(templateInputSource, mappingFileInputSource);
 		}
 		catch (BulkOperationException bulkExp)
 		{
