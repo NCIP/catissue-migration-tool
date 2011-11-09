@@ -19,8 +19,8 @@ public class Attribute
 	private String name;
 	private String dataType;
 	private String csvColumnName;
-	private Boolean updateBasedOn=false;
-	private String belongsTo="";
+	private Boolean updateBasedOn;
+	private String belongsTo;
 	private Long id;
 	private String format;
 

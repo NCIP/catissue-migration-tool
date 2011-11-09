@@ -114,7 +114,4 @@ public class HookingInformation
 	{
 		this.attributeCollection = attributeCollection;
 	}
-	public void addAttribute(Attribute attribute) {
-	    this.attributeCollection.add(attribute);
-	}
 }
