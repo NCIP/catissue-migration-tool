@@ -143,6 +143,7 @@ public class BulkOperationProcessController
 					{
 						try
 						{
+							
 							insertReportInDatabase(successCount, failureCount,
 									JobData.JOB_IN_PROGRESS_STATUS, dataList, staticProcessor
 											.getBulkOperationClass().getTemplateName(), startTime,

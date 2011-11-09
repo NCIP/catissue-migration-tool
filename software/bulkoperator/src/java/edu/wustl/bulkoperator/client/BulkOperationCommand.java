@@ -219,21 +219,7 @@ public class BulkOperationCommand
 	 * This method will be called to remove extra path separator.
 	 * @param url : application URL
 	 * @return URL having no path separator in the end. 
-	 *//*
-	private String removeExtraSeparatorFromURL(String url)
-	{
-		String updatedURL = url;
-		if(url.charAt(url.length()-1) == '/' ||url.charAt(url.length()-1) == '\\')
-		{
-			char[] array = new char[100];
-			url.getChars(0, url.length()-1, array, 0);
-			updatedURL = updatedURL.copyValueOf(array);
-			removeExtraSeparatorFromURL(updatedURL);
-			
-		}
-		logger.info("URL :"+updatedURL);
-		return updatedURL;
-	}*/
+	 */
 	
 	
 	
@@ -264,12 +250,7 @@ public class BulkOperationCommand
 	}
 	/**
 	 * Bulk parameters.
-	 *//*
-	public static final String[] bulkParams = {"Operation","CSV file",
-		"Template file",
-		"Application URL",
-		"KeyStore location"
-	};*/
+	 */
 
 	/**
 	 * Bulk Operation Name.
