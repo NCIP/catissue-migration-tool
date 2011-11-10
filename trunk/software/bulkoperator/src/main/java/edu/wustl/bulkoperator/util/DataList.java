@@ -28,21 +28,6 @@ public class DataList
 	{
 		return headerList;
 	}
-
-	/*
-	public void setHeaderList(List<String>list)
-	{
-		headerList = list;
-	}
-	
-	public void setHeaderList(String[] headers)
-	{
-		for(int i=0;i<headers.length;i++)
-		{
-			addHeader(headers[i]);
-		}
-	}*/
-
 	public void addHeader(String header)
 	{
 		headerList.add(header);
@@ -77,23 +62,6 @@ public class DataList
 	{
 		return  valueList.size();
 	}
-	
-	/*public boolean checkIfColumnExists(String headerName)
-	{
-		return headerList.contains(headerName);
-	}
-	public boolean checkIfColumnHasAValue(int index,String headerName)
-	{
-		boolean hasValue = false;
-		Hashtable<String,String> valueTable = valueList.get(index);
-		Object value = valueTable.get(headerName);
-		if(value!=null && !"".equals(value.toString()))
-		{
-			hasValue = true;
-		}
-		return hasValue;
-	}*/
-
 	public boolean checkIfAtLeastOneColumnHasAValue(int index,List<String> attributeList,
 			Map<String, String> csvData)
 	{

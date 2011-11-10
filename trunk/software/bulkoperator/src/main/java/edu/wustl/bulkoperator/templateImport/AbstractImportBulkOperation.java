@@ -24,10 +24,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.digester3.Digester;
+import org.apache.commons.digester3.binder.DigesterLoader;
+import org.xml.sax.SAXException;
+
 import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
-import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.DataList;
@@ -104,16 +107,19 @@ public abstract class AbstractImportBulkOperation
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.incorrect.csv.file");
 			throw new BulkOperationException(errorkey, exp, "");
 		}
-		BulkOperationMetaData metaData = null;
+		BulkOperationMetaData bulkOperationMetaData  = null;
 		try
 		{
-			metaData = new BulkOperationMetadataUtil().unmarshall(xmlFile, mappingXml);
+			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingXml));
+			Digester digester = digesterLoader.newDigester();
+            InputStream inputStream = new FileInputStream(xmlFile);
+            bulkOperationMetaData = digester.parse(inputStream);
 		}
-		catch (BulkOperationException exp)
-		{
-			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
+		 catch (SAXException e) {
+			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
+			 throw new BulkOperationException(errorkey, null, "");
 		}
-		Collection<BulkOperationClass> classList = metaData.getBulkOperationClass();
+		Collection<BulkOperationClass> classList = bulkOperationMetaData.getBulkOperationClass();
 		if (classList == null)
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
@@ -124,7 +130,7 @@ public abstract class AbstractImportBulkOperation
 			Iterator<BulkOperationClass> iterator = classList.iterator();
 			if (iterator.hasNext())
 			{
-				BulkOperationClass bulkOperationClass = iterator.next();
+				BulkOperationClass bulkOperationClass=iterator.next();
 				TemplateValidator templateValidator = new TemplateValidator();
 				errorList = templateValidator.validateXmlAndCsv(bulkOperationClass, operationName,
 						dataList);

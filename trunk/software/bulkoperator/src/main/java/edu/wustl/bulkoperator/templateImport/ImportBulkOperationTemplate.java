@@ -1,6 +1,7 @@
 
 package edu.wustl.bulkoperator.templateImport;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
@@ -14,6 +15,7 @@ import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.dao.exception.DAOException;
 
 /**
@@ -35,8 +37,8 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	public ImportBulkOperationTemplate(String operationName, String dropdownName, String csvFile,
 			String xmlFile)
 	{
-		importTemplates(operationName, dropdownName, csvFile, xmlFile, "./"+System.getProperties().getProperty(BulkOperationConstants.CONFIG_DIR)
-				+ "/mapping.xml");
+		importTemplates(operationName, dropdownName, csvFile, xmlFile,"./"+System.getProperty(BulkOperationConstants.CONFIG_DIR)
+				+ File.separator +"bulkOperatorXMLTemplateRules.xml");
 	}
 
 	/**
@@ -45,8 +47,6 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	 */
 	public static void main(String[] args)
 	{
-		/*args=new String[]{"SpecimenAnnotation_specimenBarcode","SpecimenAnnotation_specimenBarcode","G:/Dynamicxtensions/caTissue_v1.2_RC6_TAG/XMLAndCSVTemplate/SpecimenAnnotation_specimenBarcode.csv","G:/Dynamicxtensions/caTissue_v1.2_RC6_TAG/XMLAndCSVTemplate/SpecimenAnnotation_specimenBarcode.xml"};
-		System.setProperty("config.dir", "G:/Dynamicxtensions/bo_cp/software/bulkoperator/src/conf");*/
 		String operationName = args[0];
 		String dropdownName = args[1];
 		String csvFile = args[2];

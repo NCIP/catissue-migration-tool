@@ -1,10 +1,18 @@
 
 package edu.wustl.bulkoperator;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.commons.digester3.Digester;
+import org.apache.commons.digester3.binder.DigesterLoader;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetadataUtil;
+import edu.wustl.bulkoperator.templateImport.XmlRulesModule;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;
@@ -52,18 +60,21 @@ public class BulkOperator
 		}
 	}
 
-	public BulkOperator(InputSource xmlTemplate, InputSource mappingFile)
+	public BulkOperator(InputSource xmlTemplate, String mappingFile)
 			throws BulkOperationException
 	{
 		try
 		{
-			BulkOperationMetadataUtil bulkOperationMetadataUtil = new BulkOperationMetadataUtil();
-			this.metadata = bulkOperationMetadataUtil.unmarshall(xmlTemplate, mappingFile);
+			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingFile));
+			Digester digester = digesterLoader.newDigester();
+            this.metadata = digester.parse(xmlTemplate);
 		}
-		catch (BulkOperationException exp)
-		{
-			logger.debug(exp.getMessage(), exp);
-			throw new BulkOperationException(exp.getErrorKey(), exp, exp.getMsgValues());
+		catch (IOException e) {
+			logger.debug(e.getMessage(), e);
+			throw new BulkOperationException(e.getMessage());
+		} catch (SAXException e) {
+			logger.debug(e.getMessage(), e);
+			throw new BulkOperationException(e.getMessage());
 		}
 	}
 }
