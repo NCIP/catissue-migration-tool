@@ -25,11 +25,11 @@ public class BulkOperationClass
 
 	private String className;
 	private String relationShipType;
-	private String cardinality;
+	private String cardinality="1";
 	private String roleName;
 	private String parentRoleName;
 	private String templateName;
-	private Integer maxNoOfRecords;
+	private Integer maxNoOfRecords=1;
 	private Integer batchSize;
 	private Long id;
 	private Class klass;
@@ -51,7 +51,11 @@ public class BulkOperationClass
 	{
 		return hookingInformation;
 	}
-
+ 
+	public void addHookingInformation(HookingInformation hookingInformation) {
+	    this.hookingInformation.add(hookingInformation);
+	}
+	
 	public Collection<Attribute> getAttributeCollection()
 	{
 		return attributeCollection;
@@ -60,6 +64,10 @@ public class BulkOperationClass
 	public void setAttributeCollection(Collection<Attribute> attributeCollection)
 	{
 		this.attributeCollection = attributeCollection;
+	}
+	
+	public void addAttribute(Attribute attribute) {
+	    this.attributeCollection.add(attribute);
 	}
 
 	public String getTemplateName()
@@ -105,7 +113,10 @@ public class BulkOperationClass
 	{
 		dynExtEntityAssociationCollection = associationCollection;
 	}
-
+  
+	public void addDynExtEntityAssociation(BulkOperationClass dynExtEntityAssociation) {
+	    this.dynExtEntityAssociationCollection.add(dynExtEntityAssociation);
+	}
 	/**
 	 * @return the batchSize
 	 */
@@ -127,6 +138,10 @@ public class BulkOperationClass
 	{
 		this.referenceAssociationCollection = referenceAssociationCollection;
 	}
+	
+	public void addReferenceAssociation(BulkOperationClass referenceAssociation) {
+	    this.referenceAssociationCollection.add(referenceAssociation);
+	}
 
 	public Collection<BulkOperationClass> getContainmentAssociationCollection()
 	{
@@ -137,6 +152,10 @@ public class BulkOperationClass
 			Collection<BulkOperationClass> containmentAssociationCollection)
 	{
 		this.containmentAssociationCollection = containmentAssociationCollection;
+	}
+	
+	public void addContainmentAssociation(BulkOperationClass containmentAssociation) {
+	    this.containmentAssociationCollection.add(containmentAssociation);
 	}
 
 	public String getClassName()
@@ -209,7 +228,9 @@ public class BulkOperationClass
 	{
 		this.dynExtCategoryAssociationCollection = dynExtCategoryAssociationCollection;
 	}
-
+	public void addDynExtCategoryAssociation(BulkOperationClass dynExtCategoryAssociation) {
+	    this.dynExtCategoryAssociationCollection.add(dynExtCategoryAssociation);
+	}
 	public boolean isUpdateOperation()
 	{
 		boolean isUpdateOperation = false;
@@ -444,20 +465,5 @@ public class BulkOperationClass
 		}
 		return identifier;
 	}
-	/*
-	public void invokeSetIdMethod(Object objectOnWhichMethodToInvoke, Long identifier)
-			throws BulkOperationException
-	{
-		try
-		{
-			Class.forName(className).getMethod("setId", Long.class).invoke(
-					objectOnWhichMethodToInvoke, identifier);
-		}
-		catch (Exception exp)
-		{
-			logger.error(exp.getMessage(), exp);
-			exp.printStackTrace();
-			throw new BulkOperationException(exp.getMessage(), exp);
-		}
-	}*/
+	
 }

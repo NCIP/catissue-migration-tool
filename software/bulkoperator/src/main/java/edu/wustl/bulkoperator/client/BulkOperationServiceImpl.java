@@ -199,8 +199,7 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			InputStream inputStream =  (InputStream)postMethod.getResponseBodyAsStream();
 			ObjectInputStream ois = new ObjectInputStream(inputStream);
 			Object object = ois.readObject();
-		//	Object object1 = ois.readObject();
-			jobMessage = (JobMessage)object;
+		    jobMessage = (JobMessage)object;
 		}
 		catch (IOException e)
 		{

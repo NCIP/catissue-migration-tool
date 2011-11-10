@@ -214,6 +214,7 @@
 			<fileset file="${src.dir}/bulkoperation-tiles-defs.xml" />
 			<fileset file="${src.dir}/log4j.properties" />
 			<fileset file="${basedir}/conf/bulkoperationintegration.xml" />
+			<fileset file="${basedir}/conf/bulkOperatorXMLTemplateRules.xml" />
 		</copy>
 		<copy todir="${zip.dir}/css" overwrite="true">
 			<fileset dir="${web.dir}/css" />
