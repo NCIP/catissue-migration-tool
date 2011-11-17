@@ -32,11 +32,12 @@ public class CsvFileWriter implements CsvWriter {
     
     private boolean isFirstRowColumnNames;
     
-    public CsvFileWriter(CSVWriter csvWriter, String[] columnNames, int batchSize) {
+    public CsvFileWriter(CSVWriter csvWriter, String[] columnNames, int batchSize,String[] defaultColumnNames) {
         this.csvWriter = csvWriter;
         this.batchSize = batchSize;
         this.rows = new ArrayList<String[]>(batchSize);                
-        createColumnNameIdxMap(columnNames);        
+        createColumnNameIdxMap(columnNames);
+        addDefaultColumnsToColumnNameIdxMap(defaultColumnNames,columnNames.length-1);
         this.numColumns = columnNameIdxMap.size();
         rows.add(getColumnNames());
         this.isFirstRowColumnNames = true;
@@ -50,10 +51,10 @@ public class CsvFileWriter implements CsvWriter {
         this.isFirstRowColumnNames = false;
     }
     
-    public static CsvFileWriter createCsvFileWriter(String outFile, String[] columnNames, int batchSize) {
+    public static CsvFileWriter createCsvFileWriter(String outFile, String[] columnNames, int batchSize,String[] defaultColumnNames) {
         try {
             CSVWriter csvWriter = new CSVWriter(new FileWriter(outFile));
-            return new CsvFileWriter(csvWriter, columnNames, batchSize);
+            return new CsvFileWriter(csvWriter, columnNames, batchSize,defaultColumnNames);
         } catch (IOException e) {
             throw new CsvException("Error creating CSVWriter", e);
         }         
@@ -123,7 +124,9 @@ public class CsvFileWriter implements CsvWriter {
         
         currentRow = createRow();
     }
-
+    public int getNumberOfRows() {
+    	return rows.size();
+    }
     public void close() {
         try {
             flush();
@@ -154,6 +157,27 @@ public class CsvFileWriter implements CsvWriter {
             }
             
             columnNameIdxMap.put(columnName, i);
+        }        
+    }
+    private void addDefaultColumnsToColumnNameIdxMap(String[] columnNames,int coulumnCounter) {
+        if (columnNames == null || columnNames.length == 0) {
+            throw new CsvException("Empty column names");
+        }
+        
+        for (int i = 0; i < columnNames.length; ++i) {
+            if (columnNames[i] == null) {
+                throw new CsvException("Empty column name");
+            }
+            String columnName = columnNames[i].trim();
+            if (columnName.length() == 0) {
+                throw new CsvException("Empty column name");
+            }
+            
+            if (columnNameIdxMap.containsKey(columnName)) {
+                throw new CsvException("Duplicate column name: " + columnName);
+            }
+            coulumnCounter++;
+            columnNameIdxMap.put(columnName, coulumnCounter);
         }        
     }
     

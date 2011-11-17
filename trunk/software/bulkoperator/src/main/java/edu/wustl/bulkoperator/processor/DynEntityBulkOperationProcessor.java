@@ -9,6 +9,7 @@ import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
@@ -29,7 +30,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 		super(dynExtEntityBOClass, serviceInformationObject);
 	}
 
-	public Object process(Map<String, String> csvData,
+	public Object process(CsvFileReader csvFileReader,
 			int csvRowCounter, HookingInformation hookingObjectInformation)
 			throws BulkOperationException, Exception
 	{
@@ -40,10 +41,10 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 					serviceInformationObject.getServiceImplementorClassName(), true,
 					serviceInformationObject.getUserName(), null);
 			HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
-			processObject(dynExtObject, bulkOperationClass, csvData, "", false, csvRowCounter);
+			processObject(dynExtObject, bulkOperationClass, csvFileReader, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
-			getinformationForHookingData(csvData,hookingInformationFromTag);
+			getinformationForHookingData(csvFileReader,hookingInformationFromTag);
 			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
 			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
 
@@ -84,7 +85,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 	 * @throws BulkOperationException
 	 */
 	protected void processContainments(Object mainObj, BulkOperationClass bulkOperationClass,
-			Map<String, String> csvData, String columnSuffix, boolean validate, int csvRowNumber)
+			CsvFileReader csvFileReader, String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException
 	{
 		try
@@ -104,10 +105,10 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
-										columnSuffix + "#" + i,csvData))
+										columnSuffix + "#" + i,csvFileReader))
 						{
 							Object obj = new HashMap<Long, Object>();
-							processObject(obj, containmentObjectCollection, csvData, columnSuffix
+							processObject(obj, containmentObjectCollection, csvFileReader, columnSuffix
 									+ "#" + i, validate, csvRowNumber);
 							list.add((Map<Long, Object>) obj);
 						}

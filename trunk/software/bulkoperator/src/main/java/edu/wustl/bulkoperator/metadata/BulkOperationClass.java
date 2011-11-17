@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.hibernate.proxy.HibernateProxy;
 
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -247,7 +248,7 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(Map<String, String> valueList, String columnSuffix)
+	public Object getClassDiscriminator(CsvFileReader csvFileReader, String columnSuffix)
 			throws BulkOperationException
 	{
 		Object object = null;
@@ -268,7 +269,7 @@ public class BulkOperationClass
 					{
 						AttributeDiscriminator attributeDiscriminator = attributeDiscriminatorItertor
 								.next();
-						String value = valueList.get(attribute.getCsvColumnName() + columnSuffix);
+						String value = csvFileReader.getColumn(attribute.getCsvColumnName() + columnSuffix);
 						if (attributeDiscriminator.getName().equalsIgnoreCase(value))
 						{
 							String discriminatorValue = attributeDiscriminator.getValue();

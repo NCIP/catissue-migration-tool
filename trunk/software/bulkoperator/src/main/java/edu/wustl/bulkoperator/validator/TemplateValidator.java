@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -51,10 +52,9 @@ public class TemplateValidator {
 	 *             Exception.
 	 */
 	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass,
-			String operationName, DataList dataList)
+			String operationName,CsvFileReader csvFileReader)
 			throws BulkOperationException {
-		validateBulkOperationClass(bulkOperationClass,
-				dataList.getHeaderList(), 0);
+		validateBulkOperationClass(bulkOperationClass, csvFileReader.getColumnNamesAsList(), 0);
 		if (errorList.isEmpty()) {
 			StaticBulkOperationProcessor staticProcessor = new StaticBulkOperationProcessor(
 					bulkOperationClass, null);
@@ -63,7 +63,7 @@ public class TemplateValidator {
 				domainObject = bulkOperationClass.getClassObject()
 						.getConstructor().newInstance(null);
 				staticProcessor.processObject(domainObject, bulkOperationClass,
-						dataList.getValue(0), "", true, 0);
+						csvFileReader, "", true, 0);
 				BulkOperationClass dynExtEntityBulkOperationClass = BulkOperationUtility
 						.checkForDEObject(bulkOperationClass);
 				if (dynExtEntityBulkOperationClass != null) {
@@ -71,11 +71,10 @@ public class TemplateValidator {
 					DynEntityBulkOperationProcessor deProcessor = new DynEntityBulkOperationProcessor(
 							dynExtEntityBulkOperationClass, null);
 					deProcessor.processObject(dynExtObject,
-							dynExtEntityBulkOperationClass, dataList
-									.getValue(0), "", true, 0);
+							dynExtEntityBulkOperationClass, csvFileReader, "", true, 0);
 					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) dynExtEntityBulkOperationClass
 							.getHookingInformation()).get(0);
-					validateHookingInformation(dataList,
+					validateHookingInformation(csvFileReader,
 							hookingInformationFromTag);
 				}
 				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility
@@ -85,11 +84,11 @@ public class TemplateValidator {
 					DynCategoryBulkOperationProcessor deProcessor = new DynCategoryBulkOperationProcessor(
 							categoryBulkOperationClass, null);
 					deProcessor.processObject(dynExtObject,
-							categoryBulkOperationClass, dataList.getValue(0),
+							categoryBulkOperationClass, csvFileReader,
 							"", true, 0);
 					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) categoryBulkOperationClass
 							.getHookingInformation()).get(0);
-					validateHookingInformation(dataList,
+					validateHookingInformation(csvFileReader,
 							hookingInformationFromTag);
 				}
 			} catch (BulkOperationException bulkExp) {
@@ -108,12 +107,12 @@ public class TemplateValidator {
 		return new HashSet<String>(errorList);
 	}
 
-	private void validateHookingInformation(DataList dataList,
+	private void validateHookingInformation(CsvFileReader csvFileReader,
 			HookingInformation hookingInformationFromTag) {
 		Collection<Attribute> attributes = hookingInformationFromTag
 				.getAttributeCollection();
 		for (Attribute attribute : attributes) {
-			if (dataList.getValue(0).get(attribute.getCsvColumnName()) == null) {
+			if (csvFileReader.getColumn(attribute.getCsvColumnName()) == null) {
 				logger.error("Column name " + attribute.getCsvColumnName()
 						+ " does not exist in CSV.");
 				errorList.add("Column name " + attribute.getCsvColumnName()
@@ -166,7 +165,7 @@ public class TemplateValidator {
 			throw new BulkOperationException(errorkey, exp, "className");
 		}
 		try {
-			validateXMLTagAttibutes(bulkOperationClass, csvColumnNames,
+			validateXMLTagAttibutes(bulkOperationClass, 
 					globalRecordsCount);
 			if (globalRecordsCount != 0 && maxRowNumbers != 0) {
 				for (int i = globalRecordsCount; i >= 1; i--) {
@@ -190,8 +189,7 @@ public class TemplateValidator {
 	 * @param operationName
 	 *            String.
 	 */
-	private void validateXMLTagAttibutes(BulkOperationClass bulkOperationClass,
-			List<String> csvColumnNames, int maxRowNumbers)
+	private void validateXMLTagAttibutes(BulkOperationClass bulkOperationClass,int maxRowNumbers)
 			throws BulkOperationException {
 		Integer maxNoOfRecords = bulkOperationClass.getMaxNoOfRecords();
 		if (maxNoOfRecords <= 0) {

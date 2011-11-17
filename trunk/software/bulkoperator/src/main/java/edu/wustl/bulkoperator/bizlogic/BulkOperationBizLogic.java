@@ -24,6 +24,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import edu.wustl.bulkoperator.BulkOperator;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.client.BulkOperatorJob;
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.jobmanager.DefaultJobStatusListner;
 import edu.wustl.bulkoperator.jobmanager.JobDetails;
 import edu.wustl.bulkoperator.jobmanager.JobManager;
@@ -329,12 +330,12 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		InputSource xmlTemplateInputSource, String retrievedOperationName, SessionDataBean sessionDataBean) throws BulkOperationException
 	{
 		Long jobId = null;
-		DataList dataList = parseCSVDataFile(csvFileInputStreamForValidation);
-		if (dataList != null)
+		CsvFileReader csvFileReader=CsvFileReader.createCsvFileReader(csvFileInputStreamForValidation, true);
+		if (csvFileReader != null)
 		{
 			BulkOperator bulkOperator = parseXMLStringAndGetBulkOperatorInstance(
 					retrievedOperationName, xmlTemplateInputSource);
-			validateBulkOperation(retrievedOperationName,dataList,bulkOperator);
+			validateBulkOperation(retrievedOperationName,csvFileReader,bulkOperator);
 			BulkOperationClass bulkOperationClass = bulkOperator.getMetadata().getBulkOperationClass().iterator().next();
 			if(bulkOperationClass.getTemplateName()==null)
 			{
@@ -411,7 +412,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @param bulkOperator BulkOperator.
 	 * @throws BulkOperationException BulkOperationException.
 	 */
-	private void validateBulkOperation(String operationName, DataList dataList,
+	private void validateBulkOperation(String operationName, CsvFileReader csvFileReader,
 		BulkOperator bulkOperator) throws BulkOperationException
 	{
 		BulkOperationMetaData metaData = bulkOperator.getMetadata();
@@ -423,7 +424,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		BulkOperationClass bulkOperationClass = metaData.getBulkOperationClass().iterator().next();
 		TemplateValidator templateValidator = new TemplateValidator();
 		Set<String> errorList = templateValidator.validateXmlAndCsv(bulkOperationClass,
-				operationName, dataList);
+				operationName, csvFileReader);
 		if (!errorList.isEmpty())
 		{
 			StringBuffer strBuffer = new StringBuffer();

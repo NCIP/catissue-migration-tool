@@ -5,6 +5,7 @@ import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -28,7 +29,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		return null;
 	}
 
-	public Object process(Map<String, String> csvData, int csvRowNumber)
+	public Object process(CsvFileReader csvFileReader, int csvRowNumber)
 			throws BulkOperationException, Exception
 	{
 		Object staticObject = null;
@@ -40,7 +41,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 
 			if (bulkOperationClass.isUpdateOperation())
 			{
-				String hql = BulkOperationUtility.createHQL(bulkOperationClass, csvData);
+				String hql = BulkOperationUtility.createHQL(bulkOperationClass, csvFileReader);
 
 				staticObject = bulkOprAppService.search(hql);
 				if (staticObject == null)
@@ -49,7 +50,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				}
 				else
 				{
-					processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
+					processObject(staticObject, bulkOperationClass, csvFileReader, "", false, csvRowNumber);
 					try
 					{
 						bulkOprAppService.update(staticObject);
@@ -62,8 +63,8 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			}
 			else
 			{
-				staticObject = getEntityObject(csvData);
-				processObject(staticObject, bulkOperationClass, csvData, "", false, csvRowNumber);
+				staticObject = getEntityObject(csvFileReader);
+				processObject(staticObject, bulkOperationClass, csvFileReader, "", false, csvRowNumber);
 				bulkOprAppService.insert(staticObject);
 			}
 		}
