@@ -3,7 +3,11 @@ package edu.wustl.bulkoperator.csv.impl;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -24,6 +28,7 @@ public class CsvFileReader implements CsvReader {
     private CSVReader csvReader;
     
     private boolean isFirstRowColumnNames;
+    private List<String> columnNames=new ArrayList<String>();
     
     public CsvFileReader(CSVReader csvReader, boolean isFirstRowColumnNames) {
         this.csvReader = csvReader;
@@ -31,6 +36,12 @@ public class CsvFileReader implements CsvReader {
         if (isFirstRowColumnNames) {
             createColumnNameIdxMap();
         }
+    }
+    
+    public static CsvFileReader createCsvFileReader(InputStream inputStream,boolean isFirstRowColumnNames)
+    {
+		CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+		return new CsvFileReader(csvReader, isFirstRowColumnNames);
     }
     
     public static CsvFileReader createCsvFileReader(String csvFile, boolean isFirstRowColumnNames) {
@@ -51,6 +62,16 @@ public class CsvFileReader implements CsvReader {
         return columnNames;
     }
 
+	public List<String> getColumnNamesAsList() {
+
+		if (columnNames == null || columnNames.isEmpty()) {
+			for (Map.Entry<String, Integer> columnNameIdx : columnNameIdxMap
+					.entrySet()) {
+				columnNames.add(columnNameIdx.getKey());
+			}
+		}
+		return columnNames;
+	}
     public String getColumn(String columnName) {
         if (!isFirstRowColumnNames) {
             throw new CsvException("CSV file reader created without first row column names");

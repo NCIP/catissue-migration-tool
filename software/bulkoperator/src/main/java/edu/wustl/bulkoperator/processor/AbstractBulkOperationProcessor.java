@@ -14,6 +14,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.DateValue;
@@ -42,9 +43,9 @@ public abstract class AbstractBulkOperationProcessor {
 		return bulkOperationClass;
 	}
 
-	protected Object getEntityObject(Map<String, String> csvData)
+	protected Object getEntityObject(CsvFileReader csvFileReader)
 			throws BulkOperationException {
-		Object staticObject = bulkOperationClass.getClassDiscriminator(csvData,
+		Object staticObject = bulkOperationClass.getClassDiscriminator(csvFileReader,
 				"");
 		if (staticObject == null) {
 			staticObject = bulkOperationClass.getNewInstance();
@@ -64,26 +65,26 @@ public abstract class AbstractBulkOperationProcessor {
 	 * @throws BulkOperationException
 	 */
 	public void processObject(Object mainObj,
-			BulkOperationClass migrationClass, Map<String, String> csvData,
+			BulkOperationClass migrationClass,CsvFileReader csvFileReader,
 			String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException {
 		if (migrationClass.getAttributeCollection() != null
 				&& !migrationClass.getAttributeCollection().isEmpty()) {
-			processAttributes(mainObj, migrationClass, csvData, columnSuffix,
+			processAttributes(mainObj, migrationClass, csvFileReader, columnSuffix,
 					validate);
 		}
 
 		if (migrationClass.getContainmentAssociationCollection() != null
 				&& !migrationClass.getContainmentAssociationCollection()
 						.isEmpty()) {
-			processContainments(mainObj, migrationClass, csvData, columnSuffix,
+			processContainments(mainObj, migrationClass, csvFileReader, columnSuffix,
 					validate, csvRowNumber);
 		}
 
 		if (migrationClass.getReferenceAssociationCollection() != null
 				&& !migrationClass.getReferenceAssociationCollection()
 						.isEmpty()) {
-			processAssociations(mainObj, migrationClass, csvData, columnSuffix,
+			processAssociations(mainObj, migrationClass, csvFileReader, columnSuffix,
 					validate, csvRowNumber);
 		}
 	}
@@ -98,7 +99,7 @@ public abstract class AbstractBulkOperationProcessor {
 	 * @throws BulkOperationException
 	 */
 	protected void processContainments(Object mainObj,
-			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
+			BulkOperationClass mainMigrationClass, CsvFileReader csvFileReader,
 			String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException {
 		try {
@@ -124,13 +125,17 @@ public abstract class AbstractBulkOperationProcessor {
 						List<String> attributeList = BulkOperationUtility
 								.getAttributeList(containmentMigrationClass,
 										columnSuffix + "#" + i);
-						if (BulkOperationUtility
+						if (validate||BulkOperationUtility
 								.checkIfAtLeastOneColumnHasAValue(csvRowNumber,
-										attributeList, csvData)
-								|| validate) {
-							Object containmentObject = containmentMigrationClass
-									.getClassDiscriminator(csvData,
+										attributeList, csvFileReader))
+						{
+						 Object containmentObject =null;
+						if(!validate)
+						{
+							containmentObject = containmentMigrationClass
+									.getClassDiscriminator(csvFileReader,
 											columnSuffix + "#" + i);// getNewInstance();
+						}			
 							if (containmentObject == null) {
 								if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
 										.equals(containmentMigrationClass
@@ -142,7 +147,7 @@ public abstract class AbstractBulkOperationProcessor {
 								}
 							}
 							processObject(containmentObject,
-									containmentMigrationClass, csvData,
+									containmentMigrationClass, csvFileReader,
 									columnSuffix + "#" + i, validate,
 									csvRowNumber);
 							if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
@@ -176,15 +181,14 @@ public abstract class AbstractBulkOperationProcessor {
 					List<String> attributeList = BulkOperationUtility
 							.getAttributeList(containmentMigrationClass,
 									columnSuffix);
-					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
-							csvRowNumber, attributeList, csvData)
-							|| validate) {
+					if ( validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
+							csvRowNumber, attributeList, csvFileReader)) {
 						Object containmentObject = mainMigrationClass
 								.invokeGetterMethod(containmentMigrationClass
 										.getRoleName(), null, mainObj, null);
 						if (containmentObject == null) {
 							containmentObject = containmentMigrationClass
-									.getClassDiscriminator(csvData,
+									.getClassDiscriminator(csvFileReader,
 											columnSuffix);
 						}
 						if (containmentObject == null) {
@@ -195,7 +199,7 @@ public abstract class AbstractBulkOperationProcessor {
 							containmentObject = constructor.newInstance();
 						}
 						processObject(containmentObject,
-								containmentMigrationClass, csvData,
+								containmentMigrationClass, csvFileReader,
 								columnSuffix, validate, csvRowNumber);
 						String roleName = containmentMigrationClass
 								.getRoleName();
@@ -228,7 +232,7 @@ public abstract class AbstractBulkOperationProcessor {
 	 * @throws BulkOperationException
 	 */
 	private void processAssociations(Object mainObj,
-			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
+			BulkOperationClass mainMigrationClass,CsvFileReader csvFileReader,
 			String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException {
 		try {
@@ -254,13 +258,16 @@ public abstract class AbstractBulkOperationProcessor {
 						List<String> attributeList = BulkOperationUtility
 								.getAttributeList(associationMigrationClass,
 										columnSuffix + "#" + i);
-						if (BulkOperationUtility
+						if ( validate||BulkOperationUtility
 								.checkIfAtLeastOneColumnHasAValue(csvRowNumber,
-										attributeList, csvData)
-								|| validate) {
-							Object referenceObject = associationMigrationClass
-									.getClassDiscriminator(csvData,
+										attributeList, csvFileReader)) {
+							Object referenceObject =null;
+							if(!validate)
+							{
+							 referenceObject = associationMigrationClass
+									.getClassDiscriminator(csvFileReader,
 											columnSuffix + "#" + i);
+							}
 							if (referenceObject == null) {
 								if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
 										.equals(associationMigrationClass
@@ -272,7 +279,7 @@ public abstract class AbstractBulkOperationProcessor {
 								}
 							}
 							processObject(referenceObject,
-									associationMigrationClass, csvData,
+									associationMigrationClass, csvFileReader,
 									columnSuffix + "#" + i, validate,
 									csvRowNumber);
 							if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
@@ -306,15 +313,14 @@ public abstract class AbstractBulkOperationProcessor {
 					List<String> attributeList = BulkOperationUtility
 							.getAttributeList(associationMigrationClass,
 									columnSuffix);
-					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
-							csvRowNumber, attributeList, csvData)
-							|| validate) {
+					if (validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
+							csvRowNumber, attributeList, csvFileReader)) {
 						Object associatedObject = mainMigrationClass
 								.invokeGetterMethod(associationMigrationClass
 										.getRoleName(), null, mainObj, null);
 						if (associatedObject == null) {
 							associatedObject = associationMigrationClass
-									.getClassDiscriminator(csvData,
+									.getClassDiscriminator(csvFileReader,
 											columnSuffix);
 						}
 						if (associatedObject == null) {
@@ -325,7 +331,7 @@ public abstract class AbstractBulkOperationProcessor {
 							associatedObject = constructor.newInstance();
 						}
 						processObject(associatedObject,
-								associationMigrationClass, csvData,
+								associationMigrationClass, csvFileReader,
 								columnSuffix, validate, csvRowNumber);
 						String roleName = associationMigrationClass
 								.getRoleName();
@@ -357,7 +363,7 @@ public abstract class AbstractBulkOperationProcessor {
 	 * @throws BulkOperationException
 	 */
 	private void processAttributes(Object mainObj,
-			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
+			BulkOperationClass mainMigrationClass,CsvFileReader csvFileReader,
 			String columnSuffix, boolean validate)
 			throws BulkOperationException {
 		try {
@@ -366,19 +372,16 @@ public abstract class AbstractBulkOperationProcessor {
 			while (attributeItertor.hasNext()) {
 				Attribute attribute = attributeItertor.next();
 
-				if (csvData.get(attribute.getCsvColumnName() + columnSuffix) == null) {
+				if (!csvFileReader.getColumnNamesAsList().contains(attribute.getCsvColumnName() + columnSuffix)) {
 					BulkOperationUtility.throwExceptionForColumnNameNotFound(
 							mainMigrationClass, validate, attribute);
-				} else {
-
+				} else if(!validate)
+				 {
 					if ("java.lang.String".equals(mainMigrationClass
 							.getClassName())) {
-						if (!Validator.isEmpty(csvData.get(attribute
-								.getCsvColumnName()
+						if (!Validator.isEmpty(csvFileReader.getColumn(attribute.getCsvColumnName()
 								+ columnSuffix))) {
-							String csvDataValue = csvData.get(attribute
-									.getCsvColumnName()
-									+ columnSuffix);
+							String csvDataValue =csvFileReader.getColumn(attribute.getCsvColumnName()+ columnSuffix);
 							
 							Object attributeValue = attribute
 									.getValueOfDataType(csvDataValue, validate,
@@ -397,16 +400,15 @@ public abstract class AbstractBulkOperationProcessor {
 									.getClassName())
 							|| "java.lang.Float".equals(mainMigrationClass
 									.getClassName())) {
-						if (!Validator.isEmpty(csvData.get(attribute
-								.getCsvColumnName()
+						if (!Validator.isEmpty(csvFileReader.getColumn(attribute.getCsvColumnName()
 								+ columnSuffix))) {
-							csvData.get(attribute.getCsvColumnName()
+							csvFileReader.getColumn(attribute.getCsvColumnName()
 									+ columnSuffix);
-							mainObj = csvData;
+							mainObj = csvFileReader;
 						}
 					} else if (String.valueOf(mainObj.getClass()).contains(
 							attribute.getBelongsTo())) {
-						setValueToObject(mainObj, mainMigrationClass, csvData,
+						setValueToObject(mainObj, mainMigrationClass, csvFileReader,
 								columnSuffix, validate, attribute);
 					}// else if ends
 				}// null check if - else ends
@@ -423,11 +425,11 @@ public abstract class AbstractBulkOperationProcessor {
 	}
 
 	protected void setValueToObject(Object mainObj,
-			BulkOperationClass mainMigrationClass, Map<String, String> csvData,
+			BulkOperationClass mainMigrationClass,CsvFileReader csvFileReader,
 			String columnSuffix, boolean validate, Attribute attribute) throws BulkOperationException {
-		if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName()
+		if (!Validator.isEmpty(csvFileReader.getColumn(attribute.getCsvColumnName()
 				+ columnSuffix))) {
-			String csvDataValue = csvData.get(attribute.getCsvColumnName()
+			String csvDataValue = csvFileReader.getColumn(attribute.getCsvColumnName()
 					+ columnSuffix);
 			
 			try {
@@ -475,7 +477,7 @@ public abstract class AbstractBulkOperationProcessor {
 	 * BulkOperationException(errorkey, null, ""); } }
 	 */
 
-	protected void getinformationForHookingData(Map<String, String> csvData,
+	protected void getinformationForHookingData(CsvFileReader csvFileReader,
 			HookingInformation hookingInformation)
 			throws ClassNotFoundException, BulkOperationException {
 		Iterator<Attribute> attributeItertor = hookingInformation
@@ -484,8 +486,8 @@ public abstract class AbstractBulkOperationProcessor {
 		while (attributeItertor.hasNext()) {
 			Attribute attribute = attributeItertor.next();
 
-			if (!Validator.isEmpty(csvData.get(attribute.getCsvColumnName()))) {
-				String csvDataValue = csvData.get(attribute.getCsvColumnName());
+			if (!Validator.isEmpty(csvFileReader.getColumn(attribute.getCsvColumnName()))) {
+				String csvDataValue = csvFileReader.getColumn(attribute.getCsvColumnName());
 				Object attributeValue = attribute.getValueOfDataType(
 						csvDataValue, false, attribute.getCsvColumnName(),
 						attribute.getDataType());

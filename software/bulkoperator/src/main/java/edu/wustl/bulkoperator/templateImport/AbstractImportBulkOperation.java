@@ -15,26 +15,21 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
-
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
 import org.xml.sax.SAXException;
-
 import au.com.bytecode.opencsv.CSVReader;
+import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
-import edu.wustl.bulkoperator.util.DataList;
-import edu.wustl.bulkoperator.util.DataReader;
 import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
@@ -87,20 +82,12 @@ public abstract class AbstractImportBulkOperation
 			String xmlFile, String mappingXml) throws BulkOperationException, SQLException,
 			IOException, DAOException
 	{
-		DataList dataList = null;
 		Set<String> errorList = null;
+		CsvFileReader csvFileReader=null;
 		try
 		{
-			FileInputStream inputStream = new FileInputStream(csvFile);
-			Properties properties = new Properties();
-			properties.put("inputStream", inputStream);
-			dataList = DataReader.getNewDataReaderInstance(properties).readData();
-		}
-		catch (FileNotFoundException fnfExpp)
-		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.not.found");
-			throw new BulkOperationException(errorkey, fnfExpp, "");
-
+			csvFileReader=CsvFileReader.createCsvFileReader(csvFile, true);
+			
 		}
 		catch (Exception exp)
 		{
@@ -133,7 +120,7 @@ public abstract class AbstractImportBulkOperation
 				BulkOperationClass bulkOperationClass=iterator.next();
 				TemplateValidator templateValidator = new TemplateValidator();
 				errorList = templateValidator.validateXmlAndCsv(bulkOperationClass, operationName,
-						dataList);
+						csvFileReader);
 			}
 		}
 		return errorList;
