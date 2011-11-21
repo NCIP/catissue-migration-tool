@@ -15,6 +15,7 @@ PUBLIC
 		   name="loginForm" validate="false" scope="request">
 			<forward name="pageOfNonWashU" path="/BulkHandler.do?fromAction=login"/>
 			<forward name="failure" path="/BulkHandler.do?fromAction=login"/>
+			<forward name="success" path="/BulkHandler.do?fromAction=login"/>
 		</action>
 		<action path="/BulkHandler" type="edu.wustl.bulkoperator.action.BulkHandler"
 			name="" scope="request">
