@@ -3,6 +3,7 @@
 	
 	<publications>
 		<artifact name="bulkoperator" ext="jar" type="jar" />
+		<artifact name="bulkoperator" ext="zip" type="zip" />
 		<artifact name="bulkoperator" type="pom" ext="pom" />
 	</publications>
 	
