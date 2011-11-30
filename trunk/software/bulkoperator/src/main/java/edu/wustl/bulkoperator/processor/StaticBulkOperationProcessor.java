@@ -5,15 +5,16 @@ import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
-import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.util.logger.Logger;
 
 public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		implements
-			IStaticBulkOperationProcessor
+		IBulkOperationProcessor
 {
 	private static final Logger logger = Logger.getCommonLogger(StaticBulkOperationProcessor.class);
 
@@ -29,7 +30,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		return null;
 	}
 
-	public Object process(CsvFileReader csvFileReader, int csvRowNumber)
+	public Object process(CsvReader csvReader, int csvRowNumber,SessionDataBean sessionDataBean)
 			throws BulkOperationException, Exception
 	{
 		Object staticObject = null;
@@ -41,40 +42,25 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 
 			if (bulkOperationClass.isUpdateOperation())
 			{
-				String hql = BulkOperationUtility.createHQL(bulkOperationClass, csvFileReader);
+				String hql = BulkOperationUtility.createHQL(bulkOperationClass, csvReader);
 
 				staticObject = bulkOprAppService.search(hql);
 				if (staticObject == null)
 				{
 					throw new BulkOperationException("Could not find the specified data in the database.");
+					//throw new BulkOperationException("Could not find an existing record for <update_base_on_column name> in the database.");
 				}
-				else
-				{
-					processObject(staticObject, bulkOperationClass, csvFileReader, "", false, csvRowNumber);
-					try
-					{
-						bulkOprAppService.update(staticObject);
-					}
-					catch (BulkOperationException bulkOprExp)
-					{
-						throw bulkOprExp;
- 					}
-				}
+				processObject(staticObject, bulkOperationClass, csvReader, "", false, csvRowNumber);
+				bulkOprAppService.update(staticObject);
 			}
 			else
 			{
-				staticObject = getEntityObject(csvFileReader);
-				processObject(staticObject, bulkOperationClass, csvFileReader, "", false, csvRowNumber);
+				staticObject = getEntityObject(csvReader);
+				processObject(staticObject, bulkOperationClass, csvReader, "", false, csvRowNumber);
 				bulkOprAppService.insert(staticObject);
 			}
 		}
-		catch (BulkOperationException bulkOprExp)
-		{
-			logger.error(bulkOprExp.getMessage(), bulkOprExp);
-			throw bulkOprExp;
-		}
-		catch (Exception exp)
-		{
+		catch (Exception exp){
 			logger.error(exp.getMessage(), exp);
 			throw exp;
 		}

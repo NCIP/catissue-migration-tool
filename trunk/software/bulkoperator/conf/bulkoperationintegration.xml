@@ -60,6 +60,8 @@
 		<copy todir="${config.dir}" overwrite="true">
 			<fileset dir="${bulkoperation.base.dir}">
 				<include name="mapping.xml" />
+				<include name="bulkOperatorXMLTemplateRules.xml" />
+				<include name="BulkOperations.xsd" />
 			</fileset>
 		</copy>
 

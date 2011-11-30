@@ -2,13 +2,14 @@ package edu.wustl.bulkoperator.validator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -16,6 +17,7 @@ import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.DataList;
@@ -52,47 +54,35 @@ public class TemplateValidator {
 	 *             Exception.
 	 */
 	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass,
-			String operationName,CsvFileReader csvFileReader)
+			String operationName,CsvReader csvReader)
 			throws BulkOperationException {
-		validateBulkOperationClass(bulkOperationClass, csvFileReader.getColumnNamesAsList(), 0);
+		
+		List<String> columnNamesList = Arrays.asList(csvReader.getColumnNames());
+		validateBulkOperationClass(bulkOperationClass, columnNamesList, 0);
 		if (errorList.isEmpty()) {
-			StaticBulkOperationProcessor staticProcessor = new StaticBulkOperationProcessor(
-					bulkOperationClass, null);
-			Object domainObject = null;
 			try {
-				domainObject = bulkOperationClass.getClassObject()
-						.getConstructor().newInstance(null);
-				staticProcessor.processObject(domainObject, bulkOperationClass,
-						csvFileReader, "", true, 0);
-				BulkOperationClass dynExtEntityBulkOperationClass = BulkOperationUtility
-						.checkForDEObject(bulkOperationClass);
-				if (dynExtEntityBulkOperationClass != null) {
-					HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
-					DynEntityBulkOperationProcessor deProcessor = new DynEntityBulkOperationProcessor(
-							dynExtEntityBulkOperationClass, null);
-					deProcessor.processObject(dynExtObject,
-							dynExtEntityBulkOperationClass, csvFileReader, "", true, 0);
-					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) dynExtEntityBulkOperationClass
-							.getHookingInformation()).get(0);
-					validateHookingInformation(csvFileReader,
-							hookingInformationFromTag);
+				if (BulkOperationConstants.STATIC_TYPE
+						.equals(bulkOperationClass.getType())) {
+					StaticBulkOperationProcessor staticProcessor = new StaticBulkOperationProcessor(
+							bulkOperationClass, null);
+					Object domainObject = bulkOperationClass.getClassObject()
+							.getConstructor().newInstance(null);
+					staticProcessor.processObject(domainObject,
+							bulkOperationClass, csvReader, "", true, 0);
 				}
-				BulkOperationClass categoryBulkOperationClass = BulkOperationUtility
-						.checkForCategoryObject(bulkOperationClass);
-				if (categoryBulkOperationClass != null) {
+				else if (BulkOperationConstants.CATEGORY_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
 					HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
 					DynCategoryBulkOperationProcessor deProcessor = new DynCategoryBulkOperationProcessor(
-							categoryBulkOperationClass, null);
+							bulkOperationClass, null);
 					deProcessor.processObject(dynExtObject,
-							categoryBulkOperationClass, csvFileReader,
+							bulkOperationClass, csvReader,
 							"", true, 0);
-					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) categoryBulkOperationClass
+					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
 							.getHookingInformation()).get(0);
-					validateHookingInformation(csvFileReader,
+					validateHookingInformation(csvReader,
 							hookingInformationFromTag);
 				}
 			} catch (BulkOperationException bulkExp) {
-				bulkExp.printStackTrace();
 				logger.debug(bulkExp.getMessage(), bulkExp);
 				throw new BulkOperationException(bulkExp.getErrorKey(),
 						bulkExp, bulkExp.getMsgValues());
@@ -107,12 +97,12 @@ public class TemplateValidator {
 		return new HashSet<String>(errorList);
 	}
 
-	private void validateHookingInformation(CsvFileReader csvFileReader,
+	private void validateHookingInformation(CsvReader csvReader,
 			HookingInformation hookingInformationFromTag) {
 		Collection<Attribute> attributes = hookingInformationFromTag
 				.getAttributeCollection();
 		for (Attribute attribute : attributes) {
-			if (csvFileReader.getColumn(attribute.getCsvColumnName()) == null) {
+			if (csvReader.getColumn(attribute.getCsvColumnName()) == null) {
 				logger.error("Column name " + attribute.getCsvColumnName()
 						+ " does not exist in CSV.");
 				errorList.add("Column name " + attribute.getCsvColumnName()

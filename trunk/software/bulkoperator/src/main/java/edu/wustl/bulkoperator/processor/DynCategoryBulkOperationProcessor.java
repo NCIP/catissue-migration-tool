@@ -9,18 +9,21 @@ import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 
 public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProcessor
 		implements
-			IDynamicBulkOperationProcessor
+		IBulkOperationProcessor
 {
 
 	private static final Logger logger = Logger
@@ -32,8 +35,8 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 		super(dynExtCategoryBOClass, serviceInformationObject);
 	}
 
-	public Object process(CsvFileReader csvFileReader, int csvRowCounter,
-			HookingInformation hookingObjectInformation) throws BulkOperationException, Exception
+	public Object process(CsvReader csvReader, int csvRowCounter,
+			SessionDataBean sessionDataBean) throws BulkOperationException, Exception
 	{
 
 		HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
@@ -43,16 +46,15 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			AbstractBulkOperationAppService bulkOprAppService = AbstractBulkOperationAppService
 					.getInstance(serviceInformationObject.getServiceImplementorClassName(), true,
 							serviceInformationObject.getUserName(), null);
-			processObject(dynExtObject, bulkOperationClass, csvFileReader, "", false, csvRowCounter);
+			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 			HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
 					.getHookingInformation()).get(0);
-			getinformationForHookingData(csvFileReader, hookingInformationFromTag);
+			getinformationForHookingData(csvReader, hookingInformationFromTag);
 			Long recordId = bulkOprAppService
 					.insertData(bulkOperationClass.getClassName(), dynExtObject);
 			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
-			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
-					.getSessionDataBean());
+			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
 			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
@@ -102,7 +104,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 	 * @throws BulkOperationException
 	 */
 	protected void processContainments(Object mainObj, BulkOperationClass bulkOperationClass,
-			CsvFileReader csvFileReader, String columnSuffix, boolean validate, int csvRowNumber)
+			CsvReader csvReader, String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException
 	{
 		try
@@ -122,10 +124,10 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
-										columnSuffix + "#" + i,csvFileReader))
+										columnSuffix + "#" + i,csvReader))
 						{
 							Object obj = new HashMap<Long, Object>();
-							processObject(obj, containmentObjectCollection, csvFileReader, columnSuffix
+							processObject(obj, containmentObjectCollection, csvReader, columnSuffix
 									+ "#" + i, validate, csvRowNumber);
 							list.add((Map<Long, Object>) obj);
 						}
@@ -146,4 +148,31 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 	}
+	/**
+	 * 
+	 * @param mainMigrationClass
+	 * @param validate
+	 * @param attribute
+	 * @throws BulkOperationException
+	 */
+	protected void getinformationForHookingData(CsvReader csvReader,
+			HookingInformation hookingInformation)
+			throws ClassNotFoundException, BulkOperationException {
+		Iterator<Attribute> attributeItertor = hookingInformation
+				.getAttributeCollection().iterator();
+		Map<String, Object> map = new HashMap<String, Object>();
+		while (attributeItertor.hasNext()) {
+			Attribute attribute = attributeItertor.next();
+
+			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
+				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
+				Object attributeValue = attribute.getValueOfDataType(
+						csvDataValue, false, attribute.getCsvColumnName(),
+						attribute.getDataType());
+				map.put(attribute.getName(), attributeValue);
+			}
+		}
+		hookingInformation.setDataHookingInformation(map);
+	}
+
 }

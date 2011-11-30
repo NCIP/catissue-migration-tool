@@ -21,10 +21,14 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
 import org.xml.sax.SAXException;
 import au.com.bytecode.opencsv.CSVReader;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
@@ -79,14 +83,14 @@ public abstract class AbstractImportBulkOperation
 	 * @throws DAOException
 	 */
 	protected Set<String> validate(String operationName, String dropdownName, String csvFile,
-			String xmlFile, String mappingXml) throws BulkOperationException, SQLException,
+			String xmlFile, String mappingXml,String xsdLocation) throws BulkOperationException, SQLException,
 			IOException, DAOException
 	{
 		Set<String> errorList = null;
-		CsvFileReader csvFileReader=null;
+		CsvReader csvReader=null;
 		try
 		{
-			csvFileReader=CsvFileReader.createCsvFileReader(csvFile, true);
+			csvReader=CsvFileReader.createCsvFileReader(csvFile, true);
 			
 		}
 		catch (Exception exp)
@@ -97,8 +101,13 @@ public abstract class AbstractImportBulkOperation
 		BulkOperationMetaData bulkOperationMetaData  = null;
 		try
 		{
+			/*SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+			File schemaLocation = new File(xsdLocation);
+			Schema schema = factory.newSchema(schemaLocation);*/
 			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingXml));
 			Digester digester = digesterLoader.newDigester();
+			digester.setValidating(true);
+			//digester.setXMLSchema(schema);
             InputStream inputStream = new FileInputStream(xmlFile);
             bulkOperationMetaData = digester.parse(inputStream);
 		}
@@ -120,7 +129,7 @@ public abstract class AbstractImportBulkOperation
 				BulkOperationClass bulkOperationClass=iterator.next();
 				TemplateValidator templateValidator = new TemplateValidator();
 				errorList = templateValidator.validateXmlAndCsv(bulkOperationClass, operationName,
-						csvFileReader);
+						csvReader);
 			}
 		}
 		return errorList;
@@ -276,12 +285,12 @@ public abstract class AbstractImportBulkOperation
 	 * @throws DAOException
 	 */
 	protected void importTemplates(String operationName, String dropdownName, String csvFile,
-			String xmlFile, String mappingXml)
+			String xmlFile, String mappingXml,String xsdLocation)
 	{
 		try
 		{
 			Set<String> errorList = validate(operationName, dropdownName, csvFile, xmlFile,
-					mappingXml);
+					mappingXml,xsdLocation);
 			if (errorList == null || errorList.isEmpty())
 			{
 				saveTemplateInDatabase(operationName, dropdownName, csvFile, xmlFile);

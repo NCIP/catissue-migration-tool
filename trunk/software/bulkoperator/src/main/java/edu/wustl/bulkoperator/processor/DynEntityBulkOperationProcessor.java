@@ -9,18 +9,20 @@ import java.util.Map;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 
 public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProcessor
 		implements
-			IDynamicBulkOperationProcessor
+		IBulkOperationProcessor
 {
 	private static final Logger logger = Logger.getCommonLogger(DynEntityBulkOperationProcessor.class);
 
@@ -30,8 +32,8 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 		super(dynExtEntityBOClass, serviceInformationObject);
 	}
 
-	public Object process(CsvFileReader csvFileReader,
-			int csvRowCounter, HookingInformation hookingObjectInformation)
+	public Object process(CsvReader csvReader,
+			int csvRowCounter, SessionDataBean sessionDataBean)
 			throws BulkOperationException, Exception
 	{
 		Long recordEntryId=null;
@@ -41,18 +43,17 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 					serviceInformationObject.getServiceImplementorClassName(), true,
 					serviceInformationObject.getUserName(), null);
 			HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
-			processObject(dynExtObject, bulkOperationClass, csvFileReader, "", false, csvRowCounter);
+			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
-			getinformationForHookingData(csvFileReader,hookingInformationFromTag);
+			//getinformationForHookingData(csvReader ,hookingInformationFromTag);
 			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
 			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
 
 			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
 			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
-			hookingInformationFromTag.setSessionDataBean(hookingObjectInformation
-					.getSessionDataBean());
+			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
 			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
@@ -85,7 +86,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 	 * @throws BulkOperationException
 	 */
 	protected void processContainments(Object mainObj, BulkOperationClass bulkOperationClass,
-			CsvFileReader csvFileReader, String columnSuffix, boolean validate, int csvRowNumber)
+			CsvReader csvReader, String columnSuffix, boolean validate, int csvRowNumber)
 			throws BulkOperationException
 	{
 		try
@@ -105,10 +106,10 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
-										columnSuffix + "#" + i,csvFileReader))
+										columnSuffix + "#" + i,csvReader))
 						{
 							Object obj = new HashMap<Long, Object>();
-							processObject(obj, containmentObjectCollection, csvFileReader, columnSuffix
+							processObject(obj, containmentObjectCollection, csvReader, columnSuffix
 									+ "#" + i, validate, csvRowNumber);
 							list.add((Map<Long, Object>) obj);
 						}

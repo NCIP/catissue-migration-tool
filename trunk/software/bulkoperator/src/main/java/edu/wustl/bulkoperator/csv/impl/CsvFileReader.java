@@ -28,7 +28,6 @@ public class CsvFileReader implements CsvReader {
     private CSVReader csvReader;
     
     private boolean isFirstRowColumnNames;
-    private List<String> columnNames=new ArrayList<String>();
     
     public CsvFileReader(CSVReader csvReader, boolean isFirstRowColumnNames) {
         this.csvReader = csvReader;
@@ -38,8 +37,7 @@ public class CsvFileReader implements CsvReader {
         }
     }
     
-    public static CsvFileReader createCsvFileReader(InputStream inputStream,boolean isFirstRowColumnNames)
-    {
+    public static CsvFileReader createCsvFileReader(InputStream inputStream,boolean isFirstRowColumnNames) {
 		CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
 		return new CsvFileReader(csvReader, isFirstRowColumnNames);
     }
@@ -62,17 +60,7 @@ public class CsvFileReader implements CsvReader {
         return columnNames;
     }
 
-	public List<String> getColumnNamesAsList() {
-
-		if (columnNames == null || columnNames.isEmpty()) {
-			for (Map.Entry<String, Integer> columnNameIdx : columnNameIdxMap
-					.entrySet()) {
-				columnNames.add(columnNameIdx.getKey());
-			}
-		}
-		return columnNames;
-	}
-    public String getColumn(String columnName) {
+	public String getColumn(String columnName) {
         if (!isFirstRowColumnNames) {
             throw new CsvException("CSV file reader created without first row column names");
         }

@@ -4,6 +4,7 @@
 
 package edu.wustl.bulkoperator.templateImport;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.SQLException;
@@ -43,9 +44,9 @@ public class ImportBulkOperationUsingDAO extends AbstractImportBulkOperation
 			String xmlFile, DAO dao)
 	{
 		this.dao = dao;
-		importTemplates(operationName, dropdownName, csvFile, xmlFile, System
-				.getProperty("app.propertiesDir")
-				+ "/mapping.xml");
+		importTemplates(operationName, dropdownName, csvFile, xmlFile,"./"+System.getProperty(BulkOperationConstants.CONFIG_DIR)
+				+ File.separator +"bulkOperatorXMLTemplateRules.xml","./"+System.getProperty(BulkOperationConstants.CONFIG_DIR)
+				+ File.separator +"BulkOperations.xsd");
 		closeDAO();
 	}
 

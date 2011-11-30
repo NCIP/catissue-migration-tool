@@ -22,6 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import au.com.bytecode.opencsv.CSVReader;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
@@ -46,7 +47,7 @@ public class BulkOperationUtility
 	 * @param columnNameHashTable
 	 * @return
 	 */
-	public static String createHQL(BulkOperationClass bulkOperationclass,CsvFileReader csvFileReader)
+	public static String createHQL(BulkOperationClass bulkOperationclass,CsvReader csvReader)
 	{
 		Iterator<Attribute> attributeItertor = bulkOperationclass.getAttributeCollection()
 				.iterator();
@@ -57,7 +58,7 @@ public class BulkOperationUtility
 			if (attribute.getUpdateBasedOn())
 			{
 				String name = attribute.getName();
-				String csvData = csvFileReader.getColumn(attribute.getCsvColumnName());
+				String csvData = csvReader.getColumn(attribute.getCsvColumnName());
 				if (csvData != null)
 				{
 					whereClause.add(name + " = '" + csvData + "' ");
@@ -430,14 +431,14 @@ public class BulkOperationUtility
 	}
 
 	public static boolean checkIfAtLeastOneColumnHasAValue(int index, List<String> attributeList,
-			CsvFileReader csvFileReader)
+			CsvReader csvReader)
 	{
 		boolean hasValue = false;
 		if (!attributeList.isEmpty())
 		{
 			for (int i = 0; i < attributeList.size(); i++)
 			{
-				hasValue = checkIfColumnHasAValue(index, attributeList.get(i), csvFileReader);
+				hasValue = checkIfColumnHasAValue(index, attributeList.get(i), csvReader);
 				if (hasValue)
 				{
 					break;
@@ -448,10 +449,10 @@ public class BulkOperationUtility
 	}
 
 	public static boolean checkIfColumnHasAValue(int index, String headerName,
-			CsvFileReader csvFileReader)
+			CsvReader csvReader)
 	{
 		boolean hasValue = false;
-		Object value = csvFileReader.getColumn(headerName);
+		Object value = csvReader.getColumn(headerName);
 		if (value != null && !"".equals(value.toString()))
 		{
 			hasValue = true;
@@ -563,7 +564,7 @@ public class BulkOperationUtility
 	}
 
 	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainment(int index,
-			BulkOperationClass bulkOperationClass, String suffix, CsvFileReader csvFileReader)
+			BulkOperationClass bulkOperationClass, String suffix, CsvReader csvReader)
 			throws BulkOperationException
 	{
 		boolean hasValue=false;
@@ -572,13 +573,13 @@ public class BulkOperationUtility
 		while (attributeItertor.hasNext())
 		{
 			Attribute attribute = attributeItertor.next();
-			if (csvFileReader.getColumn(attribute.getCsvColumnName() + suffix) == null)
+			if (csvReader.getColumn(attribute.getCsvColumnName() + suffix) == null)
 			{
 
 				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
 
 			}
-			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvFileReader))
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader))
 			{
 				hasValue = true;
 				break;
@@ -597,7 +598,7 @@ public class BulkOperationUtility
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
 
-						if(checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix + "#" + i,csvFileReader))
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix + "#" + i,csvReader))
 						{
 							hasValue=true;
 							break;
@@ -628,5 +629,12 @@ public class BulkOperationUtility
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
 			throw new BulkOperationException(errorkey, null, "");
 		}
+	}
+	public static String[] concatArrays(String[] array,String[] arrayToBeConcat)
+	{
+		String[] concatedArray= new String[array.length+arrayToBeConcat.length];
+		System.arraycopy(array, 0, concatedArray, 0, array.length);
+		System.arraycopy(arrayToBeConcat, 0, concatedArray, array.length, arrayToBeConcat.length);
+		return concatedArray;
 	}
 }
