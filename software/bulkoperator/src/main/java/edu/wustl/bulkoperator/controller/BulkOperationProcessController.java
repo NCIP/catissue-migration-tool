@@ -2,18 +2,18 @@ package edu.wustl.bulkoperator.controller;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-
-
+import java.util.Arrays;
 
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
+import edu.wustl.bulkoperator.csv.CsvReader;
+import edu.wustl.bulkoperator.csv.CsvWriter;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileWriter;
 import edu.wustl.bulkoperator.jobmanager.JobData;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.metadata.HookingInformation;
-import edu.wustl.bulkoperator.processor.IDynamicBulkOperationProcessor;
+import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
+import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
+import edu.wustl.bulkoperator.processor.IBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
@@ -26,6 +26,7 @@ public class BulkOperationProcessController
 {
 	
 	private static BulkOperationProcessController bulkOperationProcessController = null;
+	private boolean isReRun=false;
 	private static final Logger logger = Logger
 			.getCommonLogger(BulkOperationProcessController.class);
 
@@ -45,110 +46,58 @@ public class BulkOperationProcessController
 			BulkOperationClass bulkOperationClass,
 			SessionDataBean sessionDataBean) throws BulkOperationException {
 		try {
+			
 			Long startTime = BulkOperationUtility.getCurrentTimeInSeconds();
-
 			logger.debug("In Bulk Operation controller handle BO Job method");
-			StaticBulkOperationProcessor staticBulkOprProcessor = null;
-			staticBulkOprProcessor = new StaticBulkOperationProcessor(
-					bulkOperationClass, serviceInformationObject);
-
-			List<IDynamicBulkOperationProcessor> dynamicBulkOprProcessorList = BulkOperationControllerFactory
-					.getInstance().getAllDynamicBulkOperationProcessor(
-							bulkOperationClass, serviceInformationObject);
-
-			process(staticBulkOprProcessor, dynamicBulkOprProcessorList,
-					startTime, csvFileInputStream, jobData, sessionDataBean);
+			
+			process(bulkOperationClass,startTime, csvFileInputStream, jobData, sessionDataBean,serviceInformationObject);
+			
 		} catch (BulkOperationException bulkOprExp) {
 			throw bulkOprExp;
 		}
 	}
 
-	public void process(StaticBulkOperationProcessor staticBulkOprProcessor,
-			List<IDynamicBulkOperationProcessor> dynBulkOprProcessorList,
+	public void process(BulkOperationClass bulkOperationClass,
 			long startTime, InputStream csvInputStream, JobData jobData,
-			SessionDataBean sessionDataBean) throws BulkOperationException {
+			SessionDataBean sessionDataBean,AppServiceInformationObject serviceInformationObject) throws BulkOperationException {
 		Object staticDomainObject = null;
-		Object object = null;
 		int failureCount = 0, successCount = 0, currentCSVRowCount = 0;
 		try {
-			CsvFileReader csvFileReader = CsvFileReader.createCsvFileReader(
+			int batchSize = getBatchSize(bulkOperationClass);
+			CsvReader csvReader = CsvFileReader.createCsvFileReader(
 					csvInputStream, true);
-			StaticBulkOperationProcessor staticProcessor = staticBulkOprProcessor;
-			int batchSize = getBatchSize(staticProcessor
-					.getBulkOperationClass());
-			String[] columnNames = csvFileReader.getColumnNames();
-			String[] defaultColumnNames = { BulkOperationConstants.STATUS, BulkOperationConstants.MESSAGE,
-					BulkOperationConstants.MAIN_OBJECT_ID };
-			CsvFileWriter csvFileWriter = CsvFileWriter.createCsvFileWriter(
-					staticProcessor.getBulkOperationClass().getTemplateName()
-							+ jobData.getJobID() + ".csv",
-					csvFileReader.getColumnNames(), batchSize,
-					defaultColumnNames);
+			
+			String[] columnNames = csvReader.getColumnNames();
+			
+			CsvWriter csvWriter = getCsvWriter(bulkOperationClass, jobData, batchSize,columnNames);	
+			
+			IBulkOperationProcessor bulkOperationProcessor = getProcessor(bulkOperationClass,serviceInformationObject);
 
-			while (csvFileReader.next()) {
+			while (csvReader.next()) {
 				try {
-					if (dynBulkOprProcessorList.isEmpty()) {
-						staticDomainObject = staticBulkOprProcessor.process(
-								csvFileReader, currentCSVRowCount);
+					if (isReRun
+							&& !BulkOperationConstants.SUCCESS.equalsIgnoreCase(csvReader.getColumn(BulkOperationConstants.STATUS))) {
+						processRecord(bulkOperationClass, sessionDataBean,staticDomainObject, currentCSVRowCount,csvReader, 
+								columnNames, csvWriter,bulkOperationProcessor);
 					} else {
-						HookingInformation hookingInformation = new HookingInformation();
-						hookingInformation.setStaticObject(staticDomainObject);
-						hookingInformation.setSessionDataBean(sessionDataBean);
-						Iterator<IDynamicBulkOperationProcessor> iterator = dynBulkOprProcessorList
-								.iterator();
-						while (iterator.hasNext()) {
-							IDynamicBulkOperationProcessor dynProcessorInterface = iterator
-									.next();
-							object = dynProcessorInterface.process(
-									csvFileReader, currentCSVRowCount,
-									hookingInformation);
-						}
+						addRecordToWrite(csvReader,columnNames,csvWriter,BulkOperationConstants.SUCCESS,
+								csvReader.getColumn(BulkOperationConstants.MESSAGE),csvReader.getColumn(BulkOperationConstants.MAIN_OBJECT_ID));
 					}
-					csvFileWriter.nextRow();
-					for (String column : columnNames) {
-						csvFileWriter.setColumnValue(column,
-								csvFileReader.getColumn(column));
-					}
-					String objectId = null;
-
-					if (staticDomainObject != null) {
-						objectId = String.valueOf(staticProcessor
-								.getBulkOperationClass().invokeGetIdMethod(
-										staticDomainObject));
-					} else {
-						objectId = String.valueOf(object);
-					}
-					addStatusOfRow(csvFileWriter, "Success", "", objectId);
 					successCount++;
-				} catch (BulkOperationException exp) {
-					csvFileWriter.nextRow();
-					for (String column : columnNames) {
-						csvFileWriter.setColumnValue(column,
-								csvFileReader.getColumn(column));
-					}
-					failureCount++;
-					addStatusOfRow(csvFileWriter, "Failure",
-							" " + exp.getMessage(), " ");
-				} catch (Exception exp) {
-					csvFileWriter.nextRow();
-					for (String column : columnNames) {
-						csvFileWriter.setColumnValue(column,
-								csvFileReader.getColumn(column));
-					}
-					addStatusOfRow(csvFileWriter, "Failure",
-							" " + exp.getMessage(), " ");
 
+				} catch (Exception exp) {
+					addRecordToWrite(csvReader, columnNames, csvWriter,"Failure", exp.getMessage(),"");
 					failureCount++;
 				} finally {
 					if ((currentCSVRowCount % batchSize) == 0) {
 						try {
-
+							csvReader.close();
 							insertReportInDatabase(successCount, failureCount,
 									JobData.JOB_IN_PROGRESS_STATUS,
-									csvFileWriter, staticProcessor
-											.getBulkOperationClass()
+									csvWriter, bulkOperationClass
 											.getTemplateName(), startTime,
 									jobData, currentCSVRowCount, false);
+							csvWriter.close();
 						} catch (BulkOperationException bulkOprExp) {
 							throw bulkOprExp;
 						}
@@ -156,8 +105,9 @@ public class BulkOperationProcessController
 				}
 				currentCSVRowCount++;
 			}
-			postProcess(successCount, failureCount, csvFileWriter,
-					staticProcessor.getBulkOperationClass().getTemplateName(),
+			
+			postProcess(successCount, failureCount, csvWriter,
+					bulkOperationClass.getTemplateName(),
 					startTime, jobData, currentCSVRowCount);
 		} catch (BulkOperationException bulkOprExp) {
 			logger.error(bulkOprExp.getMessage(), bulkOprExp);
@@ -165,11 +115,74 @@ public class BulkOperationProcessController
 		}
 	}
 
-	private void addStatusOfRow(CsvFileWriter csvFileWriter, String status,
+	private CsvWriter getCsvWriter(BulkOperationClass bulkOperationClass,
+			JobData jobData, int batchSize, String[] columnNames) {
+		CsvWriter csvWriter;
+		Arrays.sort(columnNames);
+		if (Arrays.binarySearch(columnNames, BulkOperationConstants.STATUS) < 0) {
+			isReRun=false;
+			csvWriter = CsvFileWriter.createCsvFileWriter(
+					bulkOperationClass.getTemplateName()
+							+ jobData.getJobID() + ".csv",
+					BulkOperationUtility.concatArrays(columnNames,
+							BulkOperationConstants.DEFAULT_COLUMNS),
+					batchSize);
+		} else {
+			isReRun=true;
+			csvWriter = CsvFileWriter.createCsvFileWriter(
+					bulkOperationClass.getTemplateName()
+							+ jobData.getJobID() + ".csv", columnNames,
+					batchSize);
+		}
+		return csvWriter;
+	}
+
+	private IBulkOperationProcessor getProcessor(
+			BulkOperationClass bulkOperationClass,
+			AppServiceInformationObject serviceInformationObject) {
+		IBulkOperationProcessor bulkOperationProcessor;
+		if(BulkOperationConstants.STATIC_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
+		   bulkOperationProcessor = new StaticBulkOperationProcessor(bulkOperationClass, serviceInformationObject);
+		}
+		else if(BulkOperationConstants.CATEGORY_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
+			bulkOperationProcessor=new DynCategoryBulkOperationProcessor(bulkOperationClass, serviceInformationObject);
+		}
+		else {
+			bulkOperationProcessor=new DynEntityBulkOperationProcessor(bulkOperationClass, serviceInformationObject);
+		}
+		return bulkOperationProcessor;
+	}
+
+	private void processRecord(BulkOperationClass bulkOperationClass,SessionDataBean sessionDataBean, Object staticDomainObject,
+			int currentCSVRowCount, CsvReader csvReader,String[] columnNames, CsvWriter csvWriter,
+			IBulkOperationProcessor bulkOperationProcessor)
+			throws BulkOperationException, Exception {
+		Object processedObject = bulkOperationProcessor.process(csvReader, currentCSVRowCount,sessionDataBean);
+		
+		String objectId=null;
+		if (processedObject instanceof StaticBulkOperationProcessor) {
+			objectId=String.valueOf(bulkOperationClass.invokeGetIdMethod(staticDomainObject));
+		} else {
+			objectId=String.valueOf(processedObject);
+		}
+		addRecordToWrite(csvReader, columnNames, csvWriter,"Success", "",objectId);
+	}
+
+	private void addRecordToWrite(CsvReader csvReader, String[] columnNames,
+			CsvWriter csvWriter,String status,String message, String objectId) {
+		csvWriter.nextRow();
+		for (String column : columnNames) {
+			csvWriter.setColumnValue(column,
+					csvReader.getColumn(column));
+		}
+		addStatusOfRow(csvWriter,status, message, objectId);
+	}
+
+	private void addStatusOfRow(CsvWriter csvWriter, String status,
 			String meessage, String mainObject) {
-		csvFileWriter.setColumnValue(BulkOperationConstants.STATUS, status);
-		csvFileWriter.setColumnValue(BulkOperationConstants.MESSAGE, meessage);
-		csvFileWriter.setColumnValue(BulkOperationConstants.MAIN_OBJECT_ID, mainObject);
+		csvWriter.setColumnValue(BulkOperationConstants.STATUS, status);
+		csvWriter.setColumnValue(BulkOperationConstants.MESSAGE, meessage);
+		csvWriter.setColumnValue(BulkOperationConstants.MAIN_OBJECT_ID, mainObject);
 	}
 
 	private int getBatchSize(BulkOperationClass bulkOperationClass) {
@@ -181,23 +194,23 @@ public class BulkOperationProcessController
 	}
 
 	void postProcess(int successCount, int failureCount,
-			CsvFileWriter csvFileWriter, String operationName, long startTime,
+			CsvWriter csvWriter, String operationName, long startTime,
 			JobData jobData, int currentCSVRowCount)
 			throws BulkOperationException {
 		insertReportInDatabase(successCount, failureCount,
-				JobData.JOB_COMPLETED_STATUS, csvFileWriter, operationName,
+				JobData.JOB_COMPLETED_STATUS, csvWriter, operationName,
 				startTime, jobData, currentCSVRowCount, true);
 	}
 
 	private void insertReportInDatabase(int recordsProcessed, int failureCount,
-			String statusMessage, CsvFileWriter csvFileWriter,
+			String statusMessage, CsvWriter csvWriter,
 			String operationName, long startTime, JobData jobData,
 			int currentCSVRowCount, boolean finalexecute)
 			throws BulkOperationException {
 		try {
 			String commonFileName = operationName + jobData.getJobID();
-			csvFileWriter.nextRow();
-			csvFileWriter.flush();
+			csvWriter.nextRow();
+			csvWriter.flush();
 			File file = new File(commonFileName + ".csv");
 			String[] fileNames = file.getName().split(".csv");
 			String zipFilePath = CommonServiceLocator.getInstance()

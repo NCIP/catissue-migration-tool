@@ -108,8 +108,17 @@ public class BulkOperationAction extends SecureAction
 					}
 					else
 					{
-						File csvFile = bulkOperationBizLogic.getCSVFile(dropdownNameFromUI);
-						createResponse(response, csvFile);
+						File downloadFile=null;
+						if("downloadXSD".equals(request.getAttribute("operation")))
+						{
+							downloadFile = new File(CommonServiceLocator.getInstance().getPropDirPath()
+							+ File.separator + "BulkOperations.xsd");
+						}
+						else
+						{
+							downloadFile = bulkOperationBizLogic.getCSVFile(dropdownNameFromUI);
+						}
+						createResponse(response, downloadFile);
 					}
 				}
 				else if (request.getParameter(BulkOperationConstants.PAGE_OF) != null)

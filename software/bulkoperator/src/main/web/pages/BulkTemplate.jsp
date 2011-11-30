@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+a<%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -30,7 +30,20 @@ function onDownLoadTemplate()
 		mywindow.moveTo(0,0);
 	}
 }
-
+function onDownLoadXSD()
+{
+	var dropdownName =	document.getElementById('dropdownName').value;
+	if (dropdownName == null || dropdownName == 'undefined' || dropdownName == "")
+	{
+		alert("Incorrect Template Name.");
+	}
+	else
+	{
+		var action = "DownloadCSV.do?dropdownName=" + dropdownName+"&operation=downloadXSD";
+		mywindow = window.open(action, "Download", "width=10,height=10");
+		mywindow.moveTo(0,0);
+	}
+}
 function onUploadClick()
 {
 	var dropdownName =	document.getElementById('dropdownName').value;
@@ -101,12 +114,13 @@ function getCSVOutputReport()
 
 
 			</td>
-			<td colspan="2" width="44%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
+			<td  colspan="2"  width="44%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
 				<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
 								<bean:message key="bulk.button.download.template" />
 					</html:button>
 			</td>
 		</tr>
+		
 		<tr>
 			<td colspan="5" width="100%" height="15" align="center" class="black_ar"><span class="blue_ar_b"></span>
 			</td>
@@ -124,6 +138,13 @@ function getCSVOutputReport()
 				<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="">
 						<bean:message key="bulk.button.upload" />
 				</html:button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="5" width="100%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
+			<html:button styleClass="blue_ar_b" onclick="onDownLoadXSD()" accesskey="enter" property="">
+							Download XSD
+					</html:button>
 			</td>
 		</tr>
 	</html:form>

@@ -24,6 +24,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import edu.wustl.bulkoperator.BulkOperator;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.client.BulkOperatorJob;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.jobmanager.DefaultJobStatusListner;
 import edu.wustl.bulkoperator.jobmanager.JobDetails;
@@ -330,12 +331,19 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		InputSource xmlTemplateInputSource, String retrievedOperationName, SessionDataBean sessionDataBean) throws BulkOperationException
 	{
 		Long jobId = null;
-		CsvFileReader csvFileReader=CsvFileReader.createCsvFileReader(csvFileInputStreamForValidation, true);
-		if (csvFileReader != null)
-		{
+		CsvReader csvReader=CsvFileReader.createCsvFileReader(csvFileInputStreamForValidation, true);
+		try {
+		 if (csvReader == null)
+		  {
+			 ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.reading.csv.file");
+			 throw new BulkOperationException(errorKey, null, "");
+		  }
+		  else
+		  {
+			
 			BulkOperator bulkOperator = parseXMLStringAndGetBulkOperatorInstance(
 					retrievedOperationName, xmlTemplateInputSource);
-			validateBulkOperation(retrievedOperationName,csvFileReader,bulkOperator);
+			validateBulkOperation(retrievedOperationName,csvReader,bulkOperator);
 			BulkOperationClass bulkOperationClass = bulkOperator.getMetadata().getBulkOperationClass().iterator().next();
 			if(bulkOperationClass.getTemplateName()==null)
 			{
@@ -347,11 +355,17 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 			}
 			jobId = startBulkOperation(retrievedOperationName, csvFileInputStream,
 					sessionDataBean, bulkOperationClass);
+		  }
 		}
-		else
-		{
-			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.error.reading.csv.file");
-			throw new BulkOperationException(errorKey, null, "");
+		catch (BulkOperationException bulkException) {
+			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
+			throw new BulkOperationException(errorKey, bulkException, "");
+		}
+		finally {
+			if(csvReader!=null)
+			{
+				csvReader.close();
+			}
 		}
 		return jobId;
 	}
@@ -412,7 +426,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 	 * @param bulkOperator BulkOperator.
 	 * @throws BulkOperationException BulkOperationException.
 	 */
-	private void validateBulkOperation(String operationName, CsvFileReader csvFileReader,
+	private void validateBulkOperation(String operationName, CsvReader csvReader,
 		BulkOperator bulkOperator) throws BulkOperationException
 	{
 		BulkOperationMetaData metaData = bulkOperator.getMetadata();
@@ -424,7 +438,7 @@ public class BulkOperationBizLogic extends DefaultBizLogic
 		BulkOperationClass bulkOperationClass = metaData.getBulkOperationClass().iterator().next();
 		TemplateValidator templateValidator = new TemplateValidator();
 		Set<String> errorList = templateValidator.validateXmlAndCsv(bulkOperationClass,
-				operationName, csvFileReader);
+				operationName, csvReader);
 		if (!errorList.isEmpty())
 		{
 			StringBuffer strBuffer = new StringBuffer();

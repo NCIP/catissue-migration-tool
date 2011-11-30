@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.hibernate.proxy.HibernateProxy;
 
-import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
+import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -34,6 +34,8 @@ public class BulkOperationClass
 	private Integer batchSize;
 	private Long id;
 	private Class klass;
+	private String type=BulkOperationConstants.STATIC_TYPE;
+	private String isOneToManyAssociation="";
 	private Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> dynExtEntityAssociationCollection = new ArrayList<BulkOperationClass>();
@@ -248,7 +250,7 @@ public class BulkOperationClass
 		return isUpdateOperation;
 	}
 
-	public Object getClassDiscriminator(CsvFileReader csvFileReader, String columnSuffix)
+	public Object getClassDiscriminator(CsvReader csvReader, String columnSuffix)
 			throws BulkOperationException
 	{
 		Object object = null;
@@ -269,7 +271,7 @@ public class BulkOperationClass
 					{
 						AttributeDiscriminator attributeDiscriminator = attributeDiscriminatorItertor
 								.next();
-						String value = csvFileReader.getColumn(attribute.getCsvColumnName() + columnSuffix);
+						String value = csvReader.getColumn(attribute.getCsvColumnName() + columnSuffix);
 						if (attributeDiscriminator.getName().equalsIgnoreCase(value))
 						{
 							String discriminatorValue = attributeDiscriminator.getValue();
@@ -466,5 +468,18 @@ public class BulkOperationClass
 		}
 		return identifier;
 	}
-	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getIsOneToManyAssociation() {
+		return isOneToManyAssociation;
+	}
+
+	public void setIsOneToManyAssociation(String isOneToManyAssociation) {
+		this.isOneToManyAssociation = isOneToManyAssociation;
+	}
 }

@@ -215,6 +215,7 @@
 			<fileset file="${src.dir}/log4j.properties" />
 			<fileset file="${basedir}/conf/bulkoperationintegration.xml" />
 			<fileset file="${basedir}/conf/bulkOperatorXMLTemplateRules.xml" />
+			<fileset file="${basedir}/conf/BulkOperations.xsd" />
 		</copy>
 		<copy todir="${zip.dir}/css" overwrite="true">
 			<fileset dir="${web.dir}/css" />

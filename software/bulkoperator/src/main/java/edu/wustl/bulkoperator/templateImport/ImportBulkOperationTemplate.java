@@ -37,8 +37,8 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	public ImportBulkOperationTemplate(String operationName, String dropdownName, String csvFile,
 			String xmlFile)
 	{
-		importTemplates(operationName, dropdownName, csvFile, xmlFile,"./"+System.getProperty(BulkOperationConstants.CONFIG_DIR)
-				+ File.separator +"bulkOperatorXMLTemplateRules.xml");
+		importTemplates(operationName, dropdownName, csvFile, xmlFile,"E:/caTISSUE_Suite_v2.0_Installable/modules/bulk_operations/conf/bulkOperatorXMLTemplateRules.xml","./"+System.getProperty(BulkOperationConstants.CONFIG_DIR)
+				+ File.separator +"BulkOperations.xsd");
 	}
 
 	/**
@@ -47,10 +47,10 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	 */
 	public static void main(String[] args)
 	{
-		String operationName = args[0];
-		String dropdownName = args[1];
-		String csvFile = args[2];
-		String xmlFile = args[3];
+		String operationName = "NewSCGWithSpecimen2";
+		String dropdownName = "NewSCGWithSpecimen2";
+		String csvFile = "E:\\caTISSUE_Suite_v2.0_Installable\\CreateNewSCGWithSpecimen.csv";
+		String xmlFile = "E:\\caTISSUE_Suite_v2.0_Installable\\SCGWithSpec.xml";
 		new ImportBulkOperationTemplate(operationName, dropdownName, csvFile, xmlFile);
 	}
 

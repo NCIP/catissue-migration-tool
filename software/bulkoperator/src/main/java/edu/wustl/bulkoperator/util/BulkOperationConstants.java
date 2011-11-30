@@ -64,6 +64,9 @@ public class BulkOperationConstants
 	public static final String SCG_BARCODE="scgBarcode";
 	public static final String SCG_ID="scgId";
 	public static final String SPECIMEN_ID="specimenId";
-
-
+	public static final String STATIC_TYPE="Static";
+	public static final String CATEGORY_TYPE="Category";
+	public static final String ENTITY_TYPE="Entity";
+	public static final String[] DEFAULT_COLUMNS = { BulkOperationConstants.STATUS, BulkOperationConstants.MESSAGE,
+			BulkOperationConstants.MAIN_OBJECT_ID };
 }

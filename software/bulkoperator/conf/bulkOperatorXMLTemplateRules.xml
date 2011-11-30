@@ -79,4 +79,9 @@
 	  <set-next-rule methodname="addHookingInformation"/>	  
   </pattern>
   
+  <pattern value="*/discriminatorCollection">
+      <object-create-rule classname="edu.wustl.bulkoperator.metadata.AttributeDiscriminator"/>
+	  <set-properties-rule/>
+	  <set-next-rule methodname="addAttributeDiscriminator"/>	  
+  </pattern>
 </digester-rules>
