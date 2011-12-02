@@ -230,8 +230,8 @@
 			<fileset dir="${web.dir}/pages" />
 		</copy>
 		<antcall target="version_info"/>
-		<!--<zip destfile="${zip.file}" basedir="${zip.dir}" />
-		<delete dir="${zip.dir}" /> -->
+		<zip destfile="${zip.file}" basedir="${zip.dir}" />
+		<delete dir="${zip.dir}" />
 	</target>
 
 	<target name="dist" depends="create_bulkoperator_jar, create_bulkoperator_zip">
