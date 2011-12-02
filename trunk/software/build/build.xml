@@ -329,7 +329,7 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 	<target name="build:bulkoperator-webapp" depends="init, build:bulkoperator-api" description="Call webapp sub-projects build target to produce artifiacts">
 		<!-- setting the property in the ant call overrides the property in the sub-project allowing the artifact to be produced where needed -->
 		<ant inheritAll="false" inheritRefs="false" antfile="../bulkoperator/build.xml" target="${bulkoperator-webapp.build.target}" dir="${bulkoperator-webapp.base.dir}">
-			<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />
+			<!--<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />-->
 			<property name="env.GLOBUS_LOCATION" value="${env.GLOBUS_LOCATION}"/>
 			<property name="commonlibrary.dir" value="${commonlibrary.dir}"/>
 			<property name="local.cbiit-ivy-repo.dir" value="${local.cbiit-ivy-repo.dir}"/>
@@ -647,7 +647,7 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 
 	<target name="test:bulkoperator-webapp" depends="init" description="Calls test target for sub-project">
 		<ant inheritAll="false" inheritRefs="false" antfile="${bulkoperator-webapp.test.file}" target="test" dir="${bulkoperator-webapp.base.dir}">
-			<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />
+			<!--<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />-->
 		</ant>
 	</target>
 
@@ -671,7 +671,7 @@ $HeadURL: http://gforge.nci.nih.gov/svnroot/automation/branches/automation-1.7.4
 
 	<target name="static-analysis:bulkoperator-webapp" depends="init" description="Calls static-analysis target for sub-project">
 		<ant inheritAll="false" inheritRefs="false" antfile="../bulkoperator/build.xml" target="static-analysis" dir="${bulkoperator-webapp.base.dir}">
-			<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />
+			<!--<property name="dist.dir" value="${bulkoperator-webapp.dist.dir}" />-->
 		</ant>
 	</target>
 
