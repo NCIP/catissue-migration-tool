@@ -33,18 +33,6 @@
 	  <set-next-rule methodname="addAttribute"/>	  
   </pattern>
   
-  <pattern value="*/dynExtCategoryAssociation">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
-	  <set-properties-rule/>
-	  <set-next-rule methodname="addDynExtCategoryAssociation"/>
-  </pattern>
-  
-  <pattern value="*/dynExtEntityAssociation">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
-	  <set-properties-rule/>
-	  <set-next-rule methodname="addDynExtEntityAssociation"/>
-  </pattern>
-  
   <pattern value="*/containmentAssociationCollection">
       <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
 	  <set-properties-rule/>
@@ -61,22 +49,11 @@
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addReferenceAssociation"/>
   </pattern>
-  <pattern value="*/dynExtCategoryAssociationCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
-	  <set-properties-rule/>
-	  <set-next-rule methodname="addDynExtCategoryAssociation"/>
-  </pattern>
-  
-  <pattern value="*/dynExtEntityAssociationCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
-	  <set-properties-rule/>
-	  <set-next-rule methodname="addDynExtEntityAssociation"/>	  
-  </pattern>
-  
+    
    <pattern value="*/hookingInformation">
       <object-create-rule classname="edu.wustl.bulkoperator.metadata.HookingInformation"/>
 	  <set-properties-rule/>
-	  <set-next-rule methodname="addHookingInformation"/>	  
+	  <set-next-rule methodname="setHookingInformation"/>	  
   </pattern>
   
   <pattern value="*/discriminatorCollection">

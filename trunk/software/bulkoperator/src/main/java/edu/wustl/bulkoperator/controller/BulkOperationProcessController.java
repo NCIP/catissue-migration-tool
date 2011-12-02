@@ -141,7 +141,7 @@ public class BulkOperationProcessController
 			BulkOperationClass bulkOperationClass,
 			AppServiceInformationObject serviceInformationObject) {
 		IBulkOperationProcessor bulkOperationProcessor;
-		if(BulkOperationConstants.STATIC_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
+		if(BulkOperationConstants.ENTITY_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
 		   bulkOperationProcessor = new StaticBulkOperationProcessor(bulkOperationClass, serviceInformationObject);
 		}
 		else if(BulkOperationConstants.CATEGORY_TYPE.equalsIgnoreCase(bulkOperationClass.getType())) {
