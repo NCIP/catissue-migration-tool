@@ -17,8 +17,10 @@
       <artifact name="castor-1.3-xml" ext="jar" type="jar"/>
       <artifact name="castor-1.3-xml-schema" ext="jar" type="jar"/>
       <artifact name="cglib-2.1.3" ext="jar" type="jar"/>
+	  <artifact name="commons-beanutils-1.8.3" ext="jar" type="jar"/>
       <artifact name="commons-codec-1.3" ext="jar" type="jar"/>
       <artifact name="commons-collections-3.2" ext="jar" type="jar"/>
+	  <artifact name="commons-digester3-3.0" ext="jar" type="jar"/>
       <artifact name="commons-discovery-0.2" ext="jar" type="jar"/>
       <artifact name="commons-fileupload-1.2.1" ext="jar" type="jar"/>
       <artifact name="commons-httpclient-3.0.1" ext="jar" type="jar"/>
