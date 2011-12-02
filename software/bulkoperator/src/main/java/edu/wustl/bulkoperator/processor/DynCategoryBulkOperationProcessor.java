@@ -47,8 +47,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 					.getInstance(serviceInformationObject.getServiceImplementorClassName(), true,
 							serviceInformationObject.getUserName(), null);
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
-			HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
-					.getHookingInformation()).get(0);
+			HookingInformation hookingInformationFromTag = bulkOperationClass.getHookingInformation();
 			getinformationForHookingData(csvReader, hookingInformationFromTag);
 			Long recordId = bulkOprAppService
 					.insertData(bulkOperationClass.getClassName(), dynExtObject);

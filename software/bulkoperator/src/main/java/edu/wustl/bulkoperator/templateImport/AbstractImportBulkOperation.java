@@ -17,12 +17,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
@@ -101,19 +104,22 @@ public abstract class AbstractImportBulkOperation
 		BulkOperationMetaData bulkOperationMetaData  = null;
 		try
 		{
-			/*SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+			SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
 			File schemaLocation = new File(xsdLocation);
-			Schema schema = factory.newSchema(schemaLocation);*/
+			Schema schema = factory.newSchema(schemaLocation);
 			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingXml));
 			Digester digester = digesterLoader.newDigester();
 			digester.setValidating(true);
-			//digester.setXMLSchema(schema);
+			digester.setXMLSchema(schema);
+			Validator validator = schema.newValidator();
+			Source xmlFileForValidation = new StreamSource(new File(xmlFile));
+			validator.validate(xmlFileForValidation);
             InputStream inputStream = new FileInputStream(xmlFile);
             bulkOperationMetaData = digester.parse(inputStream);
 		}
 		 catch (SAXException e) {
 			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
-			 throw new BulkOperationException(errorkey, null, "");
+			 throw new BulkOperationException(errorkey, null, e.getMessage());
 		}
 		Collection<BulkOperationClass> classList = bulkOperationMetaData.getBulkOperationClass();
 		if (classList == null)

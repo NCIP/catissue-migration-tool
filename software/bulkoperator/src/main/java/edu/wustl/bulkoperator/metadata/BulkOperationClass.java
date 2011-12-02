@@ -34,31 +34,27 @@ public class BulkOperationClass
 	private Integer batchSize;
 	private Long id;
 	private Class klass;
-	private String type=BulkOperationConstants.STATIC_TYPE;
+	private String type=BulkOperationConstants.ENTITY_TYPE;
 	private String isOneToManyAssociation="";
 	private Collection<BulkOperationClass> referenceAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> containmentAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> dynExtEntityAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<BulkOperationClass> dynExtCategoryAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
-	private Collection<HookingInformation> hookingInformation = new ArrayList<HookingInformation>();
+	private HookingInformation hookingInformation;
 
 
 
-	public void setHookingInformation(Collection<HookingInformation> hookingInformation)
+	public void setHookingInformation(HookingInformation hookingInformation)
 	{
 		this.hookingInformation = hookingInformation;
 	}
 
-	public Collection<HookingInformation> getHookingInformation()
+	public  HookingInformation getHookingInformation()
 	{
 		return hookingInformation;
 	}
  
-	public void addHookingInformation(HookingInformation hookingInformation) {
-	    this.hookingInformation.add(hookingInformation);
-	}
-	
 	public Collection<Attribute> getAttributeCollection()
 	{
 		return attributeCollection;

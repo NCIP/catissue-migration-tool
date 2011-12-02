@@ -37,11 +37,16 @@ public class Attribute
 	/**
 	 * @param attributeCollection the attributeCollection to set
 	 */
-	public void setDiscriminatorCollection(AttributeDiscriminator discriminatorCollection)
+	public void setDiscriminatorCollection(
+			Collection<AttributeDiscriminator> discriminatorCollection)
+	{
+		this.discriminatorCollection = discriminatorCollection;
+	}
+
+	public void addAttributeDiscriminator(AttributeDiscriminator discriminatorCollection)
 	{
 		this.discriminatorCollection.add(discriminatorCollection);
 	}
-
 	public String getBelongsTo()
 	{
 		return belongsTo;

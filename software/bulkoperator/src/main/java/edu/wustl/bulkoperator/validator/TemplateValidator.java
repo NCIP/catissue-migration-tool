@@ -61,7 +61,7 @@ public class TemplateValidator {
 		validateBulkOperationClass(bulkOperationClass, columnNamesList, 0);
 		if (errorList.isEmpty()) {
 			try {
-				if (BulkOperationConstants.STATIC_TYPE
+				if (BulkOperationConstants.ENTITY_TYPE
 						.equals(bulkOperationClass.getType())) {
 					StaticBulkOperationProcessor staticProcessor = new StaticBulkOperationProcessor(
 							bulkOperationClass, null);
@@ -77,8 +77,7 @@ public class TemplateValidator {
 					deProcessor.processObject(dynExtObject,
 							bulkOperationClass, csvReader,
 							"", true, 0);
-					HookingInformation hookingInformationFromTag = ((List<HookingInformation>) bulkOperationClass
-							.getHookingInformation()).get(0);
+					HookingInformation hookingInformationFromTag = bulkOperationClass.getHookingInformation();
 					validateHookingInformation(csvReader,
 							hookingInformationFromTag);
 				}

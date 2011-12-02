@@ -45,7 +45,7 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 
-			HookingInformation hookingInformationFromTag=((List<HookingInformation>)bulkOperationClass.getHookingInformation()).get(0);
+			HookingInformation hookingInformationFromTag=bulkOperationClass.getHookingInformation();
 			//getinformationForHookingData(csvReader ,hookingInformationFromTag);
 			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
 			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
