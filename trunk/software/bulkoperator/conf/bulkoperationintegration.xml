@@ -10,24 +10,24 @@
 	<target name="bulkoperation_integrate_app" description="deploys the Bulk Operation module">
 
 		<!--Copying css files -->
-		<copy todir="${deploy.temp.dir}/css" overwrite="false">
-			<fileset file="${bulkoperation.base.dir}/css/bulkOperator.css" />
+		<copy todir="${deploy.temp.dir}/src/web/css" overwrite="false">
+			<fileset file="${bulkoperation.base.dir}/css/catissue_suite.css" />
 		</copy>
 
 		<!--Copying jss files -->
-		<copy todir="${deploy.temp.dir}/jss" overwrite="false">
-			<fileset file="${bulkoperation.base.dir}/jss/bulkOperatorAjax.js" />
-			<fileset file="${bulkoperation.base.dir}/jss/bulkOperatorScripts.js" />
+		<copy todir="${deploy.temp.dir}/src/web/jss" overwrite="false">
+			<fileset file="${bulkoperation.base.dir}/jss/ajax.js" />
+			<fileset file="${bulkoperation.base.dir}/jss/javaScript.js" />
 		</copy>
 
 		<!--Copying struts config and tiles defs files -->
-		<copy todir="${deploy.temp.dir}/WEB-INF" overwrite="true">
+		<copy todir="${deploy.temp.dir}/src/java/WEB-INF" overwrite="true">
 			<fileset file="${bulkoperation.base.dir}/bulkoperation-struts-config.xml" />
 			<fileset file="${bulkoperation.base.dir}/bulkoperation-tiles-defs.xml" />
 		</copy>
 
 		<!--Copying JSP Pages -->
-		<copy todir="${deploy.temp.dir}/pages/content/manageBioSpecimen/bulkOperations" overwrite="true">
+		<copy todir="${deploy.temp.dir}/src/web/pages/content/manageBioSpecimen/bulkOperations" overwrite="true">
 			<fileset file="${bulkoperation.base.dir}/pages/BulkOperation.jsp" />
 			<fileset file="${bulkoperation.base.dir}/pages/JobGridDashboard.jsp" />
 			<fileset file="${bulkoperation.base.dir}/pages/BulkTemplate.jsp" />
@@ -120,74 +120,5 @@
 			</fileset>
 		</copy>
 	</target>
-
-	<target name="alter_bulk_operation_table" description="alter the colum type from varchar2 to CLOB">
-			<if>
-				<equals arg1="${database.type}" arg2="oracle"/>
-				<then>
-					<sql driver="${database.driver}"
-						url="${database.url}"
-						userid="${database.username}" password="${database.password}" rdbms="oracle">
-						<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/ALTER_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
-						<transaction>commit;</transaction>
-						<classpath>
-							<fileset dir="${parent.base.dir}">
-								<include name="*.jar" />
-							</fileset>
-						</classpath>
-					</sql>
-				</then>
-			<elseif>
-				<equals arg1="${database.type}" arg2="mysql"/>
-				<then>
-					<sql driver="${database.driver}"
-						url="${database.url}"
-							userid="${database.username}" password="${database.password}" >
-						<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/ALTER_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
-						<transaction>commit;</transaction>
-						<classpath>
-							<fileset dir="${parent.base.dir}">
-								<include name="*.jar" />
-							</fileset>
-						</classpath>
-					</sql>
-				</then>
-			</elseif>
-			</if>
-		</target>
-		<target name="upgrade_bulk_operation_table" depends="alter_bulk_operation_table" description="upgrade bulk operation tables">
-			<if>
-							<equals arg1="${database.type}" arg2="oracle"/>
-							<then>
-								<sql driver="${database.driver}"
-									url="${database.url}"
-									userid="${database.username}" password="${database.password}" rdbms="oracle">
-									<transaction src="${deploy.temp.dir}/bulkoperation/SQL/Oracle/UPGRADE_BULK_OPERATION_TABLES_FOR_ORACLE.sql" />
-									<transaction>commit;</transaction>
-									<classpath>
-										<fileset dir="${parent.base.dir}">
-											<include name="*.jar" />
-										</fileset>
-									</classpath>
-								</sql>
-							</then>
-						<elseif>
-							<equals arg1="${database.type}" arg2="mysql"/>
-							<then>
-								<sql driver="${database.driver}"
-									url="${database.url}"
-										userid="${database.username}" password="${database.password}" >
-									<transaction src="${deploy.temp.dir}/bulkoperation/SQL/MySql/UPGRADE_BULK_OPERATION_TABLES_FOR_MYSQL.sql" />
-									<transaction>commit;</transaction>
-									<classpath>
-										<fileset dir="${parent.base.dir}">
-											<include name="*.jar" />
-										</fileset>
-									</classpath>
-								</sql>
-							</then>
-						</elseif>
-						</if>
-		</target>
 
 </project>
