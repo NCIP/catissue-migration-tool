@@ -66,6 +66,7 @@ public class BulkOperationProcessController
 			int batchSize = getBatchSize(bulkOperationClass);
 			CsvReader csvReader = CsvFileReader.createCsvFileReader(
 					csvInputStream, true);
+		
 			
 			String[] columnNames = csvReader.getColumnNames();
 			
@@ -76,12 +77,13 @@ public class BulkOperationProcessController
 			while (csvReader.next()) {
 				try {
 					if (isReRun
-							&& !BulkOperationConstants.SUCCESS.equalsIgnoreCase(csvReader.getColumn(BulkOperationConstants.STATUS))) {
-						processRecord(bulkOperationClass, sessionDataBean,staticDomainObject, currentCSVRowCount,csvReader, 
-								columnNames, csvWriter,bulkOperationProcessor);
-					} else {
+							&& BulkOperationConstants.SUCCESS.equalsIgnoreCase(csvReader.getColumn(BulkOperationConstants.STATUS))) {
+						
 						addRecordToWrite(csvReader,columnNames,csvWriter,BulkOperationConstants.SUCCESS,
 								csvReader.getColumn(BulkOperationConstants.MESSAGE),csvReader.getColumn(BulkOperationConstants.MAIN_OBJECT_ID));
+					} else {
+						processRecord(bulkOperationClass, sessionDataBean,staticDomainObject, currentCSVRowCount,csvReader, 
+								columnNames, csvWriter,bulkOperationProcessor);
 					}
 					successCount++;
 
@@ -91,13 +93,11 @@ public class BulkOperationProcessController
 				} finally {
 					if ((currentCSVRowCount % batchSize) == 0) {
 						try {
-							csvReader.close();
 							insertReportInDatabase(successCount, failureCount,
 									JobData.JOB_IN_PROGRESS_STATUS,
 									csvWriter, bulkOperationClass
 											.getTemplateName(), startTime,
 									jobData, currentCSVRowCount, false);
-							csvWriter.close();
 						} catch (BulkOperationException bulkOprExp) {
 							throw bulkOprExp;
 						}
@@ -160,8 +160,8 @@ public class BulkOperationProcessController
 		Object processedObject = bulkOperationProcessor.process(csvReader, currentCSVRowCount,sessionDataBean);
 		
 		String objectId=null;
-		if (processedObject instanceof StaticBulkOperationProcessor) {
-			objectId=String.valueOf(bulkOperationClass.invokeGetIdMethod(staticDomainObject));
+		if (bulkOperationProcessor instanceof StaticBulkOperationProcessor) {
+			objectId=String.valueOf(bulkOperationClass.invokeGetIdMethod(processedObject));
 		} else {
 			objectId=String.valueOf(processedObject);
 		}

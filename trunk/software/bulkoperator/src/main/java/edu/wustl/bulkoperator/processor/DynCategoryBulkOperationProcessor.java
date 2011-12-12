@@ -1,11 +1,14 @@
 
 package edu.wustl.bulkoperator.processor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
@@ -13,6 +16,7 @@ import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
+import edu.wustl.bulkoperator.metadata.DateValue;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -75,21 +79,40 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 		return null;
 	}
 
-	protected void setValueToObject(Object mainObj, BulkOperationClass mainMigrationClass,
-			Map<String, String> csvData, String columnSuffix, boolean validate,
-			Attribute attribute, Class dataTypeClass) throws BulkOperationException
-	{
-		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
-		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
-		if (csvDataValue == null || "".equals(csvDataValue))
-		{
-			categoryDataValueMap.put(attribute.getName(), "");
-		}
-		else
-		{
-			Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
-					attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
-			categoryDataValueMap.put(attribute.getName(), attributeValue);
+	protected void setValueToObject(Object mainObj,
+			BulkOperationClass mainMigrationClass,CsvReader csvReader,
+			String columnSuffix, boolean validate, Attribute attribute) throws BulkOperationException {
+		if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()
+				+ columnSuffix))) {
+			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
+					+ columnSuffix);
+			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
+			try {
+				if (csvDataValue == null || "".equals(csvDataValue))
+				{
+					categoryDataValueMap.put(attribute.getName(), "");
+				}
+				else
+				{	
+					if(attribute.getFormat()!=null)
+					{
+						DateValue value = new DateValue(csvDataValue, attribute.getFormat());
+						BeanUtils.copyProperty(mainObj, attribute.getName(),value);
+					}
+					else
+					{
+						categoryDataValueMap.put(attribute.getName(), csvDataValue);
+					}
+				}
+			} catch (IllegalAccessException exp) {
+				logger.error(exp.getMessage(), exp);
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			} catch (InvocationTargetException exp) {
+				logger.error(exp.getMessage(), exp);
+				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
+				throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			}
 		}
 	}
 
@@ -165,10 +188,8 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 
 			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
 				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
-				Object attributeValue = attribute.getValueOfDataType(
-						csvDataValue, false, attribute.getCsvColumnName(),
-						attribute.getDataType());
-				map.put(attribute.getName(), attributeValue);
+				
+				map.put(attribute.getName(), csvDataValue);
 			}
 		}
 		hookingInformation.setDataHookingInformation(map);

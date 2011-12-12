@@ -58,11 +58,13 @@ public class TemplateValidator {
 			throws BulkOperationException {
 		
 		List<String> columnNamesList = Arrays.asList(csvReader.getColumnNames());
-		validateBulkOperationClass(bulkOperationClass, columnNamesList, 0);
+
+		
 		if (errorList.isEmpty()) {
 			try {
 				if (BulkOperationConstants.ENTITY_TYPE
 						.equals(bulkOperationClass.getType())) {
+					validateBulkOperationClass(bulkOperationClass, columnNamesList, 0);
 					StaticBulkOperationProcessor staticProcessor = new StaticBulkOperationProcessor(
 							bulkOperationClass, null);
 					Object domainObject = bulkOperationClass.getClassObject()
@@ -74,6 +76,7 @@ public class TemplateValidator {
 					HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
 					DynCategoryBulkOperationProcessor deProcessor = new DynCategoryBulkOperationProcessor(
 							bulkOperationClass, null);
+					csvReader.next();
 					deProcessor.processObject(dynExtObject,
 							bulkOperationClass, csvReader,
 							"", true, 0);
