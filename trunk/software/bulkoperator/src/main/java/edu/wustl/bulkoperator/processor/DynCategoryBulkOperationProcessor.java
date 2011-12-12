@@ -87,31 +87,11 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
 					+ columnSuffix);
 			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
-			try {
-				if (csvDataValue == null || "".equals(csvDataValue))
-				{
-					categoryDataValueMap.put(attribute.getName(), "");
-				}
-				else
-				{	
-					if(attribute.getFormat()!=null)
-					{
-						DateValue value = new DateValue(csvDataValue, attribute.getFormat());
-						BeanUtils.copyProperty(mainObj, attribute.getName(),value);
-					}
-					else
-					{
-						categoryDataValueMap.put(attribute.getName(), csvDataValue);
-					}
-				}
-			} catch (IllegalAccessException exp) {
-				logger.error(exp.getMessage(), exp);
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
-			} catch (InvocationTargetException exp) {
-				logger.error(exp.getMessage(), exp);
-				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
-				throw new BulkOperationException(errorkey, exp, exp.getMessage());
+			
+			if (csvDataValue == null || "".equals(csvDataValue)) {
+				categoryDataValueMap.put(attribute.getName(), "");
+			} else {
+				categoryDataValueMap.put(attribute.getName(), csvDataValue);
 			}
 		}
 	}
