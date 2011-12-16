@@ -108,7 +108,7 @@ function getCSVOutputReport()
 								<option title="${element.name}" value="${element.value}">
 										${element.name}
 								</option>
-							</logic:notEqual>
+							</logic:notEqual> 
 					</logic:iterate>
 			</html:select>
 
@@ -143,7 +143,7 @@ function getCSVOutputReport()
 		<tr>
 			<td colspan="5" width="100%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
 			<html:button styleClass="blue_ar_b" onclick="onDownLoadXSD()" accesskey="enter" property="">
-							Download XSD
+							<bean:message key="bulk.button.download.template" />
 					</html:button>
 			</td>
 		</tr>
