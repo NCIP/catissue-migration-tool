@@ -3,6 +3,7 @@ package edu.wustl.bulkoperator.controller;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.csv.CsvReader;
@@ -118,8 +119,8 @@ public class BulkOperationProcessController
 	private CsvWriter getCsvWriter(BulkOperationClass bulkOperationClass,
 			JobData jobData, int batchSize, String[] columnNames) {
 		CsvWriter csvWriter;
-		Arrays.sort(columnNames);
-		if (Arrays.binarySearch(columnNames, BulkOperationConstants.STATUS) < 0) {
+		List<String> columnNamesList = Arrays.asList(columnNames);
+		if (!columnNamesList.contains(BulkOperationConstants.STATUS)) {
 			isReRun=false;
 			csvWriter = CsvFileWriter.createCsvFileWriter(
 					bulkOperationClass.getTemplateName()
