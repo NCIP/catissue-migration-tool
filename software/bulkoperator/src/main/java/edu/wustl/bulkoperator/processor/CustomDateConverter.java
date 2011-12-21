@@ -16,17 +16,26 @@ public class CustomDateConverter implements Converter {
 	public Object convert(Class type, Object value)
 	{
 		SimpleDateFormat format = null;
+		String formatString=null;
 		String dateValue=null;
 		Date date=null;
 		if (value instanceof DateValue)	{
-			format = new SimpleDateFormat(((DateValue) value).getFormat());
+			formatString=((DateValue) value).getFormat();
+			
 			format.setLenient(false);
 			dateValue = ((DateValue) value).getValue();
 		} else {
-			format = new SimpleDateFormat(DEFAULT_FORMAT);
+			formatString=DEFAULT_FORMAT;
+			
 			dateValue=value.toString();
 		}
 		 try {
+				if(formatString.contains(":") && dateValue!=null && !dateValue.contains(":"))
+	            {
+	                dateValue=dateValue+" 00:00";
+	            }
+				format = new SimpleDateFormat(formatString); 
+			 	format.setLenient(false);
 			 	date=format.parse(dateValue);
 		} catch (ParseException e) {
 		
