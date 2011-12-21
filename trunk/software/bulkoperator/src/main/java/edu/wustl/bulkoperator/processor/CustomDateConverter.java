@@ -20,6 +20,7 @@ public class CustomDateConverter implements Converter {
 		Date date=null;
 		if (value instanceof DateValue)	{
 			format = new SimpleDateFormat(((DateValue) value).getFormat());
+			format.setLenient(false);
 			dateValue = ((DateValue) value).getValue();
 		} else {
 			format = new SimpleDateFormat(DEFAULT_FORMAT);
