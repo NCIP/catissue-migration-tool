@@ -21,8 +21,6 @@ public class CustomDateConverter implements Converter {
 		Date date=null;
 		if (value instanceof DateValue)	{
 			formatString=((DateValue) value).getFormat();
-			
-			format.setLenient(false);
 			dateValue = ((DateValue) value).getValue();
 		} else {
 			formatString=DEFAULT_FORMAT;
