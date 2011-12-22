@@ -10,7 +10,8 @@ import edu.wustl.common.util.logger.Logger;
 
 public class CustomDateConverter implements Converter {
 
-	private final static String DEFAULT_FORMAT = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
+	private final static String DEFAULT_FORMAT_SLASH = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
+	private final static String DEFAULT_FORMAT_HIFEN = ApplicationProperties.getValue("bulk.date.valid.format.hifen");
 	private static final Logger logger = Logger.getCommonLogger(CustomDateConverter.class);
 	
 	public Object convert(Class type, Object value)
@@ -23,9 +24,17 @@ public class CustomDateConverter implements Converter {
 			formatString=((DateValue) value).getFormat();
 			dateValue = ((DateValue) value).getValue();
 		} else {
-			formatString=DEFAULT_FORMAT;
-			
 			dateValue=value.toString();
+			if (dateValue.contains("-"))
+			{
+				formatString=DEFAULT_FORMAT_HIFEN;
+			}
+			else if (dateValue.contains("/"))
+			{
+				formatString=DEFAULT_FORMAT_SLASH;
+            }
+			
+			
 		}
 		 try {
 				if(formatString.contains(":") && dateValue!=null && !dateValue.contains(":"))
