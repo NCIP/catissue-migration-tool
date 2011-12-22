@@ -210,7 +210,6 @@ public class BulkOperationProcessController
 			throws BulkOperationException {
 		try {
 			String commonFileName = operationName + jobData.getJobID();
-			csvWriter.nextRow();
 			csvWriter.flush();
 			File file = new File(commonFileName + ".csv");
 			String[] fileNames = file.getName().split(".csv");

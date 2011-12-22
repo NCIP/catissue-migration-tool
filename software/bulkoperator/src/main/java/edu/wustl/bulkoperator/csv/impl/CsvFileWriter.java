@@ -111,17 +111,13 @@ public class CsvFileWriter implements CsvWriter {
             throw new CsvException("Error writing to CSV file", e);
         }
     }
-
-    public void nextRow() {
-        if (currentRow != null) {
-            rows.add(currentRow);
-        }
-        
+    
+     public void nextRow() {
         if (rows.size() >= batchSize) {
             flush();
         }
-        
         currentRow = createRow();
+        rows.add(currentRow);
     }
     public int getNumberOfRows() {
     	return rows.size();
