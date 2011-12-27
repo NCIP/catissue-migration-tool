@@ -59,17 +59,10 @@ public abstract class AbstractImportBulkOperation
 	/**
 	 * logger Logger - Generic logger.
 	 */
+
 	static
 	{
-		try
-		{
-			LoggerConfig.configureLogger(System.getProperty("user.dir") + "/BulkOperations/conf");
-			ErrorKey.init("~");
-		}
-		catch (IOException exp)
-		{
-			logger.error(exp.getMessage(), exp);
-		}
+		LoggerConfig.configureLogger(System.getProperty("user.dir") + "/BulkOperations/conf");
 	}
 
 	/**
@@ -118,8 +111,9 @@ public abstract class AbstractImportBulkOperation
             bulkOperationMetaData = digester.parse(inputStream);
 		}
 		 catch (SAXException e) {
-			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
-			 throw new BulkOperationException(errorkey, null, e.getMessage());
+			 logger.debug(e.getMessage());
+			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.template");
+			 throw new BulkOperationException(errorkey, e, e.getMessage());
 		}
 		Collection<BulkOperationClass> classList = bulkOperationMetaData.getBulkOperationClass();
 		if (classList == null)
@@ -316,7 +310,7 @@ public abstract class AbstractImportBulkOperation
 			logger
 					.info("------------------------ERROR:BulkOperationException--------------------------------\n");
 			logger.debug(exp.getMessage(), exp);
-			logger.info(exp.getMessage() + "\n");
+			logger.info(exp.getCause().getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 		catch (SQLException exp)
