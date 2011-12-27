@@ -2,7 +2,10 @@
 package edu.wustl.bulkoperator.templateImport;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,9 +48,25 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	/**
 	 * Main method.
 	 * @param args Array of Strings.
+	 * @throws IOException 
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) 
 	{
+		InputStream stream;
+		try 
+		{
+			stream = new FileInputStream(System.getProperty(BulkOperationConstants.CONFIG_DIR)
+					+ File.separator +"ApplicationResources.properties");
+			ErrorKey.addErrorKeysToMap(stream);
+		} 
+		catch (FileNotFoundException fileNotExp) 
+		{
+			logger.debug("Error in initializing Application Resource Properties File", fileNotExp);
+		} 
+		catch (IOException e) 
+		{
+			logger.debug("Error in initializing Application Resource Properties File", e);
+		}
 		String operationName = args[0];
 		String dropdownName = args[1];
 		String csvFile = args[2];
