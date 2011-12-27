@@ -91,14 +91,11 @@ function getCSVOutputReport()
         </td>
 	</tr>
 	<html:form action="/FileUpload.do" method="post" enctype="multipart/form-data" target="bulkTemplate">
-		<tr>
-			<td width="1%" align="center" class="black_ar"><span class="blue_ar_b"></span></td>
-            <td width="20%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
+		<tr>	
+			<td width="21%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
             <td width="35%" align="left" valign="middle" class="black_new">
-			<html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:320px" onmouseover="showTip(this.id)" onmouseout="hideTip(this.id)">
-
-
-				<logic:iterate id="element" name="<%=BulkOperationConstants.BULK_OPERATION_LIST%>">
+			      <html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:65%" onmouseover="showTip(this.id)" onmouseout="hideTip(this.id)">
+                        <logic:iterate id="element" name="<%=BulkOperationConstants.BULK_OPERATION_LIST%>">
 								<logic:equal name="dropdownName" value="${element.value}">
 								<option title="${element.name}" value="${element.value}" selected>
 										${element.name}
@@ -110,11 +107,10 @@ function getCSVOutputReport()
 								</option>
 							</logic:notEqual> 
 					</logic:iterate>
-			</html:select>
-
+			      </html:select>
 
 			</td>
-			<td  colspan="2"  width="44%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
+			<td  colspan="2" width="44%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
 				<html:button styleClass="blue_ar_b" onclick="onDownLoadTemplate()" accesskey="enter" property="">
 								<bean:message key="bulk.button.download.template" />
 					</html:button>
@@ -122,12 +118,11 @@ function getCSVOutputReport()
 		</tr>
 		
 		<tr>
-			<td colspan="5" width="100%" height="15" align="center" class="black_ar"><span class="blue_ar_b"></span>
+			<td colspan="6" width="100%" height="15" align="center" class="black_ar"><span class="blue_ar_b"></span>
 			</td>
 		</tr>
 		<tr>
-			<td align="center" class="black_ar"><span class="blue_ar_b"></span>
-			</td>
+			
 			<td align="left" class="black_ar"><b><bean:message key="bulk.upload.file" /></b>
 			</td>
 			<td align="left" valign="middle" width="20%">
@@ -135,17 +130,14 @@ function getCSVOutputReport()
 				</input>
 			</td>
 			<td align="left" valign="left" colspan="2">
-				<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="">
+				<html:button styleClass="blue_ar_b" onclick="onUploadClick()" accesskey="enter" property="" style="width:28%">
 						<bean:message key="bulk.button.upload" />
 				</html:button>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="5" width="100%" class="black_ar"><span class="blue_ar_b" valign="baseline"></span>
-			<html:button styleClass="blue_ar_b" onclick="onDownLoadXSD()" accesskey="enter" property="">
-							<bean:message key="bulk.button.download.template" />
+				<html:button styleClass="blue_ar_b" onclick="onDownLoadXSD()" accesskey="enter" property="" style="width:28%">
+							<bean:message key="bulk.button.download.xsd" />
 					</html:button>
 			</td>
 		</tr>
+
 	</html:form>
 </table>
