@@ -1,21 +1,24 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/PagenationTag.tld" prefix="custom" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/PagenationTag.tld" prefix="custom"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page language="java" isELIgnored="false"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="edu.wustl.common.util.global.ApplicationProperties" %>
+<%@ page import="edu.wustl.common.util.global.ApplicationProperties"%>
 <head>
-<link rel="STYLESHEET" type="text/css" href="dhtmlx_suite/css/dhtmlxgrid.css"/>
-<link rel="STYLESHEET" type="text/css" href="dhtmlx_suite/skins/dhtmlxgrid_dhx_skyblue.css"/>
-<script language="JavaScript" type="text/javascript" src="jss/bulkOperatorScripts.js"></script>
+<link rel="STYLESHEET" type="text/css"
+	href="dhtmlx_suite/css/dhtmlxgrid.css" />
+<link rel="STYLESHEET" type="text/css"
+	href="dhtmlx_suite/skins/dhtmlxgrid_dhx_skyblue.css" />
+<script language="JavaScript" type="text/javascript"
+	src="jss/bulkOperatorScripts.js"></script>
 <script type="text/javascript" src="jss/bulkOperatorAjax.js"></script>
 <link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
-<script  src="dhtmlx_suite/js/dhtmlxcommon.js"></script>
-<script  src="dhtmlx_suite/js/dhtmlxgrid.js"></script>
-<script  src="dhtmlx_suite/js/dhtmlxgridcell.js"></script>
-<script  src="dhtmlx_suite/ext/dhtmlxgrid_mcol.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxcommon.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxgrid.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxgridcell.js"></script>
+<script src="dhtmlx_suite/ext/dhtmlxgrid_mcol.js"></script>
 
 <script>
 	var xmlString='${requestScope.msgBoardXml}';
@@ -205,33 +208,33 @@
 	}
 </script>
 <style>
-.even
-{
-	background-color:#F8F8F8;
+.even {
+	background-color: #F8F8F8;
 }
-.uneven
-{
-	background-color:#FFFFFF;
+
+.uneven {
+	background-color: #FFFFFF;
 }
-.grid_on_hover
-{
-	background-color:#bfdcf3;
-  font-size:20px;
-  cursor: pointer;
+
+.grid_on_hover {
+	background-color: #bfdcf3;
+	font-size: 20px;
+	cursor: pointer;
 }
 </style>
 </head>
-	<table width="100%" border="0" cellpadding="3" cellspacing="0" >
+<table width="100%" border="0" cellpadding="3" cellspacing="0">
 
 
 
-		<tr height="100%">
+	<tr height="100%">
 		<td width="100%" height="100%">
-		<table width="100%" height="100%" valign="top"border="0" cellpadding="3" cellspacing="0" align="center">
-				<tr height="100%" width="100%">
-					<td valign="top" height="100%" width="100%">
-						<div id="gridbox" width="100%" height="340px"></div>
-						<script>
+		<table width="100%" height="100%" valign="top" border="0"
+			cellpadding="3" cellspacing="0" align="center">
+			<tr height="100%" width="100%">
+				<td valign="top" height="100%" width="100%">
+				<div id="gridbox" width="100%" height="340px"></div>
+				<script>
 				mygrid = new dhtmlXGridObject('gridbox');
 				mygrid.setImagePath("dhtmlx_suite/imgs/");
 				mygrid.setSkin("dhx_skyblue");
@@ -269,13 +272,12 @@
 
 
 
-		</script>
-					</td>
+		</script></td>
 			</tr>
 
 		</table>
 		</td>
-		</tr>
+	</tr>
 
 	</tr>
 
