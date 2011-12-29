@@ -8,6 +8,7 @@
 <%@ page import="edu.wustl.common.util.global.ApplicationProperties" %>
 <head>
 <link rel="STYLESHEET" type="text/css" href="dhtmlx_suite/css/dhtmlxgrid.css"/>
+<link rel="STYLESHEET" type="text/css" href="dhtmlx_suite/skins/dhtmlxgrid_dhx_skyblue.css"/>
 <script language="JavaScript" type="text/javascript" src="jss/bulkOperatorScripts.js"></script>
 <script type="text/javascript" src="jss/bulkOperatorAjax.js"></script>
 <link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
@@ -231,13 +232,11 @@
 					<td valign="top" height="100%" width="100%">
 						<div id="gridbox" width="100%" height="340px"></div>
 						<script>
-			mygrid = new dhtmlXGridObject('gridbox');
+				mygrid = new dhtmlXGridObject('gridbox');
 				mygrid.setImagePath("dhtmlx_suite/imgs/");
+				mygrid.setSkin("dhx_skyblue");
 				mygrid.init();
-				mygrid.setStyle("font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;color: #000000;background-color: #E2E2E2; border-left-width: 1px;border-left-color: #CCCCCC; border-top-width: 1px;border-top-color: #CCCCCC;border-bottom-color: #CCCCCC; border-bottom-width: 1px; border-right-width: 1px;border-right-color: #E2E2E2; text-align:left;padding-left:10px;padding-top:1px;padding-bottom:1px;align:left;height:100%;");
-
 				mygrid.setEditable("FALSE");
-				mygrid.enableAlterCss("uneven","even");
 				mygrid.enableRowsHover(true,'grid_on_hover');
 				mygrid.enableAutoHeigth(true);
 				mygrid.objBox.style.height="100%";
@@ -245,11 +244,6 @@
 				mygrid.enableResizing(xmlString);
 				//mygrid.setOnRowSelectHandler(funcName);
 				//mygrid.selectRow(mygrid.getRowIndex(actualRowCount),false,false,true);
-
-				for(var row=0;row<mygrid.getRowsNum();row++)
-				{
-					mygrid.setRowTextStyle(row+1,"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
-				}
 
 				mygrid.setSizes();
 				function getIDColumns()
