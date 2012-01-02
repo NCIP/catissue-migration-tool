@@ -615,6 +615,33 @@ public class BulkOperationUtility
 			}
 
 		}
+		if(!hasValue)
+		{
+			Iterator<BulkOperationClass> referenceItr = bulkOperationClass
+					.getReferenceAssociationCollection().iterator();
+			while (referenceItr.hasNext())
+			{
+				BulkOperationClass refrenceAssociationClass=referenceItr.next();
+				if (refrenceAssociationClass.getCardinality() != null)
+				{
+					int maxNoOfRecords = refrenceAssociationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainment(index,refrenceAssociationClass, suffix + "#" + i,csvData))
+						{
+							hasValue=true;
+							break;
+						}
+					}
+				}
+				if(hasValue)
+				{
+					break;
+				}
+			}
+
+		}
 		return hasValue;
 	}
 
