@@ -122,7 +122,7 @@ public class Attribute
 					format = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
 			}
 			try {
-				if(format.contains(":") && value!=null && value.contains(":"))
+				if(format.contains(":") && value!=null && !value.contains(":"))
 				{
 					value=value+" 00:00";
 				}
