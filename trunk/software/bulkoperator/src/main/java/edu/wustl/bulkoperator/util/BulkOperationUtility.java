@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -636,5 +637,79 @@ public class BulkOperationUtility
 		System.arraycopy(array, 0, concatedArray, 0, array.length);
 		System.arraycopy(arrayToBeConcat, 0, concatedArray, array.length, arrayToBeConcat.length);
 		return concatedArray;
+	}
+	
+	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(int index,
+			BulkOperationClass bulkOperationClass, String suffix, CsvReader csvReader)
+			throws BulkOperationException
+	{
+		boolean hasValue=false;
+		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
+				.iterator();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if (csvReader.getColumn(attribute.getCsvColumnName() + suffix) == null)
+			{
+
+				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
+
+			}
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader))
+			{
+				hasValue = true;
+				break;
+			}
+		}
+		if(!hasValue)
+		{
+			Collection<BulkOperationClass> bulkOperationClasses = bulkOperationClass.getContainmentAssociationCollection();
+			hasValue=checkAtLeastOneColumnHasValuInClass(index, bulkOperationClasses, suffix, csvReader);
+			if(!hasValue)
+			{	
+				bulkOperationClasses=bulkOperationClass.getReferenceAssociationCollection();
+				hasValue=checkAtLeastOneColumnHasValuInClass(index, bulkOperationClasses, suffix, csvReader);
+			}	
+		  
+		}
+		return hasValue;
+	}
+	private static boolean checkAtLeastOneColumnHasValuInClass(int index,Collection<BulkOperationClass> bulkOperationClasses, String suffix, CsvReader csvReader) throws BulkOperationException
+	{
+		boolean hasValue=false;
+		Iterator<BulkOperationClass>  bulkOperationClassIterator=bulkOperationClasses.iterator();
+		while (bulkOperationClassIterator.hasNext())
+		{
+			BulkOperationClass bulkoperationClass=bulkOperationClassIterator.next();
+			if (bulkoperationClass.getCardinality() != null)
+			{
+			   if("*".equals(bulkoperationClass.getCardinality()))
+			   {	   
+					int maxNoOfRecords = bulkoperationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(index,bulkoperationClass, suffix + "#" + i,csvReader))
+						{
+							hasValue=true;
+							break;
+						}
+					}
+			   }
+			   else
+			   {
+				   if(checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(index,bulkoperationClass, suffix,csvReader))
+					{
+						hasValue=true;
+						break;
+					}
+			   }
+			}
+			if(hasValue)
+			{
+				break;
+			}
+		}
+		return hasValue;
+		
 	}
 }
