@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,7 +18,6 @@ import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.DateValue;
-import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -127,12 +125,10 @@ public abstract class AbstractBulkOperationProcessor {
 					int maxNoOfRecords = containmentMigrationClass
 							.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++) {
-						List<String> attributeList = BulkOperationUtility
-								.getAttributeList(containmentMigrationClass,
-										columnSuffix + "#" + i);
+						
 						if (validate||BulkOperationUtility
-								.checkIfAtLeastOneColumnHasAValue(csvRowNumber,
-										attributeList, csvReader))
+								.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
+										containmentMigrationClass,columnSuffix+ "#" + i, csvReader))
 						{
 						 Object containmentObject =null;
 						if(!validate)
@@ -151,6 +147,7 @@ public abstract class AbstractBulkOperationProcessor {
 											.getNewInstance();
 								}
 							}
+							
 							processObject(containmentObject,
 									containmentMigrationClass, csvReader,
 									columnSuffix + "#" + i, validate,
@@ -176,11 +173,9 @@ public abstract class AbstractBulkOperationProcessor {
 					BeanUtils.setProperty(mainObj,roleName,containmentObjectCollection);
 				} else if (cardinality != null && cardinality.equals("1")
 						&& !cardinality.equals("")) {
-					List<String> attributeList = BulkOperationUtility
-							.getAttributeList(containmentMigrationClass,
-									columnSuffix);
-					if ( validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
-							csvRowNumber, attributeList, csvReader)) {
+					
+					if ( validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
+							containmentMigrationClass,columnSuffix, csvReader)) {
 						Object containmentObject = mainMigrationClass
 								.invokeGetterMethod(containmentMigrationClass
 										.getRoleName(), null, mainObj, null);
@@ -251,12 +246,9 @@ public abstract class AbstractBulkOperationProcessor {
 					int maxNoOfRecords = associationMigrationClass
 							.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++) {
-						List<String> attributeList = BulkOperationUtility
-								.getAttributeList(associationMigrationClass,
-										columnSuffix + "#" + i);
 						if ( validate||BulkOperationUtility
-								.checkIfAtLeastOneColumnHasAValue(csvRowNumber,
-										attributeList, csvReader)) {
+								.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
+										associationMigrationClass,columnSuffix+ "#" + i, csvReader)) {
 							Object referenceObject =null;
 							if(!validate)
 							{
@@ -303,10 +295,9 @@ public abstract class AbstractBulkOperationProcessor {
 					List<String> attributeList = BulkOperationUtility
 							.getAttributeList(associationMigrationClass,
 									columnSuffix);
-					if (validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValue(
-							csvRowNumber, attributeList, csvReader)) {
-						Object associatedObject = mainMigrationClass
-								.invokeGetterMethod(associationMigrationClass
+					if (validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
+							associationMigrationClass,columnSuffix, csvReader)) {
+						Object associatedObject = mainMigrationClass.invokeGetterMethod(associationMigrationClass
 										.getRoleName(), null, mainObj, null);
 						if (associatedObject == null) {
 							associatedObject = associationMigrationClass
