@@ -120,7 +120,7 @@ public abstract class AbstractBulkOperationProcessor
 					{
 						List<String> attributeList = BulkOperationUtility.getAttributeList(
 								containmentMigrationClass, columnSuffix + "#" + i);
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber, containmentMigrationClass, columnSuffix+ "#" + i, csvData)
+						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber, containmentMigrationClass, columnSuffix+ "#" + i, csvData)
 								|| validate)
 						{
 							Object containmentObject = containmentMigrationClass
@@ -166,7 +166,7 @@ public abstract class AbstractBulkOperationProcessor
 				{
 					List<String> attributeList = BulkOperationUtility.getAttributeList(
 							containmentMigrationClass, columnSuffix);
-					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber, containmentMigrationClass, columnSuffix, csvData)
+					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber, containmentMigrationClass, columnSuffix, csvData)
 							|| validate)
 					{
 						Object containmentObject = mainMigrationClass.invokeGetterMethod(
@@ -243,7 +243,7 @@ public abstract class AbstractBulkOperationProcessor
 					{
 						List<String> attributeList = BulkOperationUtility.getAttributeList(
 								associationMigrationClass, columnSuffix + "#" + i);
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber, associationMigrationClass, columnSuffix+ "#" + i, csvData)
+						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber, associationMigrationClass, columnSuffix+ "#" + i, csvData)
 //								(csvRowNumber,
 //								attributeList, csvData)
 								|| validate)
@@ -290,7 +290,7 @@ public abstract class AbstractBulkOperationProcessor
 				{
 					List<String> attributeList = BulkOperationUtility.getAttributeList(
 							associationMigrationClass, columnSuffix);
-					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber, associationMigrationClass, columnSuffix, csvData)
+					if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber, associationMigrationClass, columnSuffix, csvData)
 							|| validate)
 					{
 						Object associatedObject = mainMigrationClass.invokeGetterMethod(
