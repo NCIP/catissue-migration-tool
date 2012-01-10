@@ -660,4 +660,105 @@ public class BulkOperationUtility
 			throw new BulkOperationException(errorkey, null, "");
 		}
 	}
+	public static boolean checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(int index,
+			BulkOperationClass bulkOperationClass, String suffix, Map<String, String> csvData)
+			throws BulkOperationException
+	{
+		boolean hasValue=false;
+		Iterator<Attribute> attributeItertor = bulkOperationClass.getAttributeCollection()
+				.iterator();
+		while (attributeItertor.hasNext())
+		{
+			Attribute attribute = attributeItertor.next();
+			if (csvData.get(attribute.getCsvColumnName() + suffix) == null)
+			{
+
+				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
+
+			}
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvData))
+			{
+				hasValue = true;
+				break;
+			}
+		}
+		if(!hasValue)
+		{
+			Iterator<BulkOperationClass> containmentItert = bulkOperationClass
+					.getContainmentAssociationCollection().iterator();
+			while (containmentItert.hasNext())
+			{
+				BulkOperationClass containmentMigrationClass=containmentItert.next();
+				if (containmentMigrationClass.getCardinality() != null)
+				{
+				  if("*".equals(containmentMigrationClass.getCardinality()))
+				  { 	  
+					int maxNoOfRecords = containmentMigrationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(index,containmentMigrationClass, suffix + "#" + i,csvData))
+						{
+							hasValue=true;
+							break;
+						}
+					}
+				  }
+				  else
+				  {
+					  if(checkIfAtLeastOneColumnHasAValueForInnerContainment(index,containmentMigrationClass, suffix ,csvData))
+						{
+							hasValue=true;
+							break;
+						}
+				  }
+				}
+				if(hasValue)
+				{
+					break;
+				}
+			}
+
+		}
+		if(!hasValue)
+		{
+			System.out.println();
+			Iterator<BulkOperationClass> referenceItr = bulkOperationClass
+					.getReferenceAssociationCollection().iterator();
+			while (referenceItr.hasNext())
+			{
+				BulkOperationClass refrenceAssociationClass=referenceItr.next();
+				if (refrenceAssociationClass.getCardinality() != null)
+				{
+				  if("*".equals(refrenceAssociationClass.getCardinality()))
+				  {	
+					int maxNoOfRecords = refrenceAssociationClass.getMaxNoOfRecords().intValue();
+					for (int i = 1; i <= maxNoOfRecords; i++)
+					{
+
+						if(checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(index,refrenceAssociationClass, suffix + "#" + i,csvData))
+						{
+							hasValue=true;
+							break;
+						}
+					}
+				  }
+				  else
+				  {
+					  if(checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(index,refrenceAssociationClass, suffix ,csvData))
+						{
+							hasValue=true;
+							break;
+						}
+				  }
+				}
+				if(hasValue)
+				{
+					break;
+				}
+			}
+
+		}
+		return hasValue;
+	}
 }
