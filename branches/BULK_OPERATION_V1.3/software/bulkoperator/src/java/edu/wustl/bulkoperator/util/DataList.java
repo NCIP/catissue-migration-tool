@@ -23,7 +23,7 @@ public class DataList
 	private static final String STATUS_KEY = BulkOperationConstants.STATUS;
 	private static final String MESSAGE_KEY = BulkOperationConstants.MESSAGE;
 	private static final String MAIN_OBJECT_ID = BulkOperationConstants.MAIN_OBJECT_ID;
-	
+
 	public List<String> getHeaderList()
 	{
 		return headerList;
@@ -34,7 +34,7 @@ public class DataList
 	{
 		headerList = list;
 	}
-	
+
 	public void setHeaderList(String[] headers)
 	{
 		for(int i=0;i<headers.length;i++)
@@ -49,17 +49,20 @@ public class DataList
 	}
 	public void addNewValue(String[] values)
 	{
-		Hashtable<String,String> valueTable = new Hashtable<String, String>(); 
+		Hashtable<String,String> valueTable = new Hashtable<String, String>();
 		valueList.add(valueTable);
 		int lastIndex = valueList.size()-1;
 		for(int i=0;i<headerList.size();i++)
 		{
-			String value = null; 
+			String value = null;
 			if(values[i] == null)
 			{
 				value = "";
 			}
-			value = values[i].trim();
+			else
+			{
+				value = values[i].trim();
+			}
 			setValue(headerList.get(i),value, lastIndex);
 		}
 	}
@@ -72,12 +75,12 @@ public class DataList
 	{
 		return valueList.get(index);
 	}
-	
+
 	public int size()
 	{
 		return  valueList.size();
 	}
-	
+
 	/*public boolean checkIfColumnExists(String headerName)
 	{
 		return headerList.contains(headerName);
@@ -111,7 +114,7 @@ public class DataList
 		}
 		return hasValue;
 	}
-	
+
 	public boolean checkIfColumnHasAValue_New(int index, String headerName, Map<String, String> csvData)
 	{
 		boolean hasValue = false;
@@ -122,7 +125,7 @@ public class DataList
 		}
 		return hasValue;
 	}
-	
+
 	public void addStatusMessage(int index, String status, String message, String mainObjectId)
 	{
 		Hashtable<String,String> valueTable = valueList.get(index);
@@ -131,7 +134,7 @@ public class DataList
 		valueTable.put(MAIN_OBJECT_ID, mainObjectId);
 	}
 	/**
-	 * 
+	 *
 	 * @param csvFileName
 	 * @return
 	 * @throws IOException
@@ -147,10 +150,10 @@ public class DataList
 			writer = new FileWriter(file);
 			int headerListSize = headerList.size();
 			int valueListSize = valueList.size();
-			StringBuffer line = new StringBuffer(); 
+			StringBuffer line = new StringBuffer();
 			for(int j=0;j<headerListSize;j++)
 			{
-				line.append(headerList.get(j)+",");			
+				line.append(headerList.get(j)+",");
 			}
 			line.deleteCharAt(line.length()-1);
 			writer.write(line.append("\n").toString());
@@ -158,7 +161,7 @@ public class DataList
 			{
 				line.setLength(0);
 				Hashtable<String,String> valueTable = valueList.get(i);
-				
+
 				for(int j=0;j<headerListSize;j++)
 				{
 					if(valueTable.get(headerList.get(j)).contains(","))
@@ -181,7 +184,7 @@ public class DataList
 			logger.error("Error while creating ouput report csv file.", ioExp);
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file");
 			throw new BulkOperationException(errorkey, ioExp, "");
-			
+
 		}
 		finally
 		{

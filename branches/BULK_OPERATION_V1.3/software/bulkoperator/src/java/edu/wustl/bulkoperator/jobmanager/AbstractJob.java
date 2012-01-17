@@ -7,7 +7,7 @@ package edu.wustl.bulkoperator.jobmanager;
  *
  * @author nitesh_marwaha
  */
-public abstract class AbstractJob implements Runnable
+public abstract class AbstractJob implements BulkJobInterface
 {
 
 	/** The job data. */
@@ -36,6 +36,23 @@ public abstract class AbstractJob implements Runnable
 		this.jobName = jobName;
 		this.jobStartedBy = jobStartedBy;
 	}
+
+	/**
+	 * Instantiates a new job.
+	 *
+	 * @param jobName the job name
+	 * @param jobStartedBy the job started by
+	 * @param jobStatusListener the job status listener
+	 */
+	protected AbstractJob(final String jobName, final String jobStartedBy,
+			final JobStatusListener jobStatusListener,String jobType,Integer threshhold)
+	{
+		this.jobStatusListener = jobStatusListener;
+		this.jobName = jobName;
+		this.jobStartedBy = jobStartedBy;
+
+	}
+
 
 	/**
 	 * Gets the job data.
