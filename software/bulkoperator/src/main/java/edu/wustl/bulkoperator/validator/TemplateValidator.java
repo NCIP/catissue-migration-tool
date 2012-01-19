@@ -141,12 +141,12 @@ public class TemplateValidator {
 		} catch (NullPointerException exp) {
 			logger
 					.debug(
-							"The keyword 'className' is either missing or incorrectly "
+							"The keyword 'className' "+bulkOperationClass.getClassName()+" is either missing or incorrectly "
 									+ "written in the XML for the main class tag.",
 							exp);
 			ErrorKey errorkey = ErrorKey
 					.getErrorKey("bulk.error.xml.missing.name");
-			throw new BulkOperationException(errorkey, exp, "className");
+			throw new BulkOperationException(errorkey, exp, "className "+bulkOperationClass.getClassName());
 		} catch (Exception exp) {
 			logger
 					.debug(
@@ -270,19 +270,19 @@ public class TemplateValidator {
 				validateAssociations(innerClass,csvColumnNames,maxRowNumbers);
 			} catch (NullPointerException exp) {
 				logger.debug(
-						"The keyword 'className' is either missing or incorrectly "
+						"The keyword 'className' "+innerClass.getClassName()+" is either missing or incorrectly "
 								+ "written for a XML inner class tag.", exp);
 				ErrorKey errorKey = ErrorKey
 						.getErrorKey("bulk.error.xml.missing.name");
-				throw new BulkOperationException(errorKey, exp, "className");
+				throw new BulkOperationException(errorKey, exp, "className "+innerClass.getClassName());
 			} catch (Exception exp) {
 				logger
 						.debug(
-								"The 'className' value mentioned is incorrect in the XML class tag.",
+								"The 'className' value "+innerClass.getClassName()+"mentioned is incorrect in the XML class tag.",
 								exp);
 				ErrorKey errorKey = ErrorKey
 						.getErrorKey("bulk.error.xml.incorrect.name");
-				throw new BulkOperationException(errorKey, exp, "className");
+				throw new BulkOperationException(errorKey, exp, "className "+innerClass.getClassName());
 			}
 		}
 	}
