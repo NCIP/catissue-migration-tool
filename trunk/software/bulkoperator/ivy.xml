@@ -19,5 +19,10 @@
 
 <!-- PUBLIC REPO -->
         <dependency org="log4j" name="log4j" rev="1.2.14"/>
-      </dependencies>
+        <dependency org="gov.nih.nci.commonpackage" name="commonpackage" rev="1.1.8.1" />
+        <dependency org="gov.nih.nci.dao" name="dao" rev="1.1.9.1" />
+        <dependency org="gov.nih.nci.securitymanager" name="securitymanager" rev="1.1.7.1" />
+        <dependency org="gov.nih.nci.washu-commons" name="washu-commons" rev="1.1.7" />
+
+    </dependencies>
 </ivy-module>
