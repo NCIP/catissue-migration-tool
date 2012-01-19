@@ -150,11 +150,11 @@ public class TemplateValidator {
 		} catch (Exception exp) {
 			logger
 					.debug(
-							"The 'className' value mentioned is incorrect for the main XML tag.",
+							"The 'className' "+bulkOperationClass.getClassName() +"value mentioned is incorrect for the main XML tag.",
 							exp);
 			ErrorKey errorkey = ErrorKey
 					.getErrorKey("bulk.error.xml.incorrect.name");
-			throw new BulkOperationException(errorkey, exp, "className");
+			throw new BulkOperationException(errorkey, exp, "className "+bulkOperationClass.getClassName());
 		}
 		try {
 			validateXMLTagAttibutes(bulkOperationClass, 
