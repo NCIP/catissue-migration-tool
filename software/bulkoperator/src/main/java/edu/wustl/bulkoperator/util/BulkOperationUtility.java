@@ -628,7 +628,8 @@ public class BulkOperationUtility
 		else
 		{
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.column.name.change");
-			throw new BulkOperationException(errorkey, null, "");
+			throw new BulkOperationException(errorkey, null, attribute.getCsvColumnName() + ":" + attribute.getName()
+					+ ":" + mainMigrationClass.getClassName());
 		}
 	}
 	public static String[] concatArrays(String[] array,String[] arrayToBeConcat)
