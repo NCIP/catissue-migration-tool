@@ -150,7 +150,7 @@ public class TemplateValidator {
 		} catch (Exception exp) {
 			logger
 					.debug(
-							"The 'className' "+bulkOperationClass.getClassName() +"value mentioned is incorrect for the main XML tag.",
+							"The 'className' "+bulkOperationClass.getClassName() +" value mentioned is incorrect for the main XML tag.",
 							exp);
 			ErrorKey errorkey = ErrorKey
 					.getErrorKey("bulk.error.xml.incorrect.name");
@@ -278,7 +278,7 @@ public class TemplateValidator {
 			} catch (Exception exp) {
 				logger
 						.debug(
-								"The 'className' value "+innerClass.getClassName()+"mentioned is incorrect in the XML class tag.",
+								"The 'className' value "+innerClass.getClassName()+" mentioned is incorrect in the XML class tag.",
 								exp);
 				ErrorKey errorKey = ErrorKey
 						.getErrorKey("bulk.error.xml.incorrect.name");
