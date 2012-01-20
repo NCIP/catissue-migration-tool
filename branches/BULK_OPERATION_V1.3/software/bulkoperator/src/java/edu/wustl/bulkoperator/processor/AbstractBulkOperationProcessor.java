@@ -23,6 +23,7 @@ import edu.wustl.common.util.logger.Logger;
 
 public abstract class AbstractBulkOperationProcessor
 {
+
 	private static final Logger logger = Logger.getCommonLogger(AbstractBulkOperationProcessor.class);
 	protected BulkOperationClass bulkOperationClass = null;
 	protected AppServiceInformationObject serviceInformationObject = null;
