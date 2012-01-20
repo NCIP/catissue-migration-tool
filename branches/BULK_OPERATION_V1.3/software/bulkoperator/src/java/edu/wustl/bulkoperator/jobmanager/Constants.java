@@ -13,4 +13,6 @@ public class Constants
 	public static final String BULK_OPERATION_TYPE_LOAD = "BULK EMPI LOADING";
 
 	public static final String BULK_OPERATION_TYPE_GENERATE = "BULK EMPI GENERATION";
+	public static final String BULK_EMPI_SLEEP_TIME = "BulkEmpiSleepTime";
+
 }
