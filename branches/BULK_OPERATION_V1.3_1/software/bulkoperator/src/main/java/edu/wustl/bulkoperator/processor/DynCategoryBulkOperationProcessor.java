@@ -1,22 +1,17 @@
 
 package edu.wustl.bulkoperator.processor;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.csv.CsvReader;
-import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.metadata.DateValue;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -53,12 +48,12 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 			HookingInformation hookingInformationFromTag = bulkOperationClass.getHookingInformation();
 			getinformationForHookingData(csvReader, hookingInformationFromTag);
-			Long recordId = bulkOprAppService
-					.insertData(bulkOperationClass.getClassName(), dynExtObject);
+
 			hookingInformationFromTag.setCategoryName(bulkOperationClass.getClassName());
-			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
-			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			Long recordId = bulkOprAppService
+				.insertData(bulkOperationClass.getClassName(), dynExtObject,hookingInformationFromTag);
+
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -87,7 +82,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
 					+ columnSuffix);
 			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
-			
+
 			if (csvDataValue == null || "".equals(csvDataValue)) {
 				categoryDataValueMap.put(attribute.getName(), "");
 			} else {
@@ -151,7 +146,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @param mainMigrationClass
 	 * @param validate
 	 * @param attribute
@@ -168,7 +163,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 
 			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
 				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
-				
+
 				map.put(attribute.getName(), csvDataValue);
 			}
 		}

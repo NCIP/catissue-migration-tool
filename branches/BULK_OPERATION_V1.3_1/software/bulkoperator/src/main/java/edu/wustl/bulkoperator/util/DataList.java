@@ -44,7 +44,10 @@ public class DataList
 			{
 				value = "";
 			}
-			value = values[i].trim();
+				else
+			{
+				value = values[i].trim();
+			}
 			setValue(headerList.get(i),value, lastIndex);
 		}
 	}
