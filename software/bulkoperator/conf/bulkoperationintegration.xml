@@ -26,6 +26,13 @@
 			<fileset file="${bulkoperation.base.dir}/bulkoperation-tiles-defs.xml" />
 		</copy>
 
+		<copy file="${deploy.temp.dir}/src/java/WEB-INF/classes/BulkOperations.properties" todir="${deploy.temp.dir}/bulkoperation" overwrite="true" />
+				<property file="${deploy.temp.dir}/bulkoperation/BulkOperations.properties" />
+				<replace dir="${bulkoperation.base.dir}/pages/" propertyfile="BulkOperations.properties">
+					<include name="JobGridDashboard.jsp" />
+					<replacefilter token="@@dhtml_dir@@" value="${dhtmlPath}" />
+				</replace>
+		
 		<!--Copying JSP Pages -->
 		<copy todir="${deploy.temp.dir}/src/web/pages/content/manageBioSpecimen/bulkOperations" overwrite="true">
 			<fileset file="${bulkoperation.base.dir}/pages/BulkOperation.jsp" />
