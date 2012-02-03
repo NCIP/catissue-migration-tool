@@ -61,4 +61,11 @@
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addAttributeDiscriminator"/>	  
   </pattern>
+  
+  <pattern value="*/dynExtCategoryAssociationCollection">
+      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+	  <set-properties-rule/>
+	  <set-next-rule methodname="addDynExtCategoryAssociation"/>	  
+  </pattern>
+  
 </digester-rules>
