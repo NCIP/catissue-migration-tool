@@ -15,14 +15,10 @@ import edu.wustl.bulkoperator.metadata.AttributeDiscriminator;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.processor.DynCategoryBulkOperationProcessor;
-import edu.wustl.bulkoperator.processor.DynEntityBulkOperationProcessor;
 import edu.wustl.bulkoperator.processor.StaticBulkOperationProcessor;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
-import edu.wustl.bulkoperator.util.BulkOperationUtility;
-import edu.wustl.bulkoperator.util.DataList;
 import edu.wustl.common.exception.ErrorKey;
-import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.common.util.logger.Logger;
 
 public class TemplateValidator {
@@ -41,7 +37,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Xml And Csv.
-	 * 
+	 *
 	 * @param bulkOperationMetaData
 	 *            BulkOperationMetaData.
 	 * @param operationName
@@ -56,10 +52,10 @@ public class TemplateValidator {
 	public Set<String> validateXmlAndCsv(BulkOperationClass bulkOperationClass,
 			String operationName,CsvReader csvReader)
 			throws BulkOperationException {
-		
+
 		List<String> columnNamesList = Arrays.asList(csvReader.getColumnNames());
 
-		
+
 		if (errorList.isEmpty()) {
 			try {
 				if (BulkOperationConstants.ENTITY_TYPE
@@ -76,7 +72,6 @@ public class TemplateValidator {
 					HashMap<String, Object> dynExtObject = new HashMap<String, Object>();
 					DynCategoryBulkOperationProcessor deProcessor = new DynCategoryBulkOperationProcessor(
 							bulkOperationClass, null);
-					csvReader.next();
 					deProcessor.processObject(dynExtObject,
 							bulkOperationClass, csvReader,
 							"", true, 0);
@@ -103,8 +98,9 @@ public class TemplateValidator {
 			HookingInformation hookingInformationFromTag) {
 		Collection<Attribute> attributes = hookingInformationFromTag
 				.getAttributeCollection();
+		final List<String> columnList = Arrays.asList(csvReader.getColumnNames());
 		for (Attribute attribute : attributes) {
-			if (csvReader.getColumn(attribute.getCsvColumnName()) == null) {
+			if (!columnList.contains(attribute.getCsvColumnName())) {
 				logger.error("Column name " + attribute.getCsvColumnName()
 						+ " does not exist in CSV.");
 				errorList.add("Column name " + attribute.getCsvColumnName()
@@ -116,7 +112,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Bulk Operation Main Class..
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass
 	 * @param operationName
@@ -157,7 +153,7 @@ public class TemplateValidator {
 			throw new BulkOperationException(errorkey, exp, "className "+bulkOperationClass.getClassName());
 		}
 		try {
-			validateXMLTagAttibutes(bulkOperationClass, 
+			validateXMLTagAttibutes(bulkOperationClass,
 					globalRecordsCount);
 			if (globalRecordsCount != 0 && maxRowNumbers != 0) {
 				for (int i = globalRecordsCount; i >= 1; i--) {
@@ -175,7 +171,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate XML Tag Attributes.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 * @param operationName
@@ -208,7 +204,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Associations.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 * @param operationName
@@ -248,7 +244,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Containment and Reference.
-	 * 
+	 *
 	 * @param operationName
 	 *            String.
 	 * @param classList
@@ -289,7 +285,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Attributes.
-	 * 
+	 *
 	 * @param attributesClassList
 	 *            Collection of Attributes.
 	 * @param bulkOperationClass
@@ -457,7 +453,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate UpdateBasedOn value.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 * @param attribute
@@ -465,7 +461,7 @@ public class TemplateValidator {
 	 */
 	/**
 	 * Validate Data Type.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 * @param attribute
@@ -478,7 +474,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Column Name.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 * @param attribute
@@ -496,7 +492,7 @@ public class TemplateValidator {
 
 	/**
 	 * Get Declared Field.
-	 * 
+	 *
 	 * @param classObject
 	 *            Class.
 	 * @param attributeName
@@ -522,7 +518,7 @@ public class TemplateValidator {
 
 	/**
 	 * Validate Cardinality.
-	 * 
+	 *
 	 * @param bulkOperationClass
 	 *            BulkOperationClass.
 	 */
