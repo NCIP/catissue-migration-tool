@@ -120,7 +120,7 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++)
 					{
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
+						if (validate || BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
 										columnSuffix + "#" + i,csvReader))
 						{
 							Object obj = new HashMap<Long, Object>();
@@ -163,8 +163,15 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 
 			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
 				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
-
 				map.put(attribute.getName(), csvDataValue);
+				if(attribute.getFormat()!=null && !attribute.getFormat().equals(""))
+				{
+					attribute.setDataType("java.util.Date");
+					Object attributeValue = attribute.getValueOfDataType(csvDataValue, false,
+						attribute.getCsvColumnName(), attribute.getDataType());
+					map.put(attribute.getName(), attributeValue);
+				}
+
 			}
 		}
 		hookingInformation.setDataHookingInformation(map);

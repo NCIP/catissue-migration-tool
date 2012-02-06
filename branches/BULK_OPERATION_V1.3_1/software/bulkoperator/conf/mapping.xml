@@ -2,14 +2,13 @@
 
 <mapping>
 	 <class name="edu.wustl.bulkoperator.metadata.BulkOperationClass">
-	 	<field name="templateName" type="string">
-			<bind-xml name="templateName" node="attribute"/>
-		</field>
+	 	
 		<field name="className" type="string">
 			<bind-xml name="className" node="attribute"/>
 		</field>
-		<field name="relationShipType" type="string">
-			<bind-xml name="relationShipType" node="attribute"/>
+		
+		<field name="type" type="string">
+			<bind-xml name="type" node="attribute"/>
 		</field>
 		<field name="cardinality" type="string">
 			<bind-xml name="cardinality" node="attribute"/>
@@ -23,51 +22,49 @@
 		<field name="maxNoOfRecords" type="integer">
 			<bind-xml name="maxNoOfRecords" node="attribute"/>
 		</field>
-		<field name="batchSize" type="integer">
-			<bind-xml name="batchSize" node="attribute"/>
-		</field>
-		<field name="id" type="long">
-			<bind-xml name="id" node="attribute"/>
-		</field>
+		
+		
 
-		<field name="containmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="referenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="dynExtEntityAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="containmentAssociation" get-method="getContainmentAssociationCollection" set-method="setContainmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="referenceAssociation" get-method="getReferenceAssociationCollection" set-method="setReferenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="dynExtEntityAssociationCollection"  type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
 		<field name="dynExtCategoryAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="attributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
-		<field name="hookingInformation" type="edu.wustl.bulkoperator.metadata.HookingInformation" collection="collection"/>
+		<field name="attribute" get-method="getAttributeCollection" set-method="setAttributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
+		<field name="hookingInformation" type="edu.wustl.bulkoperator.metadata.HookingInformation" />
 
 	</class>
 
 	<class name="edu.wustl.bulkoperator.metadata.HookingInformation">
-	 		<field name="attributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
+	 		<field name="attribute" get-method="getAttributeCollection" set-method="setAttributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
 	 		<field name="rootContainerId" type="long">
 				<bind-xml name="rootContainerId" node="attribute"/>
 			</field>
 	</class>
 
 	<class name="edu.wustl.bulkoperator.metadata.BulkOperationMetaData">
-	 <field name="BulkOperationClass" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+	 <map-to xml="BulkOperationMetadata"/>
+	 <field name="BulkOperationClass" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" >
+	 	<bind-xml name="BulkOperationClass" node="element" />
+	 </field>
+	 <field name="templateName" type="string">
+			<bind-xml name="templateName" node="attribute"/>
+		</field>
+		<field name="batchSize" type="integer">
+			<bind-xml name="batchSize" node="attribute"/>
+		</field>
 	 </class>
 	 <class name="edu.wustl.bulkoperator.metadata.Attribute">
 	 	<field name="name" type="string">
 			<bind-xml name="name" node="attribute"/>
 		</field>
-		<field name="dataType" type="string">
-			<bind-xml name="dataType" node="attribute"/>
-		</field>
+		
 		<field name="csvColumnName" type="string">
 			<bind-xml name="csvColumnName" node="attribute"/>
 		</field>
 		<field name="updateBasedOn" type="boolean">
 			<bind-xml name="updateBasedOn" node="attribute"/>
 		</field>
-		<field name="belongsTo" type="string">
-			<bind-xml name="belongsTo" node="attribute"/>
-		</field>
-		<field name="id" type="long">
-			<bind-xml name="id" node="attribute"/>
-		</field>
+		
 		<field name="format" type="string">
 			<bind-xml name="format" node="attribute"/>
 		</field>

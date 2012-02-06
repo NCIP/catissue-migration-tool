@@ -18,7 +18,6 @@ import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.exception.ErrorKey;
-import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.dao.exception.DAOException;
 
 /**
@@ -48,22 +47,25 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 	/**
 	 * Main method.
 	 * @param args Array of Strings.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args)
 	{
 		InputStream stream;
-		try 
+		try
 		{
+			//System.setProperty(BulkOperationConstants.CONFIG_DIR, "software/bulkoperator/conf");
+			//args = new String[] {"Lymphoma_Labs 2.0","Lymphoma_Labs 2.0","C:/Pavan/Dynamicxtensions/CP_1.6_branch/CPUML/Lymphoma_Labs 2.0.csv","C:/Pavan/Dynamicxtensions/CP_1.6_branch/CPUML/Lymphoma_Labs 2.0.xml"};
+			//args = new String[] {"addUser","addUser","C:/Pavan/Dynamicxtensions/CP_1.6_branch/CPUML/AddUser.csv","C:/Pavan/Dynamicxtensions/CP_1.6_branch/CPUML/addUser.xml"};
 			stream = new FileInputStream(System.getProperty(BulkOperationConstants.CONFIG_DIR)
 					+ File.separator +"ApplicationResources.properties");
 			ErrorKey.addErrorKeysToMap(stream);
-		} 
-		catch (FileNotFoundException fileNotExp) 
+		}
+		catch (FileNotFoundException fileNotExp)
 		{
 			logger.debug("Error in initializing Application Resource Properties File", fileNotExp);
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			logger.debug("Error in initializing Application Resource Properties File", e);
 		}
