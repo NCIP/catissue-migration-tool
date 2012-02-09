@@ -25,12 +25,23 @@
 		
 		
 
-		<field name="containmentAssociation" get-method="getContainmentAssociationCollection" set-method="setContainmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="referenceAssociation" get-method="getReferenceAssociationCollection" set-method="setReferenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="dynExtEntityAssociationCollection"  type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
-		<field name="dynExtCategoryAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" />
+		<field name="containmentAssociation" get-method="getContainmentAssociationCollection" set-method="setContainmentAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" >
+			<bind-xml name="containmentAssociation" node="element" />
+		</field>
+		<field name="referenceAssociation" get-method="getReferenceAssociationCollection" set-method="setReferenceAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" >
+			<bind-xml name="referenceAssociation" node="element" />
+		</field>
+		<field name="dynExtEntityAssociationCollection"  type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" >
+		<bind-xml name="dynExtEntityAssociationCollection" node="element" />
+		</field>
+		
+		<field name="dynExtCategoryAssociationCollection" type="edu.wustl.bulkoperator.metadata.BulkOperationClass" collection="collection" >
+			<bind-xml name="dynExtCategoryAssociationCollection" node="element" />
+		</field>
 		<field name="attribute" get-method="getAttributeCollection" set-method="setAttributeCollection" type="edu.wustl.bulkoperator.metadata.Attribute" collection="collection" />
-		<field name="hookingInformation" type="edu.wustl.bulkoperator.metadata.HookingInformation" />
+		<field name="hookingInformation" type="edu.wustl.bulkoperator.metadata.HookingInformation" >
+			<bind-xml name="hookingInformation" node="element" />
+		</field>
 
 	</class>
 
