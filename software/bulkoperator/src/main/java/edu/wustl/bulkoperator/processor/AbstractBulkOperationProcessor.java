@@ -199,6 +199,10 @@ public abstract class AbstractBulkOperationProcessor {
 						
 						BeanUtils.setProperty(mainObj,roleName,containmentObject);
 						
+						String parentRoleName = containmentMigrationClass.getParentRoleName();
+						if (!Validator.isEmpty(parentRoleName)) {
+							BeanUtils.setProperty(containmentObject,parentRoleName,mainObj);
+						}
 					}
 				}
 			}
@@ -318,6 +322,11 @@ public abstract class AbstractBulkOperationProcessor {
 								.getRoleName();
 						
 						BeanUtils.setProperty(mainObj, roleName,associatedObject);
+						String parentRoleName = associationMigrationClass
+						.getParentRoleName();
+						if (!Validator.isEmpty(parentRoleName)) {
+							BeanUtils.setProperty(associatedObject,parentRoleName,mainObj);
+						}
 					}
 				}
 			}
