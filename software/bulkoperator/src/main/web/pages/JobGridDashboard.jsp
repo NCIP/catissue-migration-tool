@@ -1,24 +1,24 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/PagenationTag.tld" prefix="custom" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/PagenationTag.tld" prefix="custom"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page language="java" isELIgnored="false"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ page import="edu.wustl.common.util.global.ApplicationProperties" %>
+<%@ page import="edu.wustl.common.util.global.ApplicationProperties"%>
 <head>
 <link rel="STYLESHEET" type="text/css"
-	href="@@dhtml_dir@@/css/dhtmlxgrid.css" />
+	href="dhtmlx_suite/css/dhtmlxgrid.css" />
 <link rel="STYLESHEET" type="text/css"
-	href="@@dhtml_dir@@/skins/dhtmlxgrid_dhx_skyblue.css" />
+	href="dhtmlx_suite/skins/dhtmlxgrid_dhx_skyblue.css" />
 <script language="JavaScript" type="text/javascript"
 	src="jss/bulkOperatorScripts.js"></script>
 <script type="text/javascript" src="jss/bulkOperatorAjax.js"></script>
 <link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
-<script src="@@dhtml_dir@@/js/dhtmlxcommon.js"></script>
-<script src="@@dhtml_dir@@/js/dhtmlxgrid.js"></script>
-<script src="@@dhtml_dir@@/js/dhtmlxgridcell.js"></script>
-<script src="@@dhtml_dir@@/ext/dhtmlxgrid_mcol.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxcommon.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxgrid.js"></script>
+<script src="dhtmlx_suite/js/dhtmlxgridcell.js"></script>
+<script src="dhtmlx_suite/ext/dhtmlxgrid_mcol.js"></script>
 
 <script>
 	var xmlString='${requestScope.msgBoardXml}';
@@ -208,39 +208,38 @@
 	}
 </script>
 <style>
-.even
-{
-	background-color:#F8F8F8;
+.even {
+	background-color: #F8F8F8;
 }
-.uneven
-{
-	background-color:#FFFFFF;
+
+.uneven {
+	background-color: #FFFFFF;
 }
-.grid_on_hover
-{
-	background-color:#bfdcf3;
-  font-size:20px;
-  cursor: pointer;
+
+.grid_on_hover {
+	background-color: #bfdcf3;
+	font-size: 20px;
+	cursor: pointer;
 }
 </style>
 </head>
-	<table width="100%" border="0" cellpadding="3" cellspacing="0" >
+<table width="100%" border="0" cellpadding="3" cellspacing="0">
 
 
 
-		<tr height="100%">
+	<tr height="100%">
 		<td width="100%" height="100%">
-		<table width="100%" height="100%" valign="top"border="0" cellpadding="3" cellspacing="0" align="center">
-				<tr height="100%" width="100%">
-					<td valign="top" height="100%" width="100%">
-						<div id="gridbox" width="100%" height="340px"></div>
-						<script>
-			mygrid = new dhtmlXGridObject('gridbox');
-				mygrid.setImagePath("@@dhtml_dir@@/imgs/");
+		<table width="100%" height="100%" valign="top" border="0"
+			cellpadding="3" cellspacing="0" align="center">
+			<tr height="100%" width="100%">
+				<td valign="top" height="100%" width="100%">
+				<div id="gridbox" width="100%" height="340px"></div>
+				<script>
+				mygrid = new dhtmlXGridObject('gridbox');
+				mygrid.setImagePath("dhtmlx_suite/imgs/");
+				mygrid.setSkin("dhx_skyblue");
 				mygrid.init();
-				mygrid.setStyle("font-family: Arial, Helvetica, sans-serif;font-size: 12px;font-weight: bold;color: #000000;background-color: #E2E2E2; border-left-width: 1px;border-left-color: #CCCCCC; border-top-width: 1px;border-top-color: #CCCCCC;border-bottom-color: #CCCCCC; border-bottom-width: 1px; border-right-width: 1px;border-right-color: #E2E2E2; text-align:left;padding-left:10px;padding-top:1px;padding-bottom:1px;align:left;height:100%;");
 				mygrid.setEditable("FALSE");
-				mygrid.enableAlterCss("uneven","even");
 				mygrid.enableRowsHover(true,'grid_on_hover');
 				mygrid.enableAutoHeigth(true);
 				mygrid.objBox.style.height="100%";
@@ -249,10 +248,6 @@
 				//mygrid.setOnRowSelectHandler(funcName);
 				//mygrid.selectRow(mygrid.getRowIndex(actualRowCount),false,false,true);
 
-				for(var row=0;row<mygrid.getRowsNum();row++)
-				{
-					mygrid.setRowTextStyle(row+1,"font-family: Arial, Helvetica, sans-serif;font-size: 12px;padding-left:10px;color: #000000;border-left-width: 1px;border-left-color: #CCCCCC;  border-bottom-color: #CCCCCC; border-bottom-color: #CCCCCC; border-right-width: 1px;border-right-color: #FFFFFF; Cursor: pointer;word-wrap:break-word;");
-				}
 				mygrid.setSizes();
 				function getIDColumns()
 				{
@@ -277,13 +272,12 @@
 
 
 
-		</script>
-					</td>
+		</script></td>
 			</tr>
 
 		</table>
 		</td>
-		</tr>
+	</tr>
 
 	</tr>
 
