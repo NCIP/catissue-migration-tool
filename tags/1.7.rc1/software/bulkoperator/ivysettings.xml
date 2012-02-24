@@ -1,0 +1,42 @@
+<ivysettings>
+	<settings defaultResolver="default-resolver" validate="false" />
+
+	<credentials host="ncimvn.nci.nih.gov" realm="Sonatype Nexus Repository Manager"
+		username="${ncimvn.nexus.user.name}" passwd="${ncimvn.nexus.user.password}" />
+	
+	
+	<caches default="boCache">
+        <cache name="boCache" basedir="${user.home}/.ivy2/caTissue"/>
+    </caches>
+
+
+	<resolvers>
+		<chain name="default-resolver" returnFirst="true">
+
+            <filesystem name="localResolver" local="true" >
+                  <ivy pattern="${user.home}/.ivy2/caTissue/[organisation]/[module]/[revision]/ivy-[revision].xml"/>
+                  <artifact pattern="${user.home}/.ivy2/caTissue/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+            </filesystem>
+
+            <ibiblio name="mvn.repo" root="http://repo1.maven.org/maven2/" m2compatible="true" changingPattern=".*SNAPSHOT" />
+
+			<filesystem name="local-repo-jars">
+             	<ivy pattern="${ivy.local.jars}/ivy.xml"/>
+             	<artifact pattern="${ivy.local.jars}/[artifact].[ext]"/>
+        	</filesystem>
+        	
+			<url name="nci-mvn-nexus" m2compatible="true">
+				<ivy pattern="https://ncimvn.nci.nih.gov/nexus/content/repositories/snapshots/gov/nih/nci/catissue/[module]/[revision]/[artifact]-[revision].[ext]" />
+				<artifact pattern="https://ncimvn.nci.nih.gov/nexus/content/repositories/snapshots/gov/nih/nci/catissue/[module]/[revision]/[artifact]-[revision].[ext]" />
+			</url>
+			
+        </chain>
+
+	</resolvers>
+	
+	<modules>
+		<module organisation="gov.nih.nci.catissue" name="*" resolveMode="dynamic" />
+	</modules>
+	
+</ivysettings>
+
