@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE struts-config
+PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+"http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<struts-config>
+
+	<form-beans>
+    	<form-bean name="bulkOperationForm" type="edu.wustl.bulkoperator.actionForm.BulkOperationForm"/>
+	</form-beans>
+
+	<action-mappings>
+		<action path="/BulkHandler" type="edu.wustl.bulkoperator.action.BulkHandler"
+			name="" scope="request">
+		    <forward name="success" path="/FileUpload.do?pageOf=bulkHandler"/>
+		</action>
+
+		<action path="/BulkOperation" type="edu.wustl.bulkoperator.action.BulkOperationAction"
+		   name="bulkOperationForm" validate="false" scope="request">
+		   <forward name="pageOfBulkOperation" path=".catissuecore.bulkOperationDef" />
+		</action>
+
+		<action path="/FileUpload" type="edu.wustl.bulkoperator.action.FileUploadAction"
+			name="bulkOperationForm" scope="request" validate="true">
+			<forward name="success" path="/BulkTemplate.do"/>
+		    <forward name="bulkHandler" path="/BulkHandler.do?fromAction=fileUpload"/>
+		</action>
+
+	   	<action path="/DownloadCSV" type="edu.wustl.bulkoperator.action.BulkOperationAction"
+			name="bulkOperationForm" validate="false" scope="request">
+			<forward name="pageOfBulkOperation" path=".catissuecore.bulkOperationDef" />
+		</action>
+
+		<action path="/JobDashboard" type="edu.wustl.bulkoperator.action.ShowJobDashboardAction"
+			name="bulkOperationForm" validate="false" scope="request">
+			<forward name="success" path="/pages/content/manageBioSpecimen/bulkOperations/JobGridDashboard.jsp" />
+		</action>
+
+		<action path="/BulkTemplate" type="edu.wustl.bulkoperator.action.BulkOperationAction"
+		   name="bulkOperationForm" validate="false" scope="request">
+			<forward name="pageOfBulkOperation" path="/pages/content/manageBioSpecimen/bulkOperations/BulkTemplate.jsp" />
+		</action>
+
+		<action path="/JobGridAjax" type="edu.wustl.bulkoperator.action.JobGridAjaxAction"
+			name="" validate="false" scope="request">
+		</action>
+
+		<action path="/DocumentDownload"
+			type="edu.wustl.bulkoperator.action.DownloadJobReportFileAction"
+			validate="false" input="/pages/blank.jsp" scope="request" >
+			<forward name="success" path="/pages/blank.jsp" />
+			<forward name="failure" path="/pages/blank.jsp" />
+		</action>
+	</action-mappings>
+
+</struts-config>
