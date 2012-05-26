@@ -19,6 +19,7 @@ import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
+import edu.wustl.common.util.global.ApplicationProperties;
 import edu.wustl.dao.exception.DAOException;
 
 /**
@@ -58,6 +59,8 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 			stream = new FileInputStream(System.getProperty(BulkOperationConstants.CONFIG_DIR)
 					+ File.separator +"ApplicationResources.properties");
 			ErrorKey.addErrorKeysToMap(stream);
+			ApplicationProperties.initBundle("ApplicationResources");
+			
 		} 
 		catch (FileNotFoundException fileNotExp) 
 		{
@@ -67,6 +70,7 @@ public class ImportBulkOperationTemplate extends AbstractImportBulkOperation
 		{
 			logger.debug("Error in initializing Application Resource Properties File", e);
 		}
+		
 		String operationName = args[0];
 		String dropdownName = args[1];
 		String csvFile = args[2];
