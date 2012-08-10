@@ -195,6 +195,7 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		{
 			postMethod.addParameter("jobId", jobId.toString());
 			postMethod.addParameter("fromAction", "jobDetails");
+			postMethod.setRequestHeader("referer", url);
 			client.executeMethod(postMethod);
 			InputStream inputStream =  (InputStream)postMethod.getResponseBodyAsStream();
 			ObjectInputStream ois = new ObjectInputStream(inputStream);
@@ -248,6 +249,7 @@ public class BulkOperationServiceImpl implements BulkOperationService
 			}
 			postMethod.addParameter(USER_NAME, applicationUserName);
 			postMethod.addParameter(PASSWORD,applicationUserPassword);
+			postMethod.setRequestHeader("referer", url);
 			client.executeMethod(postMethod);
 			InputStream inputStream =  (InputStream)postMethod.getResponseBodyAsStream();
 			ObjectInputStream ois = new ObjectInputStream(inputStream);
