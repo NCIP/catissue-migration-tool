@@ -296,6 +296,7 @@ public class BulkOperationServiceImpl implements BulkOperationService
 		{
 			postMethod.addParameter(USER_NAME, applicationUserName);
 			postMethod.addParameter(PASSWORD,applicationUserPassword);
+			postMethod.setRequestHeader("referer", url);
 			client.executeMethod(postMethod);
 		}
 		finally
