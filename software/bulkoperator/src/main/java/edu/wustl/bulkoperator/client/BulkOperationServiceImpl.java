@@ -333,6 +333,7 @@ public class BulkOperationServiceImpl implements BulkOperationService
 					new FilePart(TEMPLATE_FILE, xmlTemplateFile),
 					new FilePart(CSV_FILE, csvFile)
 			};
+			postMethod.setRequestHeader("referer", url);
 			postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
 			client.executeMethod(postMethod);
 
