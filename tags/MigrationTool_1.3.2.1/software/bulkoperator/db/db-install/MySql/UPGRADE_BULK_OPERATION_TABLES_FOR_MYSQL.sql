@@ -1,0 +1,1 @@
+alter table JOB_DETAILS MODIFY LOG_FILE_NAME varchar(1024);
