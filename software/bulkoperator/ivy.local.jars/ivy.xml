@@ -61,6 +61,7 @@
       <artifact name="xalan" ext="jar" type="jar"/>
       <artifact name="xercesImpl" ext="jar" type="jar"/>
       <artifact name="xml-apis" ext="jar" type="jar"/>
+      <artifact name="DAO-1.2" ext="jar" type="jar"/>
   </publications>
 </ivy-module>
 
