@@ -22,6 +22,9 @@ import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
+import edu.wustl.dao.exception.DAOException;
+import edu.wustl.dao.util.DAOUtility;
+
 
 public class BulkOperationProcessController
 {
@@ -75,6 +78,11 @@ public class BulkOperationProcessController
 			
 			IBulkOperationProcessor bulkOperationProcessor = getProcessor(bulkOperationClass,serviceInformationObject);
 
+			DAOUtility daoUtil = DAOUtility.getInstance();
+			
+			int commitRecordInterval = 1;
+			int processedRecords = 0;
+			
 			while (csvReader.next()) {
 				try {
 					if (isReRun
@@ -105,6 +113,20 @@ public class BulkOperationProcessController
 					}
 				}
 				currentCSVRowCount++;
+				processedRecords++;
+				
+				if(processedRecords % commitRecordInterval == 0)
+				{
+					try{
+					logger.info("*** Commiting records from :" + (processedRecords - commitRecordInterval) +" to "+ processedRecords);	
+					daoUtil.commitTransaction();
+					} catch (DAOException e) {
+						logger.info("*************************Exception while commiting!!! Start*****************");
+						logger.error(e.getMessage(), e);
+						logger.info("*************************Exception while commiting!!!  End*****************");
+						throw new BulkOperationException(e.getErrorKey(), e, e.getMessage());
+					}
+				}
 			}
 			
 			postProcess(successCount, failureCount, csvWriter,
