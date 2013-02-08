@@ -132,20 +132,20 @@ public class Attribute
 					if (value.indexOf(":") > -1)
 					{
 						String DATE_FORMAT_WITH_TIME = ApplicationProperties
-								.getValue("bulk.date.valid.format.withtime");
+								.getValue("timestamp.pattern.slash");
 						sdf = new SimpleDateFormat(DATE_FORMAT_WITH_TIME);
 						sdf.setLenient(false);
 						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
+						format=ApplicationProperties.getValue("timestamp.pattern.slash");
 					}
 					else
 					{
 						String DATE_FORMAT = ApplicationProperties
-								.getValue("bulk.date.valid.format");
+								.getValue("date.pattern.slash");
 						sdf = new SimpleDateFormat(DATE_FORMAT);
 						sdf.setLenient(false);
 						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("bulk.date.valid.format");
+						format=ApplicationProperties.getValue("date.pattern.slash");
 					}
 				}
 				catch (ParseException parseExp)
