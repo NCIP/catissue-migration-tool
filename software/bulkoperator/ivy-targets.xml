@@ -26,7 +26,8 @@
 	</target>
 
     <target name="resolve" depends="init-ivy" description="--> retrieve dependencies with ivy">
-        <ivy:retrieve pattern="${basedir}/lib/[artifact]-[revision].[ext]" />
+        <!--<ivy:retrieve pattern="${basedir}/lib/[artifact]-[revision].[ext]" />-->
+    	<ivy:retrieve pattern="${basedir}/lib/[artifact](-[classifier]).[ext]"/>
     </target>
 
     <target name="download-ivy" unless="skip.download">
