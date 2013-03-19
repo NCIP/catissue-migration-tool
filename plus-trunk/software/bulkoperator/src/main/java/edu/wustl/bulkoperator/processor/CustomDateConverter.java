@@ -10,8 +10,8 @@ import edu.wustl.common.util.logger.Logger;
 
 public class CustomDateConverter implements Converter {
 
-	private final static String DEFAULT_FORMAT_SLASH = ApplicationProperties.getValue("bulk.date.valid.format.withtime");
-	private final static String DEFAULT_FORMAT_HIFEN = ApplicationProperties.getValue("bulk.date.valid.format.hifen");
+	private final static String DEFAULT_FORMAT_SLASH = ApplicationProperties.getValue("timestamp.pattern.slash");
+	private final static String DEFAULT_FORMAT_HIFEN = ApplicationProperties.getValue("timestamp.pattern");
 	private static final Logger logger = Logger.getCommonLogger(CustomDateConverter.class);
 	
 	public Object convert(Class type, Object value)
