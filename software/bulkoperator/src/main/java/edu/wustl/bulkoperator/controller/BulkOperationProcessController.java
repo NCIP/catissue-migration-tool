@@ -84,6 +84,7 @@ public class BulkOperationProcessController
 			int processedRecords = 0;
 			
 			while (csvReader.next()) {
+					daoUtil.beginTransaction();
 				try {
 					if (isReRun
 							&& BulkOperationConstants.SUCCESS.equalsIgnoreCase(csvReader.getColumn(BulkOperationConstants.STATUS))) {
