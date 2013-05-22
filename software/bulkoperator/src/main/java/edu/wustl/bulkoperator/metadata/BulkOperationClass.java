@@ -42,9 +42,9 @@ public class BulkOperationClass
 	private Collection<BulkOperationClass> dynExtCategoryAssociationCollection = new ArrayList<BulkOperationClass>();
 	private Collection<Attribute> attributeCollection = new ArrayList<Attribute>();
 	private HookingInformation hookingInformation;
-
-
-
+	private String entityGroupName;
+	
+	
 	public void setHookingInformation(HookingInformation hookingInformation)
 	{
 		this.hookingInformation = hookingInformation;
@@ -477,5 +477,13 @@ public class BulkOperationClass
 
 	public void setIsOneToManyAssociation(String isOneToManyAssociation) {
 		this.isOneToManyAssociation = isOneToManyAssociation;
+	}
+	public String getEntityGroupName()
+	{
+		return entityGroupName;
+	}
+	public void setEntityGroupName(String entityGroupName)
+	{
+		this.entityGroupName = entityGroupName;
 	}
 }

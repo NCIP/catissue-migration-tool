@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.DateValue;
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -434,4 +436,29 @@ public abstract class AbstractBulkOperationProcessor {
 			}
 		}
 	}
+	protected void getinformationForHookingData(CsvReader csvReader,
+			HookingInformation hookingInformation)
+			throws ClassNotFoundException, BulkOperationException {
+		Iterator<Attribute> attributeItertor = hookingInformation
+				.getAttributeCollection().iterator();
+		Map<String, Object> map = new HashMap<String, Object>();
+		while (attributeItertor.hasNext()) {
+			Attribute attribute = attributeItertor.next();
+
+			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
+				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
+				map.put(attribute.getName(), csvDataValue);
+				if(attribute.getFormat()!=null && !attribute.getFormat().equals(""))
+				{
+					attribute.setDataType("java.util.Date");
+					Object attributeValue = attribute.getValueOfDataType(csvDataValue, false,
+						attribute.getCsvColumnName(), attribute.getDataType());
+					map.put(attribute.getName(), attributeValue);
+				}
+
+			}
+		}
+		hookingInformation.setDataHookingInformation(map);
+	}
+
 }
