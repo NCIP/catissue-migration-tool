@@ -49,6 +49,14 @@
        </xs:appinfo></xs:annotation>
       </xs:attribute>
 	  
+	   <xs:attribute name="entityGroupName" type="xs:string" >
+       <xs:annotation><xs:appinfo>
+		<xs:javadoc language="en"> 
+			 It is used to identify the entityGroupname in case of de entity data migration.              
+		</xs:javadoc>
+       </xs:appinfo></xs:annotation>
+      </xs:attribute>
+      
     </xs:complexType>
   </xs:element>
 

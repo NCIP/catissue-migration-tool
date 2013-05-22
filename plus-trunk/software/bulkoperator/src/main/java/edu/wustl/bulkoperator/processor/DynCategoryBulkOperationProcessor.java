@@ -145,36 +145,4 @@ public class DynCategoryBulkOperationProcessor extends AbstractBulkOperationProc
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
 	}
-	/**
-	 *
-	 * @param mainMigrationClass
-	 * @param validate
-	 * @param attribute
-	 * @throws BulkOperationException
-	 */
-	protected void getinformationForHookingData(CsvReader csvReader,
-			HookingInformation hookingInformation)
-			throws ClassNotFoundException, BulkOperationException {
-		Iterator<Attribute> attributeItertor = hookingInformation
-				.getAttributeCollection().iterator();
-		Map<String, Object> map = new HashMap<String, Object>();
-		while (attributeItertor.hasNext()) {
-			Attribute attribute = attributeItertor.next();
-
-			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
-				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
-				map.put(attribute.getName(), csvDataValue);
-				if(attribute.getFormat()!=null && !attribute.getFormat().equals(""))
-				{
-					attribute.setDataType("java.util.Date");
-					Object attributeValue = attribute.getValueOfDataType(csvDataValue, false,
-						attribute.getCsvColumnName(), attribute.getDataType());
-					map.put(attribute.getName(), attributeValue);
-				}
-
-			}
-		}
-		hookingInformation.setDataHookingInformation(map);
-	}
-
 }

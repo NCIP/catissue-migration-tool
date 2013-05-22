@@ -61,7 +61,7 @@ public abstract class AbstractBulkOperationAppService
 		return insertObject(obj);
 	}
 
-	public abstract Long insertDEObject(String entityGroupName,String entityName,final Map<String, Object> dataValue) throws Exception;
+	public abstract Long insertDEObject(final String entityGroupName,final String entityName,final Map<String, Object> dataValue,final Object hookInformationObject) throws Exception;
 
 
 	public Object search(Object obj) throws Exception

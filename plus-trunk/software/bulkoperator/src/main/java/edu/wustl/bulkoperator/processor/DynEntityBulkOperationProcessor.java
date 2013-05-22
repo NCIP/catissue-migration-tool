@@ -18,6 +18,7 @@ import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ErrorKey;
+import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 
 public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProcessor
@@ -46,15 +47,12 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=bulkOperationClass.getHookingInformation();
-			//getinformationForHookingData(csvReader ,hookingInformationFromTag);
-			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
-			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
-
-			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
-			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
-			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
+			getinformationForHookingData(csvReader ,hookingInformationFromTag);
+			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getEntityGroupName());
+			hookingInformationFromTag.setEntityName(bulkOperationClass.getClassName());
 			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
-			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			recordEntryId=bulkOprAppService.insertDEObject(bulkOperationClass.getEntityGroupName(),
+					bulkOperationClass.getClassName(), dynExtObject, hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -131,21 +129,20 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 		}
 	}
 
-	protected void setValueToObject(Object mainObj, BulkOperationClass mainMigrationClass,
-			Map<String, String> csvData, String columnSuffix, boolean validate,
-			Attribute attribute, Class dataTypeClass) throws BulkOperationException
-	{
-		String csvDataValue = csvData.get(attribute.getCsvColumnName() + columnSuffix);
-		Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
-		if (csvDataValue == null || "".equals(csvDataValue))
-		{
-			categoryDataValueMap.put(attribute.getName(), "");
-		}
-		else
-		{
-			Object attributeValue = attribute.getValueOfDataType(csvDataValue, validate,
-					attribute.getCsvColumnName() + columnSuffix, attribute.getDataType());
-			categoryDataValueMap.put(attribute.getName(), attributeValue);
+	protected void setValueToObject(Object mainObj,
+			BulkOperationClass mainMigrationClass,CsvReader csvReader,
+			String columnSuffix, boolean validate, Attribute attribute) throws BulkOperationException {
+		if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()
+				+ columnSuffix))) {
+			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
+					+ columnSuffix);
+			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
+
+			if (csvDataValue == null || "".equals(csvDataValue)) {
+				categoryDataValueMap.put(attribute.getName(), "");
+			} else {
+				categoryDataValueMap.put(attribute.getName(), csvDataValue);
+			}
 		}
 	}
 }
