@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Ant Script to setup configuration files for test cases-->
+
+<project name="Bulk Operation" default="dist" xmlns:ivy="antlib:org.apache.ivy.ant" basedir=".">
+
+    <import file="ivy-targets.xml" />
+    <target name="postResolve" depends="resolve">
+        <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+            <classpath>
+                <fileset dir="${basedir}/lib"><include name="ant-contrib*.jar" /></fileset>
+            </classpath>
+        </taskdef>
+    </target>
+
+	<property file="${basedir}/conf/bulkOperation.properties"/>
+
+	<loadfile property="dist.revision" srcFile="./.svn/entries">
+		<filterchain>
+			<headfilter lines="1" skip="4"/>
+		</filterchain>
+	</loadfile>
+
+	<property name="software.dir" location="${basedir}/../" />
+	<property name="src.dir" location="${basedir}/src/main/java"/>
+	<property name="web.dir" location="${basedir}/src/main/web"/>
+	<property name="dist.dir" location="${basedir}/dist"/>
+	<property name="target.dir" location="${software.dir}/target"/>
+
+	<property name="common.dir" location="${software.dir}/common" />
+	<property name="target.dir" location="${software.dir}/target" />
+	<property name="lib.dir" location="${target.dir}/lib" />
+	<property name="temp.dir" location="${target.dir}/temp" />
+	<property name="reports.dir" location="${target.dir}/reports" />
+	<property name="log.dir" location="${target.dir}/logs" />
+	<property name="dist.exploded" location="${target.dir}/dist/exploded" />
+	<property name="download.dir" location="${target.dir}/download" />
+
+    <property name="production.database.type" value="${production.database.type}" />
+	<property name="sandbox.database.type" value="${sandbox.database.type}" />
+	<property name="production.database.username" value="${production.database.username}" />
+	<property name="staging.database.username"  value="${sandbox.database.username}" />
+	<property name="production.database.password" value="${production.database.password}" />
+	<property name="staging.database.password"  value="${sandbox.database.password}" />
+	<property name="production.database.host" value="${production.database.host}"/>
+	<property name="sandbox.database.host" value="${sandbox.database.host}"/>
+	<property name="production.database.port" value="${production.database.port}"/>
+	<property name="sandbox.database.port" value="${sandbox.database.port}"/>
+
+    <property name="mysql.dialect.string" value="org.hibernate.dialect.MySQLDialect" />
+	<property name="oracle.dialect.string" value="org.hibernate.dialect.Oracle9Dialect" />
+
+    <property name="production.database.driver" value="${production.database.driver}" />
+	<property name="sandbox.database.driver" value="${sandbox.database.driver}" />
+
+	<property name="production.database.oracle.url" value="jdbc:oracle:thin:@${production.database.host}:${production.database.port}:${production.database.name}" />
+	<property name="production.database.mysql.url" value="jdbc:mysql://${production.database.host}:${production.database.port}/${production.database.name}" />
+	<property name="sandbox.database.oracle.url" value="jdbc:oracle:thin:@${sandbox.database.host}:${sandbox.database.port}:${sandbox.database.name}" />
+	<property name="sandbox.database.mysql.url" value="jdbc:mysql://${sandbox.database.host}:${sandbox.database.port}/${sandbox.database.name}" />
+	<property name="csm.database.oracle.url" value="jdbc:oracle:thin:@${csm.database.host}:${csm.database.port}:${csm.database.name}" />
+	<property name="csm.database.mysql.url" value="jdbc:mysql://${csm.database.host}:${csm.database.port}/${csm.database.name}" />
+
+	<property name="idp.enabled" value="${idp.enabled}"/>
+	<property name="csm.database.type" value="${csm.database.type}" />
+	<property name="csm.database.host" value="${csm.database.host}" />
+	<property name="csm.database.port" value="${csm.database.port}" />
+	<property name="csm.database.name" value="${csm.database.name}" />
+	<property name="csm.database.username" value="${csm.database.username}" />
+	<property name="csm.database.password" value="${csm.database.password}" />
+
+    <property name="staging.hibernate.cfg.xml" value="${basedir}\app_lib\conf\hibernateForStagingDb.cfg.xml" />
+
+	<property name="conf.dir" value="${basedir}\conf" />
+
+	<property file="${software.dir}/build/project.properties" />
+
+	<path id="cp">
+		<fileset dir="${basedir}/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${target.dir}/lib/app_lib">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement path="${conf.dir}"/>
+		<pathelement path="${src.dir}"/>
+	</path>
+
+    <target name="init">
+    	
+    	<copy file="${staging.hibernate.cfg.xml}" todir="${basedir}/src" overwrite="true"/>
+		<if>
+			<equals arg1="${sandbox.database.type}" arg2="oracle"/>
+			<then>
+				<replace dir="${basedir}/src">
+					<include name="hibernateForStagingDb.cfg.xml" />
+		    		<replacefilter token="@@dialect@@" value="${oracle.dialect.string}" />
+		    		<replacefilter token="@@databasedriver@@" value="oracle.jdbc.driver.OracleDriver" />
+		    		<replacefilter token="@@databaseurl@@" value="${sandbox.database.oracle.url}" />
+		    		<replacefilter token="@@databaseusername@@" value="${sandbox.database.username}" />
+		   			<replacefilter token="@@databasepassword@@" value="${sandbox.database.password}" />
+				</replace>
+			</then>
+		<elseif>
+			<equals arg1="${sandbox.database.type}" arg2="mysql"/>
+			<then>
+				<replace dir="${basedir}/src">
+					<include name="hibernateForStagingDb.cfg.xml" />
+					<replacefilter token="@@dialect@@" value="${mysql.dialect.string}" />
+		    		<replacefilter token="@@databasedriver@@" value="org.gjt.mm.mysql.Driver" />
+					<replacefilter token="@@databaseurl@@" value="${sandbox.database.mysql.url}" />
+					<replacefilter token="@@databaseusername@@" value="${sandbox.database.username}" />
+					<replacefilter token="@@databasepassword@@" value="${sandbox.database.password}" />
+				</replace>
+			</then>
+		</elseif>
+		</if>
+    </target>
+
+	<target name="clean" description="cleans the previous complied java class files">
+        <delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${temp.dir}">
+				<include name="**/*" />
+			</fileset>
+		</delete>
+	</target>
+
+
+
+	<target name="compile" depends="clean, resolve" description="java classes are compiled">
+		<mkdir dir="${temp.dir}" />
+		<echo message="Compling classes................" />
+		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
+    		<src path="${src.dir}"/>
+            <classpath>
+       			<fileset dir="${basedir}/lib">
+        			<include name="**/*.jar"/>
+        	  	</fileset>
+            </classpath>
+        </javac>
+		<copy todir="${temp.dir}" overwrite="true">
+			<fileset dir="${src.dir}" >
+				<include name="**/*.hbm.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${temp.dir}" overwrite="true">
+			<fileset dir="${src.dir}" >
+				<include name="ApplicationResources.properties" />
+			</fileset>
+		</copy>
+    </target>
+
+	<property name="jbossHome" value="" />
+	<property name="loginName" value="" />
+	<property name="password" value="" />
+	<property name="operation" value="" />
+	<property name="csvFileName" value="" />
+
+	<target name="run_bulk_operation" depends="compile" description="bulk operator API is started">
+		<echo message="Bulk Operation started....................." />
+		<java classname="edu.wustl.bulkoperator.BulkOperator" fork="true" maxmemory="1024m">
+			<arg value="${jbossHome}" />
+			<arg value="${loginName}" />
+			<arg value="${password}" />
+			<arg value="${operation}" />
+			<arg value="${csvFileName}" />
+			<classpath>
+				<pathelement location="${temp.dir}"/>
+			</classpath>
+			<classpath refid="cp"/>
+		</java>
+	</target>
+
+	<target name="create_bulkoperator_jar" depends="compile" description="bulk operator jar is created">
+
+		<jar destfile="${dist.dir}/bulkoperator.jar" basedir="${temp.dir}">
+            <manifest>
+				<section name="${bulkoperator.jar.details}">
+					<attribute name="Main-Class" value="edu.wustl.bulkoperator.BulkOperator"/>
+				    <attribute name="Version" value="${bulkoperator.jar.version}"/>
+					<attribute name="Built-By" value="${bulkoperator.jar.creator}" />
+					<attribute name="Build-on" value="${TODAY} ${TSTAMP}" />
+			   	   	<attribute name="SVN-URL" value="${dist.revision}" />
+			   	</section>
+            </manifest>
+        </jar>
+	</target>
+	
+	<property name="meta.dir" value="${dist.dir}/META-INF" />
+
+	<target name="version_info">
+		<delete file="${meta.dir}/MANIFEST.MF" />
+		<mkdir dir="${meta.dir}" />
+		<manifest file="${meta.dir}/MANIFEST.MF">
+			<section name="${bulkoperator.jar.details}">
+				<attribute name="Version" value="${bulkoperator.jar.version}" />
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Build-on" value="${TODAY} ${TSTAMP}" />
+				<attribute name="SVN-URL" value="${dist.revision}" />
+			</section>
+		</manifest>
+	</target>
+
+	<target name="create_bulkoperator_zip" description="bulk operator zip file is created">
+		<property name="zip.dir" value="${dist.dir}/zip" />
+		<property name="zip.file" value="${dist.dir}/bulkoperator.zip" />
+
+		<delete file="${zip.file}" />
+		<delete dir="${zip.dir}" />
+		<mkdir dir="${zip.dir}" />
+
+		<copy todir="${zip.dir}" overwrite="true">
+			<fileset file="${basedir}/conf/mapping.xml" />
+			<fileset file="${src.dir}/ApplicationResources.properties" />
+			<fileset file="${src.dir}/bulkoperation-struts-config.xml" />
+			<fileset file="${src.dir}/bulkoperation-tiles-defs.xml" />
+			<fileset file="${src.dir}/log4j.properties" />
+			<fileset file="${basedir}/conf/bulkoperationintegration.xml" />
+			<fileset file="${basedir}/conf/bulkOperatorXMLTemplateRules.xml" />
+			<fileset file="${basedir}/conf/BulkOperations.xsd" />
+		</copy>
+		<copy todir="${zip.dir}/css" overwrite="true">
+			<fileset dir="${web.dir}/css" />
+		</copy>
+		<copy todir="${zip.dir}/SQL" overwrite="true">
+			<fileset dir="${basedir}/db/db-install" />
+		</copy>
+		<copy todir="${zip.dir}/jss" overwrite="true">
+			<fileset dir="${web.dir}/jss" />
+		</copy>
+		<copy todir="${zip.dir}/pages" overwrite="true">
+			<fileset dir="${web.dir}/pages" />
+		</copy>
+		<antcall target="version_info"/>
+		<zip destfile="${zip.file}" basedir="${zip.dir}" />
+		<delete dir="${zip.dir}" />
+	</target>
+
+	<target name="dist" depends="create_bulkoperator_jar, create_bulkoperator_zip">
+	</target>
+
+</project>
