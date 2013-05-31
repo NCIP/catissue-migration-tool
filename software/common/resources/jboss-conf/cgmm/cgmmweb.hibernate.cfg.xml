@@ -1,4 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
+<!--L
+   Copyright Washington University in St. Louis
+   Copyright SemanticBits
+   Copyright Persistent Systems
+   Copyright Krishagni
+
+   Distributed under the OSI-approved BSD 3-Clause License.
+   See http://ncip.github.com/catissue_migration_tool/LICENSE.txt for details.
+L-->
+
 <!DOCTYPE hibernate-configuration PUBLIC
           "-//Hibernate/Hibernate Configuration DTD 2.0//EN"
           "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
