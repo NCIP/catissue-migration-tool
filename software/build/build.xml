@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
+
+<!--L
+   Copyright Washington University in St. Louis
+   Copyright SemanticBits
+   Copyright Persistent Systems
+   Copyright Krishagni
+
+   Distributed under the OSI-approved BSD 3-Clause License.
+   See http://ncip.github.com/catissue_migration_tool/LICENSE.txt for details.
+L-->
+
 <!-- bda-build-template version 1.7.4 -->
 <!--
 $Id: build.xml 3294 2010-08-31 14:17:31Z saksass $
