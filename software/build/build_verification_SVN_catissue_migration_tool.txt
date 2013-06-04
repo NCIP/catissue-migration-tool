@@ -1,0 +1,66 @@
+Buildfile: build.xml
+     [echo] Using properties file of install.properties.
+     [echo] comonlibrary.dir=c:\
+
+init:
+
+download-ivy:
+
+download-ivy-settings:
+
+download-ivy-bda:
+
+retrieve-bda:
+[ivy:settings] :: Ivy 2.0.0-beta2 - 20080225093827 :: http://ant.apache.org/ivy/ ::
+[ivy:settings] :: loading settings :: file = C:\DEV\GIT-WORK\SVN\catissue_migration_tool\software\common\bda-download\cbiit-ivy-bda-settings.xml
+[ivy:resolve] :: resolving dependencies :: ncicb#bda-download;working@NCI-01874632-L
+[ivy:resolve] 	confs: [runtime]
+[ivy:resolve] :: resolution report :: resolve 1097ms :: artifacts dl 0ms
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      runtime     |   1   |   0   |   0   |   0   ||   0   |   0   |
+	---------------------------------------------------------------------
+[ivy:resolve] 
+[ivy:resolve] :::: WARNINGS
+[ivy:resolve] 		module not found: ncicb#bda-utils;1.7.4
+[ivy:resolve] 	==== local-project-repo: tried
+[ivy:resolve] 	  C:\DEV\GIT-WORK\SVN\catissue_migration_tool\software\target/local-repo-dir/ncicb/bda-utils/1.7.4/ivy.xml
+[ivy:resolve] 	  -- artifact ncicb#bda-utils;1.7.4!bda-utils.jar:
+[ivy:resolve] 	  C:\DEV\GIT-WORK\SVN\catissue_migration_tool\software\target/local-repo-dir/ncicb/bda-utils/1.7.4/bda-utils-1.7.4.jar
+[ivy:resolve] 	==== local-system-repo: tried
+[ivy:resolve] 	  C:\DEV\GIT-WORK\SVN\bda-local-ivy-repo/ncicb/bda-utils/1.7.4/ivy.xml
+[ivy:resolve] 	  -- artifact ncicb#bda-utils;1.7.4!bda-utils.jar:
+[ivy:resolve] 	  C:\DEV\GIT-WORK\SVN\bda-local-ivy-repo/ncicb/bda-utils/1.7.4/bda-utils-1.7.4.jar
+[ivy:resolve] 	==== local-cbiit-ivy-repo: tried
+[ivy:resolve] 	  c://ncicb/bda-utils/1.7.4/ivy.xml
+[ivy:resolve] 	  -- artifact ncicb#bda-utils;1.7.4!bda-utils.jar:
+[ivy:resolve] 	  c://ncicb/bda-utils/1.7.4/bda-utils-1.7.4.jar
+[ivy:resolve] 	==== cbiit-ivy-repo: tried
+[ivy:resolve] 	  https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/ncicb/bda-utils/1.7.4/ivy.xml
+[ivy:resolve] 	  -- artifact ncicb#bda-utils;1.7.4!bda-utils.jar:
+[ivy:resolve] 	  https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/ncicb/bda-utils/1.7.4/bda-utils-1.7.4.jar
+[ivy:resolve] 	==== cbiit-maven-mirror: tried
+[ivy:resolve] 	  -- artifact ncicb#bda-utils;1.7.4!bda-utils.jar:
+[ivy:resolve] 	  https://ncisvn.nci.nih.gov/svn/maven-mirror/trunk/ncicb/bda-utils/1.7.4/bda-utils-1.7.4.jar
+[ivy:resolve] 		::::::::::::::::::::::::::::::::::::::::::::::
+[ivy:resolve] 		::          UNRESOLVED DEPENDENCIES         ::
+[ivy:resolve] 		::::::::::::::::::::::::::::::::::::::::::::::
+[ivy:resolve] 		:: ncicb#bda-utils;1.7.4: not found
+[ivy:resolve] 		::::::::::::::::::::::::::::::::::::::::::::::
+[ivy:resolve] 
+[ivy:resolve] 
+[ivy:resolve] :: USE VERBOSE OR DEBUG MESSAGE LEVEL FOR MORE DETAILS
+[ivy:resolve] :: problems summary ::
+[ivy:resolve] :::: ERRORS
+[ivy:resolve]   SERVER ERROR: Internal Server Error url=https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/ncicb/bda-utils/1.7.4/ivy.xml
+[ivy:resolve]   SERVER ERROR: Internal Server Error url=https://ncisvn.nci.nih.gov/svn/cbiit-ivy-repo/trunk/ncicb/bda-utils/1.7.4/bda-utils-1.7.4
+.jar
+
+BUILD FAILED
+C:\DEV\GIT-WORK\SVN\catissue_migration_tool\software\build\build.xml:164: The following error occurred while executing this line:
+C:\DEV\GIT-WORK\SVN\catissue_migration_tool\software\common\bda-download\bda-ivy-2.0.0-build.xml:103: impossible to resolve dependencies:
+        resolve failed - see output for details
+
+Total time: 1 second
