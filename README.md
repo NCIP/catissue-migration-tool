@@ -13,7 +13,7 @@ You will find more details about the caTissue Migration Tool in the following li
  * [caTissue Home] (https://wiki.nci.nih.gov/display/caTissuedoc/caTissue+Documentation+Wiki)
  * [NCI OSDI] (https://wiki.nci.nih.gov/display/caBIGCommunityCode/CBIIT+Open+Source+Development+Initiative)
  * [Issue Tracker] (https://bugzilla.wustl.edu/bugzilla/)
- * [Code Repository] (https://github.com/NCIP/catissue_migration_tool)
+ * [Code Repository] (https://github.com/NCIP/catissue-migration-tool)
  * [Migrating legacy data] (https://wiki.nci.nih.gov/display/TBPTKC/Migrating+Legacy+Data+into+caTissue+-+Methods+and+Case+Studies#MigratingLegacyDataintocaTissue-MethodsandCaseStudies-Method2ConsiderationsforUtilizingthecaTissueMigrationTool)
 
 Please join us in further developing and improving the caTissue Migration Tool.
