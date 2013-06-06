@@ -5,7 +5,7 @@
    Copyright Krishagni
 
    Distributed under the OSI-approved BSD 3-Clause License.
-   See http://ncip.github.com/catissue_migration_tool/LICENSE.txt for details.
+   See http://ncip.github.com/catissue-migration-tool/LICENSE.txt for details.
 L*/
 
 CREATE SEQUENCE MIGRATION_MAPPING_SEQ MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
