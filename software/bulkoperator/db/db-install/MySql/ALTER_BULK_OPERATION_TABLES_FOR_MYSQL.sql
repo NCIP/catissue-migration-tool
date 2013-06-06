@@ -5,7 +5,7 @@
    Copyright Krishagni
 
    Distributed under the OSI-approved BSD 3-Clause License.
-   See http://ncip.github.com/catissue_migration_tool/LICENSE.txt for details.
+   See http://ncip.github.com/catissue-migration-tool/LICENSE.txt for details.
 L*/
 
 ALTER TABLE  catissue_bulk_operation ADD(CSV_TEMPLATE_TEMP VARCHAR(15000));
