@@ -17,4 +17,6 @@ You will find more details about the caTissue Migration Tool in the following li
 
 Please join us in further developing and improving the caTissue Migration Tool.
 
- 
+## Required Software to build
+* Java 1.6
+* Ant 1.7.x
