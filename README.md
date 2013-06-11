@@ -5,6 +5,8 @@ The Migration Tool is a java application, based on the API and developed within 
 
 The migration tool provides a two-fold benefit of both pushing data from a staging instance of caTissue into a production / target instance as well as performing data validation that allows identification of bad data that needs to be cleansed such as duplicate records, type mismatch, value/domain mismatch, etc. Once bad data is corrected, the Migration Tool can be re-run to migrate just those remaining records. This tool is also effective for handling/managing the security rules present in the common security module (CSM). One important constraint to consider with this method is the requirement to set up two instances of caTissue, an initial staging instances and final target/production instance.
 
+caTissue Migration Tool is an Open Source project written in Java.
+
 The caTissue Migration Tool is distributed under the BSD 3-Clause License.
 Please see the NOTICE and LICENSE files for details.
 
