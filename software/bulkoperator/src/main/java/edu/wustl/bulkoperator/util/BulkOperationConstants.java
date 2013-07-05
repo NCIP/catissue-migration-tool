@@ -47,9 +47,9 @@ public class BulkOperationConstants
 	public static final String JAVA_LANG_STRING_DATATYPE = "java.lang.String";
 	public static final String BULKOPERATION_INSTALL_PROPERTIES = "bulkOperation.properties";
 	public static final String DATABASE_CREDENTIALS_FILE = "database.credentials.file";
-	public static final String STATUS = "Status";
-	public static final String MESSAGE = "Message";
-	public static final String MAIN_OBJECT_ID = "Main Object Id";
+	public static final String STATUS = "BulkOperationStatus";
+	public static final String MESSAGE = "BulkOperationMessage";
+	public static final String MAIN_OBJECT_ID = "MainObjectId";
 	public static final String CONFIG_DIR = "config.dir";
 	public static final String ENCOUNTER_DATE = "encounterDate";
 	public static final String FORM_LABEL="formLabel";
@@ -66,6 +66,13 @@ public class BulkOperationConstants
 	public static final String SPECIMEN_ID="specimenId";
 	public static final String CATEGORY_TYPE="Category";
 	public static final String ENTITY_TYPE="Entity";
-	public static final String[] DEFAULT_COLUMNS = { BulkOperationConstants.STATUS, BulkOperationConstants.MESSAGE,
-			BulkOperationConstants.MAIN_OBJECT_ID };
+	public static final String DYNAMIC = "dynamic";
+	public static final String STATIC = "static";
+	public static final String FORM_RECORD_ID = "FORM_RECORD_ID";
+	
+	
+	public static final String[] DEFAULT_COLUMNS = { 
+		BulkOperationConstants.STATUS, 
+		BulkOperationConstants.MESSAGE,
+		BulkOperationConstants.MAIN_OBJECT_ID };
 }

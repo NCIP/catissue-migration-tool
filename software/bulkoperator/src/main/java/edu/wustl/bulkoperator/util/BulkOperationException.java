@@ -4,12 +4,8 @@ package edu.wustl.bulkoperator.util;
 import edu.wustl.common.exception.ApplicationException;
 import edu.wustl.common.exception.ErrorKey;
 
-public class BulkOperationException extends ApplicationException
-{
+public class BulkOperationException extends ApplicationException {
 
-	/**
-	 * serialVersionUID.
-	 */
 	private static final long serialVersionUID = 232005740436959210L;
 
 	/**
@@ -21,28 +17,23 @@ public class BulkOperationException extends ApplicationException
 	 * @param msgValues : message displayed when error occurred
 	 */
 	public BulkOperationException(final ErrorKey errorKey, final Exception exception,
-			final String msgValues)
-	{
+			final String msgValues)	{
 		super(errorKey, exception, msgValues);
 	}
 
-	public BulkOperationException()
-	{
+	public BulkOperationException()	{
 		super(null, null, null);
 	}
 
-	public BulkOperationException(String message)
-	{
+	public BulkOperationException(String message) {
 		super(null, null, message);
 	}
 
-	public BulkOperationException(String message, Throwable throwable)
-	{
+	public BulkOperationException(String message, Throwable throwable) {
 		super(null, (Exception) throwable, message);
 	}
 
-	public BulkOperationException(Throwable throwable)
-	{
+	public BulkOperationException(Throwable throwable) {
 		super(null, (Exception) throwable, null);
 	}
 }

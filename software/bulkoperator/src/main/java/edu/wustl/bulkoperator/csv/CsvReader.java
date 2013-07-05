@@ -1,18 +1,25 @@
 package edu.wustl.bulkoperator.csv;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * 
  * @author Vinayak Pawar (vinayak.pawar@krishagni.com)
  *
  */
 public interface CsvReader {
-    public String[] getColumnNames();
+    public List<String> getHeaderRow();
     
-    public String getColumn(String columnName);
+    public String getValue(String columnName);
     
-    public String getColumn(int columnIndex);
+    public String getValue(String columnName, int occurence);
     
-    public String[] getRow();
+    public List<String> getValues(String columnName);
+    
+    public String getValue(int columnIndex);
+    
+    public List<String> getRow();
     
     public boolean next();
     

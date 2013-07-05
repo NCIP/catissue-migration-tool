@@ -15,7 +15,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.json.JSONObject;
 
-import edu.wustl.bulkoperator.util.AppUtility;
+import edu.wustl.bulkoperator.util.DaoUtil;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.GridUtil;
 import edu.wustl.common.action.SecureAction;
@@ -64,7 +64,7 @@ public class ShowJobDashboardAction extends SecureAction
 				String query = "Select IDENTIFIER, JOB_NAME,START_TIME, JOB_STATUS, TOTAL_RECORDS_COUNT, "
 						+ "CURRENT_RECORDS_PROCESSED, FAILED_RECORDS_COUNT, TIME_TAKEN from "
 						+ "JOB_DETAILS where IDENTIFIER > " + jobId +"  and JOB_STARTED_BY="+userId;
-				list = AppUtility.executeSQLQuery(query);
+				list = DaoUtil.executeSQLQuery(query);
 				StringBuffer buffer = new StringBuffer();
 				if(!list.isEmpty())
 				{
@@ -184,7 +184,7 @@ public class ShowJobDashboardAction extends SecureAction
 		{
 			SessionDataBean sessionDataBean = this.getSessionData(request);
 			long userId = sessionDataBean.getUserId();
-			dao = AppUtility.openJDBCSession();
+			dao = DaoUtil.getJdbcDao();
 			List<ArrayList> msgBoardItemsList = (List) dao.executeQuery("Select IDENTIFIER, " +
 				"JOB_NAME, START_TIME, JOB_STATUS, TOTAL_RECORDS_COUNT, CURRENT_RECORDS_PROCESSED, " +
 				"FAILED_RECORDS_COUNT, TIME_TAKEN from JOB_DETAILS where JOB_STARTED_BY = " + userId
@@ -209,7 +209,7 @@ public class ShowJobDashboardAction extends SecureAction
 		}
 		finally
 		{
-			AppUtility.closeJDBCSession(dao);
+			DaoUtil.closeJdbcDao(dao);
 		}
 		return rowXML;
 	}

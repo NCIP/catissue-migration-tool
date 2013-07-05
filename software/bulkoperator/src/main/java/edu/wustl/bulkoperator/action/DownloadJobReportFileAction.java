@@ -16,7 +16,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
-import edu.wustl.bulkoperator.util.AppUtility;
+import edu.wustl.bulkoperator.util.DaoUtil;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.global.Constants;
@@ -50,7 +50,7 @@ public class DownloadJobReportFileAction extends SecureAction
 		JDBCDAO dao = null;
 		try
 		{
-			dao = AppUtility.openJDBCSession();
+			dao = DaoUtil.getJdbcDao();
 			dblist = dao
 					.getQueryResultSet("select LOG_FILE, LOG_FILE_NAME from JOB_DETAILS where IDENTIFIER = "
 							+ fileId);

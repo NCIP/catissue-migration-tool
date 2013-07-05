@@ -12,10 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -29,124 +29,30 @@ import javax.xml.validation.Validator;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
-import org.xml.sax.SAXException;
+
 import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
-import edu.wustl.bulkoperator.metadata.BulkOperationClass;
-import edu.wustl.bulkoperator.metadata.BulkOperationMetaData;
+import edu.wustl.bulkoperator.metadata.BulkOperation;
+import edu.wustl.bulkoperator.metadata.BulkOperationTemplateParser;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
-import edu.wustl.bulkoperator.validator.TemplateValidator;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.logger.Logger;
 import edu.wustl.common.util.logger.LoggerConfig;
 import edu.wustl.dao.exception.DAOException;
 
-/**
- * @author shrishail_kalshetty
- *
- */
-public abstract class AbstractImportBulkOperation
-{
+public abstract class AbstractImportBulkOperation {
 
-	/**
-	 * logger Logger - Generic logger.
-	 */
-	protected static final Logger logger = Logger
-			.getCommonLogger(ImportBulkOperationTemplate.class);
+	protected static final Logger logger = Logger.getCommonLogger(ImportBulkOperationTemplate.class);
 
-	/**
-	 * logger Logger - Generic logger.
-	 */
-
-	static
-	{
+	static {
 		LoggerConfig.configureLogger(System.getProperty("user.dir") + "/BulkOperations/conf");
 	}
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @param csvFile
-	 * @param xmlFile
-	 * @param mappingXml
-	 * @return
-	 * @throws BulkOperationException
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws DAOException
-	 */
-	protected Set<String> validate(String operationName, String dropdownName, String csvFile,
-			String xmlFile, String mappingXml,String xsdLocation) throws BulkOperationException, SQLException,
-			IOException, DAOException
-	{
-		Set<String> errorList = null;
-		CsvReader csvReader=null;
-		try
-		{
-			csvReader=CsvFileReader.createCsvFileReader(csvFile, true);
-			
-		}
-		catch (Exception exp)
-		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.incorrect.csv.file");
-			throw new BulkOperationException(errorkey, exp, "");
-		}
-		BulkOperationMetaData bulkOperationMetaData  = null;
-		try
-		{
-			SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-			File schemaLocation = new File(xsdLocation);
-			Schema schema = factory.newSchema(schemaLocation);
-			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingXml));
-			Digester digester = digesterLoader.newDigester();
-			digester.setValidating(true);
-			digester.setXMLSchema(schema);
-			Validator validator = schema.newValidator();
-			Source xmlFileForValidation = new StreamSource(new File(xmlFile));
-			validator.validate(xmlFileForValidation);
-            InputStream inputStream = new FileInputStream(xmlFile);
-            bulkOperationMetaData = digester.parse(inputStream);
-		}
-		 catch (SAXException e) {
-			 logger.debug(e.getMessage());
-			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.template");
-			 throw new BulkOperationException(errorkey, e, e.getMessage());
-		}
-		Collection<BulkOperationClass> classList = bulkOperationMetaData.getBulkOperationClass();
-		if (classList == null)
-		{
-			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.no.templates.loaded.message");
-			throw new BulkOperationException(errorkey, null, "");
-		}
-		else
-		{
-			Iterator<BulkOperationClass> iterator = classList.iterator();
-			if (iterator.hasNext())
-			{
-				BulkOperationClass bulkOperationClass=iterator.next();
-				TemplateValidator templateValidator = new TemplateValidator();
-				errorList = templateValidator.validateXmlAndCsv(bulkOperationClass, operationName,
-						csvReader);
-			}
-		}
-		return errorList;
-	}
 
-	/**
-	 *
-	 * @param operationName
-	 * @param operationNameFromDB
-	 * @param dropdownName
-	 * @param dropdownNameFromDB
-	 * @return
-	 * @throws BulkOperationException
-	 */
 	protected boolean isTemplateExist(String operationName, String operationNameFromDB,
-			String dropdownName, String dropdownNameFromDB) throws BulkOperationException
-	{
+			String dropdownName, String dropdownNameFromDB) throws BulkOperationException {
 		boolean flag = false;
 		if (operationNameFromDB.equals(operationName) & dropdownNameFromDB.equals(dropdownName))
 		{
@@ -209,6 +115,7 @@ public abstract class AbstractImportBulkOperation
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorkey, exp, exp.getMessage());
 		}
+		
 		return xmlFormatData.toString();
 	}
 
@@ -272,131 +179,67 @@ public abstract class AbstractImportBulkOperation
 		return commaSeparatedString.toString();
 	}
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @param csvFile
-	 * @param xmlFile
-	 * @param mappingXml
-	 * @throws BulkOperationException
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws DAOException
-	 */
 	protected void importTemplates(String operationName, String dropdownName, String csvFile,
-			String xmlFile, String mappingXml,String xsdLocation)
-	{
-		try
-		{
-			Set<String> errorList = validate(operationName, dropdownName, csvFile, xmlFile,
-					mappingXml,xsdLocation);
-			if (errorList == null || errorList.isEmpty())
-			{
-				saveTemplateInDatabase(operationName, dropdownName, csvFile, xmlFile);
-			}
-			else
-			{
-				logger.info("----------------------ERROR:errorList-------------------------");
-				for (String error : errorList)
-				{
-					logger.info(error);
-				}
-				logger.info("----------------------ERROR-------------------------");
-			}
-		}
-		catch (BulkOperationException exp)
-		{
-			logger
-					.info("------------------------ERROR:BulkOperationException--------------------------------\n");
-			logger.debug(exp.getMessage(), exp);
+			String xmlFile) {
+		try {
+			
+			logger.info("operationName : "+operationName);
+			logger.info("dropdownName  : "+dropdownName);
+			logger.info("csvFile	   : "+csvFile);
+			logger.info("xmlFile 	   : "+xmlFile);
+
+			validateXml(xmlFile);
+			saveTemplateInDatabase(operationName, dropdownName, csvFile, xmlFile);
+			
+		} catch (BulkOperationException exp) {
+			logger.info("------------------------ERROR:BulkOperationException--------------------------------\n");
 			logger.info(exp.getCause().getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
-		}
-		catch (SQLException exp)
-		{
-			logger
-					.info("------------------------ERROR:SQLException--------------------------------\n");
-			logger.debug(exp.getMessage(), exp);
+		} catch (SQLException exp) {
+			logger.info("------------------------ERROR:SQLException--------------------------------\n");
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
-		}
-		catch (DAOException exp)
-		{
-			logger
-					.info("------------------------ERROR:DAOException--------------------------------\n");
-			logger.debug(exp.getMessage(), exp);
+		} catch (DAOException exp) {
+			logger.info("------------------------ERROR:DAOException--------------------------------\n");
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
-		}
-		catch (Exception exp)
-		{
-			logger
-					.info("------------------------ERROR:Exception--------------------------------\n");
-			logger.debug(exp.getMessage(), exp);
+		} catch (Exception exp) {
+			logger.info("------------------------ERROR:Exception--------------------------------\n");
 			logger.info(exp.getMessage() + "\n");
 			logger.info("------------------------ERROR:--------------------------------");
 		}
 	}
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @param csvFile
-	 * @param xmlFile
-	 * @throws DAOException
-	 * @throws BulkOperationException
-	 * @throws SQLException
-	 */
 	protected void saveTemplateInDatabase(String operationName, String dropdownName,
 			String csvFile, String xmlFile) throws DAOException, BulkOperationException,
-			SQLException, IOException
-	{
+			SQLException, IOException {
 		boolean flag = checkAddOrEditTemplateCase(operationName, dropdownName);
-		if (flag)
-		{
+		if (flag) {
 			editTemplate(operationName, dropdownName, csvFile, xmlFile);
 		}
-		else
-		{
+		else {
 			addTemplate(operationName, dropdownName, csvFile, xmlFile);
 		}
 	}
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @return
-	 * @throws BulkOperationException
-	 */
+	private void validateXml(String xmlFile) throws Exception {
+	
+		try {
+			BulkOperation.fromXml(getXMLTemplateFileData(xmlFile), true);
+			
+		} catch (Exception e) {
+			 logger.debug(e.getMessage());
+			 ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.xml.template");
+			 throw new BulkOperationException(errorkey, e, e.getMessage());
+		}
+	}
+		
 	protected abstract boolean checkAddOrEditTemplateCase(String operationName, String dropdownName)
 			throws DAOException, BulkOperationException;
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @param csvFile
-	 * @param xmlFile
-	 * @throws DAOException
-	 * @throws BulkOperationException
-	 * @throws IOException
-	 */
 	protected abstract void editTemplate(String operationName, String dropdownName, String csvFile,
 			String xmlFile) throws DAOException, BulkOperationException, IOException, SQLException;
 
-	/**
-	 *
-	 * @param operationName
-	 * @param dropdownName
-	 * @param csvFile
-	 * @param xmlFile
-	 * @throws DAOException
-	 * @throws BulkOperationException
-	 * @throws IOException
-	 */
 	protected abstract void addTemplate(String operationName, String dropdownName, String csvFile,
 			String xmlFile) throws DAOException, BulkOperationException, IOException, SQLException;
 

@@ -20,6 +20,7 @@ import org.apache.struts.action.ActionMessages;
 
 import edu.wustl.bulkoperator.actionForm.BulkOperationForm;
 import edu.wustl.bulkoperator.bizlogic.BulkOperationBizLogic;
+import edu.wustl.bulkoperator.dao.BulkOperationDao;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -69,10 +70,8 @@ public class BulkOperationAction extends SecureAction
 
 			BulkOperationForm bulkOperationForm = (BulkOperationForm) form;
 			BulkOperationBizLogic bulkOperationBizLogic = new BulkOperationBizLogic();
-			List<NameValueBean> bulkOperationList = bulkOperationBizLogic
-					.getTemplateNameDropDownList();
-			if (bulkOperationList != null && !bulkOperationList.isEmpty())
-			{
+			List<NameValueBean> bulkOperationList = BulkOperationDao.getTemplateNameDropDownList();
+			if (bulkOperationList != null && !bulkOperationList.isEmpty()) {
 				NameValueBean nameValueBean = bulkOperationList.get(0);
 				String initialDropdownValue = nameValueBean.getValue();
 
@@ -83,10 +82,8 @@ public class BulkOperationAction extends SecureAction
 				String dropdownName = bulkOperationForm.getDropdownName();
 
 				if ((dropdownName != null && !"".equals(dropdownName))
-						|| (dropdownNameFromUI != null && !"".equals(dropdownNameFromUI)))
-				{
-					if (file != null)
-					{
+						|| (dropdownNameFromUI != null && !"".equals(dropdownNameFromUI))) {
+					if (file != null) {
 						request.setAttribute("resultFile", file);
 						ActionMessages messages = new ActionMessages();
 						messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
@@ -99,41 +96,31 @@ public class BulkOperationAction extends SecureAction
 						request.setAttribute(Constants.SUCCESS, Constants.SUCCESS);
 						request.setAttribute("report", "report");
 						mappingForward = BulkOperationConstants.PAGE_OF_BULK_OPERATION;
-					}
-					else if (request.getParameter(BulkOperationConstants.PAGE_OF) == null && file == null
-							&& (dropdownNameFromUI == null && !"".equals(dropdownNameFromUI)))
-					{
+					} else if (request.getParameter(BulkOperationConstants.PAGE_OF) == null && file == null
+							&& (dropdownNameFromUI == null && !"".equals(dropdownNameFromUI))) {
 						request.setAttribute("dropdownName", bulkOperationForm.getDropdownName());
 						mappingForward = BulkOperationConstants.PAGE_OF_BULK_OPERATION;
 					}
-					else
-					{
+					else {
 						File downloadFile=null;
-						if("downloadXSD".equals(request.getAttribute("operation")))
-						{
+						if("downloadXSD".equals(request.getAttribute("operation"))) {
 							downloadFile = new File(CommonServiceLocator.getInstance().getPropDirPath()
 							+ File.separator + "BulkOperations.xsd");
 						}
-						else
-						{
-							downloadFile = bulkOperationBizLogic.getCSVFile(dropdownNameFromUI);
+						else {
+							downloadFile = BulkOperationDao.getCSVFile(dropdownNameFromUI);
 						}
 						createResponse(response, downloadFile);
 					}
-				}
-				else if (request.getParameter(BulkOperationConstants.PAGE_OF) != null)
-				{
+				} else if (request.getParameter(BulkOperationConstants.PAGE_OF) != null) {
 					mappingForward = request.getParameter(BulkOperationConstants.PAGE_OF);
 				}
 			}
-			else
-			{
+			else {
 				request.setAttribute("noTemplates", "noTemplates");
 				mappingForward = BulkOperationConstants.PAGE_OF_BULK_OPERATION;
 			}
-		}
-		catch (Exception exp)
-		{
+		} catch (Exception exp) {
 			logger.error(exp.getMessage(), exp);
 		}
 		return mapping.findForward(mappingForward);
@@ -146,10 +133,8 @@ public class BulkOperationAction extends SecureAction
 	 * @throws BulkOperationException BulkOperationException.
 	 */
 	private void createResponse(HttpServletResponse response, File file)
-			throws BulkOperationException
-	{
-		try
-		{
+	throws BulkOperationException {
+		try	{
 			response.setContentType("Content-Type");
 			response.setHeader("Pragma", "public");
 			response.setHeader("Cache-Control", "max-age=0");
@@ -161,24 +146,20 @@ public class BulkOperationAction extends SecureAction
 			long length = 0L;
 			final byte[] buf = new byte[4096];
 			count = inputStream.read(buf);
-			while (count > -1)
-			{
+			while (count > -1) {
 				length += count;
 				count = inputStream.read(buf);
 			}
 			response.setContentLength((int) length);
 			inputStream = new FileInputStream(file);
 			count = inputStream.read(buf);
-			while (count > -1)
-			{
+			while (count > -1) {
 				outStream.write(buf, 0, count);
 				count = inputStream.read(buf);
 			}
 			outStream.flush();
 			inputStream.close();
-		}
-		catch (Exception exp)
-		{
+		} catch (Exception exp)	{
 			logger.error(exp);
 			ErrorKey errorKey = ErrorKey.getErrorKey("bulk.operation.issues");
 			throw new BulkOperationException(errorKey, exp, exp.getMessage());

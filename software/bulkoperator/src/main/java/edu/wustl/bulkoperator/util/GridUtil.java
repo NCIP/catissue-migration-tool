@@ -8,15 +8,11 @@ package edu.wustl.bulkoperator.util;
  * @author nitesh_marwaha
  *
  */
-public final class GridUtil
-{
+public final class GridUtil {
 	/**
 	 * Adding a private constructor to avoid instantiation of this class.
 	 */
-	private GridUtil()
-	{
-
-	}
+	private GridUtil() {}
 
 	/**
 	 * start head tag for XML.
@@ -64,8 +60,7 @@ public final class GridUtil
 	 *
 	 * @return XML doc type.
 	 */
-	public static String getXMLStringDocType()
-	{
+	public static String getXMLStringDocType() {
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 	}
 
@@ -74,8 +69,7 @@ public final class GridUtil
 	 *
 	 * @return the XML node for specimen.
 	 */
-	public static String getXMLNodeForSpecimen()
-	{
+	public static String getXMLNodeForSpecimen() {
 		return null;
 	}
 
@@ -84,8 +78,7 @@ public final class GridUtil
 	 *
 	 * @return the row start tag.
 	 */
-	public static String getRowsStartTag()
-	{
+	public static String getRowsStartTag() {
 		return "<rows>";
 	}
 
@@ -94,8 +87,7 @@ public final class GridUtil
 	 *
 	 * @return the end row tag.
 	 */
-	public static String getRowsEndTag()
-	{
+	public static String getRowsEndTag() {
 		return "</rows>";
 	}
 
@@ -105,8 +97,7 @@ public final class GridUtil
 	 * @param rowId
 	 * @return the start tag for the row with given id.
 	 */
-	public static String getEachRowStartTag(int rowId)
-	{
+	public static String getEachRowStartTag(int rowId) {
 		return "<row id=\"" + rowId + "\">";
 	}
 
@@ -115,8 +106,7 @@ public final class GridUtil
 	 *
 	 * @return the end tag for the row.
 	 */
-	public static String getEachRowEndTag()
-	{
+	public static String getEachRowEndTag()	{
 		return "</row>";
 	}
 
@@ -125,8 +115,7 @@ public final class GridUtil
 	 *
 	 * @return the start tag for the grid cell.
 	 */
-	public static String getCellStartTag()
-	{
+	public static String getCellStartTag() {
 		return "<cell>";
 	}
 
@@ -135,8 +124,7 @@ public final class GridUtil
 	 *
 	 * @return the end tag for the grid cell.
 	 */
-	public static String getCellEndTag()
-	{
+	public static String getCellEndTag() {
 		return "</cell>";
 	}
 
@@ -150,8 +138,7 @@ public final class GridUtil
 	 *            alignment of the column
 	 * @return start tag for the columns.
 	 */
-	public static String getColumnStartTag(String type, String size, String align, String sort)
-	{
+	public static String getColumnStartTag(String type, String size, String align, String sort) {
 		return "<column type=\"" + type + "\" width=\"" + size + "\" align=\"" + align
 				+ "\" sort=\"" + sort + "\">";
 	}
@@ -161,8 +148,7 @@ public final class GridUtil
 	 *
 	 * @return the end tag for the columns.
 	 */
-	public static String getColumnEndTag()
-	{
+	public static String getColumnEndTag() {
 		return "</column>";
 	}
 
@@ -173,8 +159,7 @@ public final class GridUtil
 	 *            is the value to be displayed on the grid.
 	 * @return the user data start tag.
 	 */
-	public static String getUserDataStartTag(String name)
-	{
+	public static String getUserDataStartTag(String name) {
 		return "<userdata name=\"" + name + "\">";
 	}
 
@@ -183,13 +168,11 @@ public final class GridUtil
 	 *
 	 * @return the user data end tag.
 	 */
-	public static String getUserDataEndTag()
-	{
+	public static String getUserDataEndTag() {
 		return "</userdata>";
 	}
 
-	public static String getHeadStartTag()
-	{
+	public static String getHeadStartTag() {
 		return "<head>";
 	}
 
@@ -198,8 +181,7 @@ public final class GridUtil
 	 *
 	 * @return the head end tag.
 	 */
-	public static String getHeadEndTag()
-	{
+	public static String getHeadEndTag() {
 		return "</head>";
 	}
 
@@ -215,8 +197,7 @@ public final class GridUtil
 	 * @return
 	 */
 	public static String getColumnXML(String width, String type, String caption, String align,
-			String sort)
-	{
+			String sort) {
 		return GridUtil.getColumnStartTag(type, width, align, sort) + caption
 				+ GridUtil.getColumnEndTag();
 	}
@@ -227,12 +208,10 @@ public final class GridUtil
 	 * @param colValue
 	 * @return the cell XML.
 	 */
-	public static String getCellXML(String colValue)
-	{
+	public static String getCellXML(String colValue) {
 		StringBuffer cellXML = new StringBuffer(300);
 		cellXML.append(GridUtil.getCellStartTag());
-		if (colValue != null)
-		{
+		if (colValue != null) {
 			cellXML.append(formatString(org.apache.commons.lang.StringEscapeUtils
 					.escapeXml(colValue)));
 		}
@@ -246,8 +225,7 @@ public final class GridUtil
 	 * @param valueForUserData
 	 * @return values of the user data for a row.
 	 */
-	public static String getUserDataForRow(String valueForUserData)
-	{
+	public static String getUserDataForRow(String valueForUserData) {
 		StringBuffer userdata = new StringBuffer(300);
 		userdata.append(valueForUserData);
 		userdata.append(GridUtil.getUserDataEndTag());
@@ -261,13 +239,11 @@ public final class GridUtil
 	 * @param explorerTreeXML
 	 * @return
 	 */
-	private static String formatString(String explorerTreeXML)
-	{
+	private static String formatString(String explorerTreeXML) {
 		explorerTreeXML = explorerTreeXML.replaceAll("[\\n]", "");
 		explorerTreeXML = explorerTreeXML.replaceAll("[\\n]", "");
 		int explorerTreeXML2Ctr = explorerTreeXML.indexOf("\n ");
-		while (explorerTreeXML2Ctr != -1)
-		{
+		while (explorerTreeXML2Ctr != -1) {
 			explorerTreeXML = explorerTreeXML.replaceAll("\n ", "\n");
 			explorerTreeXML2Ctr = explorerTreeXML.indexOf("\n ");
 		}

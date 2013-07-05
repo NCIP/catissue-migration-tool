@@ -14,7 +14,7 @@ import org.apache.struts.action.ActionMapping;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.wustl.bulkoperator.util.AppUtility;
+import edu.wustl.bulkoperator.util.DaoUtil;
 import edu.wustl.common.action.SecureAction;
 import edu.wustl.common.util.logger.Logger;
 
@@ -49,7 +49,7 @@ public class JobGridAjaxAction extends SecureAction
 					+ "CURRENT_RECORDS_PROCESSED, FAILED_RECORDS_COUNT, TIME_TAKEN,JOB_STARTED_BY from "
 					+ "JOB_DETAILS where IDENTIFIER = " + jobId;
 
-			list = AppUtility.executeSQLQuery(query);
+			list = DaoUtil.executeSQLQuery(query);
 			JSONObject resultObject = new JSONObject();
 			if (!list.isEmpty())
 			{

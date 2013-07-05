@@ -27,7 +27,7 @@ PUBLIC
 		   <forward name="pageOfBulkOperation" path=".catissuecore.bulkOperationDef" />
 		</action>
 
-		<action path="/FileUpload" type="edu.wustl.bulkoperator.action.FileUploadAction"
+		<action path="/FileUpload" type="edu.wustl.bulkoperator.action.BulkUploadAction"
 			name="bulkOperationForm" scope="request" validate="true">
 			<forward name="success" path="/BulkTemplate.do"/>
 		    <forward name="bulkHandler" path="/BulkHandler.do?fromAction=fileUpload"/>

@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="software/bulkoperator/src/main/web"/>
-	<classpathentry kind="src" path="software/bulkoperator/conf"/>
-	<classpathentry kind="src" path="software/bulkoperator/src/test/resources"/>
-	<classpathentry kind="src" path="software/bulkoperator/src/main/resources"/>
-	<classpathentry kind="src" path="software/bulkoperator/src/test/java"/>
 	<classpathentry kind="src" path="software/bulkoperator/src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/activation-1.0.jar"/>
@@ -23,7 +18,6 @@
 	<classpathentry kind="lib" path="software/bulkoperator/lib/castor-1.3-xml-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/castor-1.3-xml-schema-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/cglib-2.1.3-1.0.jar"/>
-	<classpathentry kind="lib" path="software/bulkoperator/lib/commonpackage-1.1.8.1.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-codec-1.3-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-collections-3.2-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-discovery-0.2-1.0.jar"/>
@@ -32,7 +26,6 @@
 	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-lang-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-logging-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/concurrent-1.0.jar"/>
-	<classpathentry kind="lib" path="software/bulkoperator/lib/DAO-1.1.9.1.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/dom4j-1.6-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/ehcache-1.2.3-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/hibernate3-1.0.jar"/>
@@ -57,18 +50,20 @@
 	<classpathentry kind="lib" path="software/bulkoperator/lib/ojdbc14-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/opencsv-1.8-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/saaj-1.0.jar"/>
-	<classpathentry kind="lib" path="software/bulkoperator/lib/securityManager-1.1.7.1.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/servlet-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/spring-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/spring-richclient-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/struts-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/struts-legacy-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/strutstest-2.1.3-1.0.jar"/>
-	<classpathentry kind="lib" path="software/bulkoperator/lib/washu-commons-1.1.7.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/wsdl4j-1.5.1-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/xalan-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/xalan-2.4.0-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/xercesImpl-1.0.jar"/>
 	<classpathentry kind="lib" path="software/bulkoperator/lib/xml-apis-1.0.jar"/>
+	<classpathentry kind="lib" path="software/bulkoperator/lib/DynamicExtensions.jar"/>
+	<classpathentry kind="lib" path="software/bulkoperator/lib/washu-commons-1.2.w1.jar"/>
+	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-beanutils-1.8.3-1.0.jar"/>
+	<classpathentry kind="lib" path="software/bulkoperator/lib/commons-digester3-3.0-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -14,102 +14,57 @@ import edu.wustl.common.domain.AbstractDomainObject;
  */
 public class BulkOperationForm extends AbstractActionForm implements Serializable
 {
-	/**
-	 * serialVersionUID.
-	 */
 	private static final long serialVersionUID = -7455581325611509186L;
-	/**
-	 * operationName.
-	 */
+
 	private String operationName = "";
-	/**
-	 * dropdownName.
-	 */
+
 	private String dropdownName = "";	
-	/**
-	 * file.
-	 */
+
 	private FormFile csvFile;
-	/**
-	 * xmlTemplateFile.
-	 */
+
 	private FormFile xmlTemplateFile;
-	/**
-	 * @return the xmlTemplateFile
-	 */
-	public FormFile getXmlTemplateFile() 
-	{
+
+	public FormFile getXmlTemplateFile() {
 		return xmlTemplateFile;
 	}
-	/**
-	 * @param xmlTemplateFile the xmlTemplateFile to set
-	 */
-	public void setXmlTemplateFile(FormFile xmlTemplateFile) 
-	{
+
+	public void setXmlTemplateFile(FormFile xmlTemplateFile) {
 		this.xmlTemplateFile = xmlTemplateFile;
 	}
-	/**
-	 * Get Operation Name.
-	 * @return String operationName.
-	 */
-	public String getOperationName()
-	{
+
+	public String getOperationName() {
 		return operationName;
 	}
-	/**
-	 * Set operation Name.
-	 * @param operationName String.
-	 */
-	public void setOperationName(String operationName)
-	{
+
+	public void setOperationName(String operationName) {
 		this.operationName = operationName;
 	}
-	/**
-	 * Get DropdownName.
-	 * @return String.
-	 */
-	public String getDropdownName()
-	{
+
+	public String getDropdownName() {
 		return dropdownName;
 	}
-	/**
-	 * Set DropdownName.
-	 * @param dropdownName String.
-	 */
-	public void setDropdownName(String dropdownName)
-	{
+
+	public void setDropdownName(String dropdownName) {
 		this.dropdownName = dropdownName;
 	}
-	/**
-	 * Get File.
-	 * @return FormFile file.
-	 */
-	public FormFile getCsvFile()
-	{
+
+	public FormFile getCsvFile() {
 		return csvFile;
 	}
-	/**
-	 * Set File.
-	 * @param file FormFile.
-	 */
-	public void setCsvFile(FormFile file)
-	{
+
+	public void setCsvFile(FormFile file) {
 		this.csvFile = file;
 	}
-	@Override
-	public int getFormId()
-	{
+
+	public int getFormId() {
 		return 0;
 	}
 
 	@Override
-	protected void reset()
-	{}
+	protected void reset() {}
 
 	@Override
-	public void setAddNewObjectIdentifier(String arg0, Long arg1)
-	{}
+	public void setAddNewObjectIdentifier(String arg0, Long arg1) {}
 
-	public void setAllValues(AbstractDomainObject arg0)
-	{}
+	public void setAllValues(AbstractDomainObject arg0) {}
 }

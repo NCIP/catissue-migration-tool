@@ -11,79 +11,62 @@ import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.common.exception.ErrorKey;
 
 
-public class DataReader
-{
+public class DataReader {
 	public Properties dataReaderProperties = null; 
-	public DataReader(Properties properties)
-	{
+	
+	public DataReader(Properties properties) {
 		dataReaderProperties = properties;
 	}
-	public static DataReader getNewDataReaderInstance(Properties properties)
-	{
+	
+	public static DataReader getNewDataReaderInstance(Properties properties) {
 		DataReader dataReader = new DataReader(properties);
 		return dataReader;
 	}
 	
-	public DataList readData() throws BulkOperationException
-	{
+	public DataList readData() throws BulkOperationException {
 		DataList dataList = new DataList();		
 		CSVReader reader = null;
  		List<String[]> list = null;
  		InputStream inputStream = (InputStream)dataReaderProperties.get("inputStream");
-		try
-		{
+		try {
 			reader = new CSVReader(new InputStreamReader(inputStream));
 			list = reader.readAll();
 			reader.close();		
 			int size = list.size();
-			if(size>0)
-			{
+			if(size>0) {
 				String[] headers = list.get(0);				
-				for(int i=0;i<headers.length;i++)
-				{
+				for(int i=0;i<headers.length;i++) {
 					dataList.addHeader(headers[i].trim());
 				}
 				dataList.addHeader(BulkOperationConstants.STATUS);
 				dataList.addHeader(BulkOperationConstants.MESSAGE);
 				dataList.addHeader(BulkOperationConstants.MAIN_OBJECT_ID);
 			}
-			if(size > 1)
-			{	
-				for(int i = 1; i < list.size(); i++)
-				{
+			if(size > 1) {	
+				for(int i = 1; i < list.size(); i++) {
 					String[] newValues = new String[list.get(0).length + 3];
-					for(int m = 0; m < newValues.length; m++)
-					{
+					for(int m = 0; m < newValues.length; m++) {
 						newValues[m] = new String();
 					}
 					String[] oldValues = list.get(i);
-					for(int j = 0; j < oldValues.length; j++)
-					{
+					for(int j = 0; j < oldValues.length; j++) {
 						newValues[j] = oldValues[j]; 
 					}
 					dataList.addNewValue(newValues);
 				}
-			}
-			else if(size > 0)
-			{
+			} else if(size > 0) {
 				String[] values = new String[list.get(0).length + 3];
-				for(int i = 0; i < (list.get(0).length + 3); i++)
-				{
+				for(int i = 0; i < (list.get(0).length + 3); i++) {
 					values[i] = "";
 				}
-				for(int i = 0;i < (list.get(0).length + 3); i++)
-				{					 
+				for(int i = 0;i < (list.get(0).length + 3); i++) {					 
 					dataList.addNewValue(values);
 				}
 			}
-		}
-		catch (FileNotFoundException fnfExpp)
-		{
+		} catch (FileNotFoundException fnfExpp) {
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.not.found");
 			throw new BulkOperationException(errorkey, fnfExpp, "");
-		}
-		catch (IOException ioExpp)
-		{
+		} catch (IOException ioExpp) {
 			ErrorKey errorkey = ErrorKey.getErrorKey("bulk.error.csv.file.reading");
 			throw new BulkOperationException(errorkey, ioExpp, "");
 		}

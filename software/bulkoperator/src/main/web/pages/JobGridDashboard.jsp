@@ -8,17 +8,17 @@
 <%@ page import="edu.wustl.common.util.global.ApplicationProperties" %>
 <head>
 <link rel="STYLESHEET" type="text/css"
-	href="@@dhtml_dir@@/css/dhtmlxgrid.css" />
+	href="@@dhtml_dir@@/dhtmlxGrid/codebase/dhtmlxgrid.css" />
 <link rel="STYLESHEET" type="text/css"
-	href="@@dhtml_dir@@/skins/dhtmlxgrid_dhx_skyblue.css" />
+	href="@@dhtml_dir@@/dhtmlxGrid/codebase/skins/dhtmlxgrid_dhx_skyblue.css" />
 <script language="JavaScript" type="text/javascript"
 	src="jss/bulkOperatorScripts.js"></script>
 <script type="text/javascript" src="jss/bulkOperatorAjax.js"></script>
 <link href="css/bulkOperator.css" rel="stylesheet" type="text/css" />
-<script src="@@dhtml_dir@@/js/dhtmlxcommon.js"></script>
-<script src="@@dhtml_dir@@/js/dhtmlxgrid.js"></script>
-<script src="@@dhtml_dir@@/js/dhtmlxgridcell.js"></script>
-<script src="@@dhtml_dir@@/ext/dhtmlxgrid_mcol.js"></script>
+<script src="@@dhtml_dir@@/dhtmlxGrid/codebase/dhtmlxcommon.js"></script>
+<script src="@@dhtml_dir@@/dhtmlxGrid/codebase/dhtmlxgrid.js"></script>
+<script src="@@dhtml_dir@@/dhtmlxGrid/codebase/dhtmlxgridcell.js"></script>
+<script src="@@dhtml_dir@@/dhtmlxGrid/codebase/dhtmlxgrid_mcol.js"></script>
 
 <script>
 	var xmlString='${requestScope.msgBoardXml}';

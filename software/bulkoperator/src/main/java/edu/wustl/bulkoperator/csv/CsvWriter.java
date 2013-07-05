@@ -1,20 +1,16 @@
 package edu.wustl.bulkoperator.csv;
 
+import java.util.List;
+
 /**
  * 
  * @author Vinayak Pawar (vinayak.pawar@krishagni.com)
  *
  */
 public interface CsvWriter {
-    public String[] getColumnNames();
-    
-    public void setColumnValue(String columnName, String columnValue);
-    
-    public void setColumnValue(int columnIdx, String columnValue);
-    
-    public void flush();
-    
-    public void nextRow();
+	public void write(List<String> columnValues);
+
+	public void flush();
     
     public void close();
 }

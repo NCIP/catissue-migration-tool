@@ -1,35 +1,29 @@
 
 package edu.wustl.bulkoperator.jobmanager;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-// TODO: Auto-generated Javadoc
-/**
- * The JobManager class will manages all the job/threads.
- * All the jobs will get initiated by the job manager this is a singleton class
- *
- * @author nitesh_marwaha
- */
+
 final public class JobManager
 {
 	/** The job manager instance. */
 	private static JobManager jobMgrInstance;
 
+	private ExecutorService executor = Executors.newCachedThreadPool();
+	
 	/**
 	 * Instantiates a new job manager.
 	 */
-	private JobManager()
-	{
-	}
+	private JobManager(){}
 
 	/**
 	 * Gets the single instance of JobManager.
 	 *
 	 * @return single instance of JobManager
 	 */
-	public static JobManager getInstance()
-	{
-		if (jobMgrInstance == null)
-		{
+	public synchronized static JobManager getInstance() {
+		if (jobMgrInstance == null) {
 			jobMgrInstance = new JobManager();
 		}
 		return jobMgrInstance;
@@ -40,9 +34,7 @@ final public class JobManager
 	 *
 	 * @param job the job
 	 */
-	public synchronized void addJob(final BulkJobInterface job)
-	{
-		final Thread jobThread = new Thread(job);
-		jobThread.start();
+	public void addJob(final BulkJobInterface job)	{
+		executor.execute(job);
 	}
 }

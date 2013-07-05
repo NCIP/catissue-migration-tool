@@ -61,6 +61,8 @@
       <artifact name="xalan" ext="jar" type="jar"/>
       <artifact name="xercesImpl" ext="jar" type="jar"/>
       <artifact name="xml-apis" ext="jar" type="jar"/>
+      <artifact name="DynamicExtensions" ext="jar" type="jar"/>
+      <artifact name="washu-commons-1.2.w1" ext="jar" type="jar"/>
   </publications>
 </ivy-module>
 
