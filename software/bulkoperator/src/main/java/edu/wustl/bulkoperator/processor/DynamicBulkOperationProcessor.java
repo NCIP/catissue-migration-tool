@@ -37,7 +37,7 @@ public class DynamicBulkOperationProcessor extends AbstractBulkOperationProcesso
 		super(sessionDataBean, bulkOperation);
 		
 		try {
-			container = Container.getContainer(bulkOperation.getRecordMapper().getFormName());			
+			container = Container.getContainer(Long.parseLong(bulkOperation.getRecordMapper().getFormName()));			
 			
 			userCtxt = new UserContext( ) {				
 				@Override

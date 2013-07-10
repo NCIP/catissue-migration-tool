@@ -14,11 +14,11 @@
 
 	<property file="${basedir}/conf/bulkOperation.properties"/>
 
-	<loadfile property="dist.revision" srcFile="./.svn/entries">
+	<!--loadfile property="dist.revision" srcFile="./.svn/entries">
 		<filterchain>
 			<headfilter lines="1" skip="4"/>
 		</filterchain>
-	</loadfile>
+	</loadfile-->
 
 	<property name="software.dir" location="${basedir}/../" />
 	<property name="src.dir" location="${basedir}/src/main/java"/>
