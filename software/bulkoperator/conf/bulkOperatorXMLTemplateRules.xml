@@ -8,76 +8,76 @@
 
 <pattern value="*/bulkOperationMetaData">
 	<object-create-rule
-		classname="edu.wustl.bulkoperator.metadata.BulkOperationMetaData" />
+		classname="edu.wustl.bulkoperator.migration.BulkOperationMetaData" />
 	<set-properties-rule />
 </pattern>
 
 <pattern value="*/bulkOperationClass">
 	<object-create-rule
-		classname="edu.wustl.bulkoperator.metadata.BulkOperationClass" />
+		classname="edu.wustl.bulkoperator.migration.BulkOperationClass" />
 	<set-properties-rule />
 	<set-next-rule methodname="addBulkOperationClass" />
 </pattern>
 
    <pattern value="*/BulkOperationMetadata">
-    <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationMetaData"/>
+    <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationMetaData"/>
 	<set-properties-rule/>	
   </pattern>
   <pattern value="*/BulkOperationClass">
-    <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+    <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	<set-properties-rule/>	
 	<set-next-rule methodname="addBulkOperationClass"/>
   </pattern>
   
   <pattern value="*/containmentAssociation">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addContainmentAssociation"/>
   </pattern>
   
   <pattern value="*/referenceAssociation">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addReferenceAssociation"/>
   </pattern>
   
   <pattern value="*/attribute">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.Attribute"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.Attribute"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addAttribute"/>	  
   </pattern>
   
   <pattern value="*/containmentAssociationCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addContainmentAssociation"/>
   </pattern>
   
   <pattern value="*/attributeCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.Attribute"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.Attribute"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addAttribute"/>	  
   </pattern>
    <pattern value="*/referenceAssociationCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addReferenceAssociation"/>
   </pattern>
     
    <pattern value="*/hookingInformation">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.HookingInformation"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.HookingInformation"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="setHookingInformation"/>	  
   </pattern>
   
   <pattern value="*/discriminatorCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.AttributeDiscriminator"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.AttributeDiscriminator"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addAttributeDiscriminator"/>	  
   </pattern>
   
   <pattern value="*/dynExtCategoryAssociationCollection">
-      <object-create-rule classname="edu.wustl.bulkoperator.metadata.BulkOperationClass"/>
+      <object-create-rule classname="edu.wustl.bulkoperator.migration.BulkOperationClass"/>
 	  <set-properties-rule/>
 	  <set-next-rule methodname="addDynExtCategoryAssociation"/>	  
   </pattern>
