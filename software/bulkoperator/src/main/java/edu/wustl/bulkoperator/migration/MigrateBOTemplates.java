@@ -157,10 +157,19 @@ public class MigrateBOTemplates {
 
 	private RecordMapper migrateDyanmicBO(BulkOperationClass boClass, ContainerInterface oldContainer) 
 	throws Exception {
-		
 		RecordMapper recMapper = new RecordMapper();
-		
-		if (oldContainer == null) {
+		return migrateDyanmicBO(recMapper, boClass, oldContainer);
+	}
+	
+	private RecordMapper migrateDyanmicBO(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) 
+			throws Exception {
+			
+		boolean isMultiSelect = false;
+		if(boClass.getAttributeCollection().size() == 1) {
+			isMultiSelect = ((List<Attribute>)boClass.getAttributeCollection()).get(0).getName().equals(boClass.getClassName());	
+		}
+
+		if (oldContainer == null && !isMultiSelect) {
 			JDBCDAO jdbcDao = DynamicExtensionsUtility.getJDBCDAO();
 			BulkOperationClass containmentClass = ((List<BulkOperationClass>)boClass.getContainmentAssociationCollection()).get(0);
 			
@@ -187,11 +196,13 @@ public class MigrateBOTemplates {
 			// 
 			// Check For MultiSelect Records
 			//
-			boolean isMultiSelect = ((List<Attribute>)boClass.getAttributeCollection()).get(0).getName().equals(boClass.getClassName());
 			if(boClass.getAttributeCollection().size() ==1 && isMultiSelect) {
 				Attribute attr = ((List<Attribute>)boClass.getAttributeCollection()).get(0);
+				//oldContainer = getAssociatedContainer(oldContainer, boClass.getClassName());
 				
+				System.err.println(oldContainer.getCaption());
 				String newName = getDynamicName(oldContainer.getControlCollection(), attr);
+				
 				recMapper.setName(newName);
 				recMapper.setColumnName(attr.getCsvColumnName());
 				colNames.add(attr.getCsvColumnName());
@@ -202,31 +213,42 @@ public class MigrateBOTemplates {
 			// This is of the type sub-form
 			//
 			String newClassName = getNewClassName(boClass.getClassName());
+			logger.info("new class name -- >"+newClassName);
 			oldContainer = getAssociatedContainer(oldContainer, newClassName);
 			recMapper.setName(newClassName);
 		}
-
-		// Set the List of RecordField
-		recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), oldContainer));
 		
-		// Set association & collection
-		for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
-			recMapper.addCollection(migrateDyanmicBO(containment, oldContainer));
-		}
-		
-		for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
-			recMapper.addCollection(migrateDyanmicBO(dynCategory, oldContainer));
-		}
-		
-		for (BulkOperationClass dybEntity : boClass.getDynExtEntityAssociationCollection()) {
-			recMapper.addCollection(migrateDyanmicBO(dybEntity, oldContainer));
-		}
-		
-		for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
-			recMapper.addCollection(migrateDyanmicBO(association, oldContainer));
-		}
-		
+		populateRecMapper(recMapper, boClass, oldContainer);
 		return recMapper;
+	}
+	
+	private void populateRecMapper(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) 
+	throws Exception {
+		// Set the List of RecordField
+				recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), oldContainer));
+				
+				
+				// Set association & collection
+				for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
+					ContainerInterface childContainer = null;
+					if ((childContainer = getChildContainer(oldContainer, containment.getClassName())) != null) {
+						populateRecMapper(recMapper, containment, childContainer);
+					} else {
+						recMapper.addCollection(migrateDyanmicBO(containment, oldContainer));
+					}
+				}
+				
+				for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
+					recMapper.addCollection(migrateDyanmicBO(dynCategory, oldContainer));
+				}
+				
+				for (BulkOperationClass dybEntity : boClass.getDynExtEntityAssociationCollection()) {
+					recMapper.addCollection(migrateDyanmicBO(dybEntity, oldContainer));
+				}
+				
+				for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
+					recMapper.addCollection(migrateDyanmicBO(association, oldContainer));
+				}
 	}
 
 	
@@ -333,11 +355,12 @@ public class MigrateBOTemplates {
 			
 	private List<RecordField> getRecordFields(RecordMapper recMapper, Collection<Attribute> attributeCollection, ContainerInterface oldContainer) {
 		List<RecordField> fields = new ArrayList<RecordField>();
-		logger.info("attributeCollection size -->"+attributeCollection.size());
+		logger.info(" getRecordFields :: attributeCollection size -->"+attributeCollection.size());
 		
 		for (Attribute attr : attributeCollection) {
 			RecordField recField = new RecordField();
 			if (oldContainer != null) {
+				logger.info(" getRecordFields :: old Container -->"+oldContainer.getId());
 				String newName = getDynamicName(oldContainer.getControlCollection(), attr );
 				if (newName == null) {
 					continue;
@@ -372,10 +395,23 @@ public class MigrateBOTemplates {
 
 				if (associationName.equals(newClassName)) {
 					newContainer = containment.getContainer();
+					break;
 				}
 			}
 		}
+		
 		return newContainer;
+	}
+	
+	private ContainerInterface getChildContainer(ContainerInterface oldContainer, String oldClassName) {
+		oldClassName = oldClassName.replaceAll("&gt;", "").replaceAll("-", "").replaceAll(">", "");
+		System.err.println("Probing child container collection with " + oldClassName);
+		for (ContainerInterface childContainer : oldContainer.getChildContainerCollection()) {
+			if (childContainer.getAbstractEntity().getName().equals(oldClassName)) {
+				return childContainer;
+			}
+		}
+		return null;		
 	}
 
 
@@ -384,7 +420,7 @@ public class MigrateBOTemplates {
 		
 		for (ControlInterface oldCtrl : ctrlCollection) {
 			if (!(oldCtrl instanceof AbstractContainmentControlInterface)) {
-				if (oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
+				if (oldCtrl.getAttibuteMetadataInterface() != null && oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
 					newAttrName = attr.getName();
 					int idx = newAttrName.lastIndexOf(" Category Attribute");
 					if (idx != -1) {
