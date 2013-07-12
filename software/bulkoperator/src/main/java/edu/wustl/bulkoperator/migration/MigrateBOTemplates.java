@@ -40,6 +40,11 @@ public class MigrateBOTemplates {
 	
 	private JDBCDAO jdbcDao;
 	
+	private List<String> colNames = new ArrayList<String>();
+	
+	private static Logger logger = Logger.getLogger(MigrateBOTemplates.class);
+
+	
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();
 				
@@ -515,11 +520,6 @@ public class MigrateBOTemplates {
 			.append(nameParts[numParts - (startIdx - 1)]).toString();		
 	}
 	
-	
-	private static List<String> colNames = new ArrayList<String>();
-	
-	private static Logger logger = Logger.getLogger(MigrateBOTemplates.class);
-
 	
 	private static final String GET_ALL_TEMPL_IDS_SQL = 
 			"SELECT IDENTIFIER FROM CATISSUE_BULK_OPERATION";	
