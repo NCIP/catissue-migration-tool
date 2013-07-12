@@ -3,13 +3,16 @@ package edu.wustl.bulkoperator.util;
 
 import java.io.Reader;
 import java.sql.Clob;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.wustl.common.beans.SessionDataBean;
 import edu.wustl.common.exception.ApplicationException;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.common.util.global.CommonServiceLocator;
 import edu.wustl.common.util.logger.Logger;
+import edu.wustl.dao.DAO;
 import edu.wustl.dao.HibernateDAO;
 import edu.wustl.dao.JDBCDAO;
 import edu.wustl.dao.daofactory.DAOConfigFactory;
@@ -80,6 +83,27 @@ public class DaoUtil {
 		jdbcDao.openSession(null);
 		return jdbcDao;
 	}
+	
+	public static HibernateDAO getHibernateDao() 
+	throws Exception {
+		String appName = CommonServiceLocator.getInstance().getAppName();
+		
+		HibernateDAO hibernateDao =  (HibernateDAO)DAOConfigFactory.getInstance().getDAOFactory(appName).getDAO();
+		hibernateDao.openSession(null);
+		
+		return hibernateDao;
+
+	}
+
+	public static void closeDao(DAO dao) {
+		if (dao != null) {
+			try {
+				dao.closeSession();
+			} catch (Exception e) {
+				throw new RuntimeException("Error closing Hibernate dao session", e);
+			}
+		}
+	}
 
 	public static void closeJdbcDao(JDBCDAO jdbcDao) {
 		try {
@@ -91,4 +115,14 @@ public class DaoUtil {
 			throw new RuntimeException("Error closing JDBC dao session", e);
 		}
 	}	
+	
+	public static void closeResultSet(ResultSet rs) {
+		if (rs != null) {
+			try {
+				rs.close();
+			} catch (Exception e) {
+				throw new RuntimeException("Error closing result set", e);
+			}
+		}
+	}
 }
