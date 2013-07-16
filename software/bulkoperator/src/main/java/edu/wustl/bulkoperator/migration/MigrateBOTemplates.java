@@ -409,7 +409,6 @@ public class MigrateBOTemplates {
 			if (oldContainer != null) {
 				String newName = getNewFieldName(oldContainer.getControlCollection(), attr);
 				if (newName == null) { 
-					System.err.println("**************** newName is null ");
 					continue;
 				}
 				recField.setName(newName);
@@ -455,7 +454,7 @@ public class MigrateBOTemplates {
 	
 	private ContainerInterface getChildContainer(ContainerInterface oldContainer, String oldClassName) {
 		oldClassName = oldClassName.replaceAll("&gt;", "").replaceAll("-", "").replaceAll(">", "");
-		System.err.println("Probing child container collection with " + oldClassName);
+		logger.info("Probing child container collection with " + oldClassName);
 		for (ContainerInterface childContainer : oldContainer.getChildContainerCollection()) {
 			if (childContainer.getAbstractEntity().getName().equals(oldClassName)) {
 				return childContainer;
