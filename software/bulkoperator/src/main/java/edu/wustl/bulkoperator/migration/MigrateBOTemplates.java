@@ -138,7 +138,7 @@ public class MigrateBOTemplates {
 		//
 		BulkOperationMetaData oldMetadata = getOldBoObject(template.getXmlTemplate());
 		BulkOperationClass boClass = oldMetadata.getBulkOperationClass().iterator().next();
-
+		
 		//
 		// 3. Determine whether the template is for dynamic form or static entities
 		//
@@ -162,11 +162,15 @@ public class MigrateBOTemplates {
 		if (boClass.getBatchSize() == null) {
 				boClass.setBatchSize(oldMetadata.getBatchSize());
 		}
-				
+			
+		if (boClass.getTemplateName() == null) {
+			boClass.setTemplateName(oldMetadata.getTemplateName());
+		}
+		
 		BulkOperation bulkOperation = new BulkOperation();	
 		bulkOperation.addRecordMapper(recMapper);
 		bulkOperation.setBatchSize(boClass.getBatchSize());
-		bulkOperation.setTemplateName(oldMetadata.getTemplateName());
+		bulkOperation.setTemplateName(boClass.getTemplateName());
 				
 		String xml = toXml(bulkOperation);
 		StringBuilder csvHeader = new StringBuilder();
