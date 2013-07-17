@@ -475,8 +475,8 @@ public class MigrateBOTemplates {
 			if (oldCtrl.getAttibuteMetadataInterface() != null && 
 				oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
 				
-				oldAttrName = getNameByRemovingSuffix(oldCtrl.getAttibuteMetadataInterface().getName());
-				newFieldName = getNameByRemovingSuffix(attr.getName());
+				oldAttrName = getNameByRemovingCatSuffix(oldCtrl.getAttibuteMetadataInterface().getName());
+				newFieldName = getNameByRemovingCatSuffix(attr.getName());
 
 				if (oldAttrName.equals(newFieldName)) {
 					newFieldName = newFieldName + oldCtrl.getId();
@@ -523,7 +523,7 @@ public class MigrateBOTemplates {
 			.append(nameParts[numParts - (startIdx - 1)]).toString();		
 	}
 	
-	private String getNameByRemovingSuffix(String attrName) {
+	private String getNameByRemovingCatSuffix(String attrName) {
 		int idx = attrName.lastIndexOf(" Category Attribute");
 		if (idx != -1) {
 			attrName = attrName.substring(0, idx);
