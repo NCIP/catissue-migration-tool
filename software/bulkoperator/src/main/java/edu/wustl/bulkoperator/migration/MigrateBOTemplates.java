@@ -466,7 +466,7 @@ public class MigrateBOTemplates {
 
 	private String getNewFieldName(Collection<ControlInterface> ctrlCollection, Attribute attr) {
 		String newFieldName = null;
-		
+		String oldAttrName = null;
 		for (ControlInterface oldCtrl : ctrlCollection) {
 			if (oldCtrl instanceof AbstractContainmentControlInterface) {
 				continue;
@@ -474,14 +474,14 @@ public class MigrateBOTemplates {
 			
 			if (oldCtrl.getAttibuteMetadataInterface() != null && 
 				oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
-				newFieldName = attr.getName();
-				int idx = newFieldName.lastIndexOf(" Category Attribute");
-				if (idx != -1) {
-					newFieldName = newFieldName.substring(0, idx);
-				}
 				
-				newFieldName = newFieldName + oldCtrl.getId();
-				break;
+				oldAttrName = getNameByRemovingSuffix(oldCtrl.getAttibuteMetadataInterface().getName());
+				newFieldName = getNameByRemovingSuffix(attr.getName());
+
+				if (oldAttrName.equals(newFieldName)) {
+					newFieldName = newFieldName + oldCtrl.getId();
+					break;
+				}
 			}
 		}
 		
@@ -521,6 +521,14 @@ public class MigrateBOTemplates {
 		int numParts = nameParts.length;			
 		return new StringBuilder(nameParts[numParts - startIdx])
 			.append(nameParts[numParts - (startIdx - 1)]).toString();		
+	}
+	
+	private String getNameByRemovingSuffix(String attrName) {
+		int idx = attrName.lastIndexOf(" Category Attribute");
+		if (idx != -1) {
+			attrName = attrName.substring(0, idx);
+		}
+		return attrName;
 	}
 	
 	
