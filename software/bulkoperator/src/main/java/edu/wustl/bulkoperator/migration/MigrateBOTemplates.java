@@ -9,8 +9,10 @@ import java.io.StringReader;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
@@ -37,6 +39,8 @@ import edu.wustl.dao.query.generator.ColumnValueBean;
 public class MigrateBOTemplates {
 	
 	private static DigesterLoader loader;
+	
+	private static Set<String >knownDateFormats = new HashSet<String>();
 	
 	private JDBCDAO jdbcDao;
 	
@@ -91,6 +95,14 @@ public class MigrateBOTemplates {
 					}
 				}
 			});
+		
+		knownDateFormats.add("dd-MM-yyyy");
+		knownDateFormats.add("dd/MM/yyyy");
+		knownDateFormats.add("MM-dd-yyyy");
+		knownDateFormats.add("MM/dd/yyyy");
+		knownDateFormats.add("yyyy-mm-dd");
+		knownDateFormats.add("yyyy/mm/dd");
+		knownDateFormats.add("MM/dd/yyyy HH:mm");
 	}
 	
 	public static List<Long> getAllTemplateIds() 
@@ -417,10 +429,12 @@ public class MigrateBOTemplates {
 			}
 			
 			recField.setColumnName(attr.getCsvColumnName());
-
+			String format = attr.getFormat();
 			if (attr.getDataType() != null && attr.getDataType().contains("Date")) {
 				recField.setDateFormat(attr.getFormat());
-			}
+			}else if (format != null && !format.isEmpty() && knownDateFormats.contains(format)) {
+				recField.setDateFormat(attr.getFormat());
+			} 
 			
 			if (attr.getUpdateBasedOn()) {
 				recMapper.addIdentifyingField(recField.getName());
