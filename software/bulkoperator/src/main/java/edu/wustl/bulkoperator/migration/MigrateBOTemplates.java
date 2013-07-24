@@ -431,9 +431,9 @@ public class MigrateBOTemplates {
 			recField.setColumnName(attr.getCsvColumnName());
 			String format = attr.getFormat();
 			if (attr.getDataType() != null && attr.getDataType().contains("Date")) {
-				recField.setDateFormat(attr.getFormat());
+				recField.setDateFormat(format);
 			}else if (format != null && !format.isEmpty() && knownDateFormats.contains(format)) {
-				recField.setDateFormat(attr.getFormat());
+				recField.setDateFormat(format);
 			} 
 			
 			if (attr.getUpdateBasedOn()) {
