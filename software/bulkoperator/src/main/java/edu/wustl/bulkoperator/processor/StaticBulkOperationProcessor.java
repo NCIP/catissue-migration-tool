@@ -96,8 +96,8 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			if (isRefObjPropSet) {
 				if (association.getRelName() != null) {
 					BeanUtils.setProperty(refObj, association.getRelName(), object);
-				}
-				
+				} 
+
 				BeanUtils.setProperty(object, association.getName(), refObj);
 			}
 		}
@@ -114,12 +114,12 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				boolean isEltPropSet = setObjectProps(element, collection, csvReader, collectionPropIdxs);
 				if (isEltPropSet) {
 					elements.add(element);
-					if(collection.getRelName() != null) {
+					if(collection.getRelName() != null || !collection.getRelName().isEmpty()) {
 						BeanUtils.setProperty(element, collection.getRelName(), object);
 					}
 				}
 			}
-			
+		
 		
 			Collection oldElements = (Collection)PropertyUtils.getProperty(object, collection.getName());
 			if (oldElements != null) {

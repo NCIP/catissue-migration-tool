@@ -345,14 +345,20 @@ public class MigrateBOTemplates {
 		
 		recMapper.setClassName(boClass.getClassName());
 		recMapper.setName(boClass.getRoleName());
-		recMapper.setRelName(boClass.getParentRoleName());
+		if (boClass.getParentRoleName() != null) {
+			recMapper.setRelName(boClass.getParentRoleName());
+		}
 		
 		// Set the List of RecordField
 		recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), null));
 		
 		// Set association & collection
 		for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
-			recMapper.addCollection(migrateStaticBO(containment));
+			if(containment.getCardinality().equals("*")) {
+				recMapper.addCollection(migrateStaticBO(containment));
+			} else {
+				recMapper.addAssociation(migrateStaticBO(containment));
+			}
 		}
 		
 		for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
@@ -364,7 +370,11 @@ public class MigrateBOTemplates {
 		}
 		
 		for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
-			recMapper.addAssociation(migrateStaticBO(association));
+			if(association.getCardinality().equals("*")) {
+				recMapper.addCollection(migrateStaticBO(association));
+			} else {
+				recMapper.addAssociation(migrateStaticBO(association));
+			}
 		}
 		
 		return recMapper;
