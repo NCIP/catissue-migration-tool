@@ -13,17 +13,22 @@ import org.apache.log4j.Logger;
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.wustl.bulkoperator.bizlogic.BulkOperationBizLogic;
 import edu.wustl.bulkoperator.metadata.BulkOperationTemplate;
+import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
+import edu.wustl.bulkoperator.util.BulkOperationUtility;
 import edu.wustl.bulkoperator.util.DaoUtil;
 import edu.wustl.common.beans.NameValueBean;
 import edu.wustl.common.exception.ApplicationException;
 import edu.wustl.common.exception.ErrorKey;
 import edu.wustl.dao.JDBCDAO;
+import edu.wustl.dao.query.generator.ColumnValueBean;
 
 public class BulkOperationDao {
 	
 	private static final Logger logger = Logger.getLogger(BulkOperationBizLogic.class);
 
+	private JDBCDAO jdbcDao;
+	
 	private static final String GET_TEMPL_DETAILS_SQL = 
 			"SELECT " +
 			"	DROPDOWN_NAME, OPERATION, XML_TEMPALTE, CSV_TEMPLATE " +
@@ -38,7 +43,40 @@ public class BulkOperationDao {
 			"FROM" +
 			"	CATISSUE_BULK_OPERATION";
 	
+	private static final String GET_TEMPLATE_SQL= 
+			"SELECT " +
+			"	OPERATION " +
+			"FROM" +
+			"	CATISSUE_BULK_OPERATION " +
+			"WHERE " +
+			"	OPERATION = ?";
 	
+	
+	private static final String INSERT_TEMPLATE_ORA_SQL = 
+			"INSERT INTO " +
+			"	CATISSUE_BULK_OPERATION " +
+			"(IDENTIFIER, OPERATION, DROPDOWN_NAME, CSV_TEMPLATE, XML_TEMPALTE) " +
+			"	VALUES (CATISSUE_BULK_OPERATION_SEQ.NEXTVAL, ?, ?, ?, ?) ";
+	
+	private static final String INSERT_TEMPLATE_MYSQL_SQL = 
+			"INSERT INTO " +
+			"	CATISSUE_BULK_OPERATION " +
+			"(IDENTIFIER, OPERATION, DROPDOWN_NAME, CSV_TEMPLATE, XML_TEMPALTE) " +
+			"	VALUES (default, ?, ?, ?, ?) ";
+	
+	
+	private static final String UPDATE_TEMPLATE = 
+			"UPDATE " +
+			"	CATISSUE_BULK_OPERATION " +
+			"SET  " +
+			"	CSV_TEMPLATE = ?, XML_TEMPALTE = ? " +
+			"WHERE " +
+			"	DROPDOWN_NAME= ? ";
+
+	
+	public BulkOperationDao(JDBCDAO jdbcDao) {
+		this.jdbcDao = jdbcDao;
+	}
 	
 	public static BulkOperationTemplate getTemplateDetails(String templateName) throws BulkOperationException {
 		BulkOperationTemplate template = null;
@@ -55,6 +93,16 @@ public class BulkOperationDao {
 		
 		return template;
 	}
+	
+	
+	public static boolean doesTemplateExists(String templateName) throws BulkOperationException {
+		List<List<Object>> templateDetails = DaoUtil.executeSQLQuery(GET_TEMPLATE_SQL, templateName);
+		if (templateDetails != null && !templateDetails.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
 	
 	public static List<NameValueBean> getTemplateNameDropDownList() throws BulkOperationException, ApplicationException {
 		List<NameValueBean> bulkOperationList = new ArrayList<NameValueBean>();
@@ -114,5 +162,57 @@ public class BulkOperationDao {
 			writer.close();
 		}
 		return csvFile;
+	}
+	
+	
+	public void uploadTemplate(BulkOperationTemplate boTemplate) {
+		try {
+			if(doesTemplateExists(boTemplate.getTemplateName())) {
+				updateTemplate(boTemplate);
+			} else {
+				insertTemplate(boTemplate);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Error occured in persisting the template",e);
+		}
+	}
+
+	
+	private void insertTemplate(BulkOperationTemplate template) 
+	throws Exception {
+		List<ColumnValueBean> params = new ArrayList<ColumnValueBean>();
+
+		try {
+			params.add(new ColumnValueBean(template.getOperationName()));
+			params.add(new ColumnValueBean(template.getTemplateName()));
+			params.add(new ColumnValueBean(template.getCsvTemplate()));
+			params.add(new ColumnValueBean(template.getXmlTemplate()));
+
+			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+				jdbcDao.executeUpdate(INSERT_TEMPLATE_ORA_SQL, params);
+			} else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+				jdbcDao.executeUpdate(INSERT_TEMPLATE_MYSQL_SQL, params);
+			}
+			
+			logger.info("Template is Inserted: " + template.getTemplateName());
+		} catch (Exception e) {
+			throw new RuntimeException("Error inserting bulk operation template", e);
+		} 
+	}
+	
+	private void updateTemplate(BulkOperationTemplate template) 
+	throws Exception {
+		List<ColumnValueBean> params = new ArrayList<ColumnValueBean>();
+
+		try {
+			params.add(new ColumnValueBean(template.getCsvTemplate()));
+			params.add(new ColumnValueBean(template.getXmlTemplate()));
+			params.add(new ColumnValueBean(template.getTemplateName()));
+
+			jdbcDao.executeUpdate(UPDATE_TEMPLATE, params);
+			logger.info("Template is Updated: " + template.getTemplateName());
+		} catch (Exception e) {
+			throw new RuntimeException("Error updating bulk operation template", e);
+		} 
 	}
 }
