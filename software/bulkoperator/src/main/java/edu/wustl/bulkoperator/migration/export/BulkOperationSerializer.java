@@ -113,7 +113,9 @@ public class BulkOperationSerializer {
 			Map<String, String> attrs = new HashMap<String, String>();
 			attrs.put("name", association.getName());
 			attrs.put("class", association.getClassName());
-			attrs.put("relName", association.getRelName());
+			if (association.getRelName() != null) {
+				attrs.put("relName", association.getRelName());
+			}
 			writeElementStart(xmlBuilder, "association", attrs);
 			
 			serializeRecMapper(association);
@@ -143,7 +145,9 @@ public class BulkOperationSerializer {
 			} else {
 				attrs.put("name", collection.getName());
 				attrs.put("class", collection.getClassName());
-				attrs.put("relName", collection.getRelName());
+				if (collection.getRelName() != null) {
+					attrs.put("relName", collection.getRelName());
+				}
 			}
 			
 			writeElementStart(xmlBuilder, "collection", attrs);

@@ -1,16 +1,22 @@
 package edu.wustl.bulkoperator.migration;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.digester3.Digester;
 import org.apache.commons.digester3.binder.DigesterLoader;
+import org.apache.commons.digester3.xmlrules.FromXmlRulesModule;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
@@ -19,13 +25,11 @@ import edu.common.dynamicextensions.domaininterface.CategoryAssociationInterface
 import edu.common.dynamicextensions.domaininterface.userinterface.AbstractContainmentControlInterface;
 import edu.common.dynamicextensions.domaininterface.userinterface.ContainerInterface;
 import edu.common.dynamicextensions.domaininterface.userinterface.ControlInterface;
-import edu.common.dynamicextensions.util.DynamicExtensionsUtility;
 import edu.wustl.bulkoperator.metadata.BulkOperation;
 import edu.wustl.bulkoperator.metadata.BulkOperationTemplate;
 import edu.wustl.bulkoperator.metadata.RecordField;
 import edu.wustl.bulkoperator.metadata.RecordMapper;
 import edu.wustl.bulkoperator.migration.export.BulkOperationSerializer;
-import edu.wustl.bulkoperator.templateImport.XmlRulesModule;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.DaoUtil;
 import edu.wustl.dao.HibernateDAO;
@@ -34,187 +38,213 @@ import edu.wustl.dao.query.generator.ColumnValueBean;
 
 public class MigrateBOTemplates {
 	
+	private static DigesterLoader loader;
+	
+	private static Set<String >knownDateFormats = new HashSet<String>();
+	
+	private JDBCDAO jdbcDao;
+	
+	private List<String> colNames = new ArrayList<String>();
+	
+	private static Logger logger = Logger.getLogger(MigrateBOTemplates.class);
+
 	
 	public static void main(String[] args) throws Exception {
-		MigrateBOTemplates migrateTemplate = new MigrateBOTemplates();
-		migrateTemplate.migrate();
-	}
-	
-	public void migrate() throws Exception {
+		long startTime = System.currentTimeMillis();
+				
+		init();
 		
+		List<Long> templateIds = getAllTemplateIds();
 		
-		//
-		// 1. Get All BulkOperation Templates into List
-		//
-		List<BulkOperationTemplate> boTemplates = getAllTemplates();
-
-		for (BulkOperationTemplate template : boTemplates) {
+		logger.info("Migrating "+templateIds.size()+" templates");
+		for (Long templateId : templateIds) {
+			MigrateBOTemplates migrateTemplate = null;
 			try {
-				colNames.clear();
-				logger.info(" template.getOperationName -----> "+template.getOperationName());
-				
-				//
-				// 2. Get Old BulkOperation Object
-				//
-				BulkOperationMetaData oldMetadata = getOldBoObject(template.getXmlTemplate());
-				BulkOperationClass boClass = ((List<BulkOperationClass>) oldMetadata.getBulkOperationClass()).get(0);
-				
-				//
-				// 3. Process old BulkOperation Object for DE category objects
-				// For DE Records, BulkOperation class is enclosed in boClass.getDynExtCategoryAssociationCollection()
-				// Or type is declared as Category - type="Category"
-				//
-				boolean isDynamic = ((List<BulkOperationClass>) boClass.getDynExtCategoryAssociationCollection()).size() == 1;
-				if (isDynamic) {
-					boClass = ((List<BulkOperationClass>) boClass.getDynExtCategoryAssociationCollection()).get(0);
-				} else if (boClass.getType().equals("Category")) {
-						isDynamic = true;
-				}
-	
-				
-				//
-				// 4. Migrate old BulkOperation object to new BulkOperation object
-				//    For Static BO object       - migrateStaticBO(boClass);
-				//    For DE(Dynamic) BO object  - migrateDyanmicBO(boClass, null);
-				//
-				RecordMapper recMapper = null;
-				if(isDynamic) {
-					recMapper = migrateDyanmicBO(boClass, null);
-					recMapper.setIntegratorCtxtFields(getRecordFields(recMapper, boClass.getHookingInformation().getAttributeCollection(), null));
-
-				} else {
-					recMapper = migrateStaticBO(boClass);
-				}
-	
-				if (boClass.getBatchSize() == null) {
-					boClass.setBatchSize(oldMetadata.getBatchSize());
-				}
-				BulkOperation bulkOperation = new BulkOperation();
-				
-				bulkOperation.addRecordMapper(recMapper);
-				bulkOperation.setBatchSize(boClass.getBatchSize());
-				bulkOperation.setTemplateName(oldMetadata.getTemplateName());
-				
-				//
-				// 5. Convert New BulkOperation object to xml-template
-				//
-				String xml = toXml(bulkOperation);
-				
-				//
-				// 6. Prepare csv-template
-				//
-				String csv = colNames.toString().replace("[", "").replace("]", "").replace(", ", ",");
-	
-				//
-				// 7. Update the DB with new xml and csv templates
-				//
-				updateTemplate(template.getTemplateName(), csv, xml);
+				logger.info("Migrating template with id : "+templateId);
+				migrateTemplate = new MigrateBOTemplates();
+				migrateTemplate.migrate(templateId);							
 			} catch (Exception e) {
-				logger.error("Exception occured while migrating "+ template.getTemplateName() +" : "+e.getMessage());
 				e.printStackTrace();
+				logger.info("Error encountered during migration of template with id : "+templateId);
+			} finally {
+				if (migrateTemplate != null) {
+					migrateTemplate.cleanup();
+				}
 			}
 		}
-	}
-
-
-	public List<BulkOperationTemplate> getAllTemplates() throws Exception {
-		List<BulkOperationTemplate> templates = new ArrayList<BulkOperationTemplate>();
-		JDBCDAO jdbcDao = DynamicExtensionsUtility.getJDBCDAO();
-		ResultSet resultSet = null;
-		resultSet = jdbcDao.getResultSet(GET_ALL_TEMPL_DETAILS_SQL, null, null);
-		if (resultSet != null) {
-			while (resultSet.next()) {
-				BulkOperationTemplate template = new BulkOperationTemplate();
-				template.setOperationName(resultSet.getString("OPERATION"));
-				template.setTemplateName(resultSet.getString("DROPDOWN_NAME"));
-				template.setCsvTemplate(DaoUtil.getString(resultSet.getClob("CSV_TEMPLATE")));
-				template.setXmlTemplate(DaoUtil.getString(resultSet.getClob("XML_TEMPALTE")));
-				templates.add(template);
-			}
-		}
-		return templates;
+		
+		long totalTime = System.currentTimeMillis() - startTime;
+		logger.info("Time taken to migrate "+templateIds.size()+" : "+totalTime+" ms");
 	}
 	
-	
-	private BulkOperationMetaData getOldBoObject(String xml) {
-		String mappingXml = new StringBuilder().append(System.getProperty(BulkOperationConstants.CONFIG_DIR))
-		.append(File.separator).append("bulkOperatorXMLTemplateRules.xml").toString();
+	public static void init() {
+		final String mappingXml = new StringBuilder()
+			.append(System.getProperty(BulkOperationConstants.CONFIG_DIR))
+			.append(File.separator)
+			.append("bulkOperatorXMLTemplateRules.xml").toString();
 		
-		BulkOperationMetaData bulkOperationMetaData  = null;
-		try	{
-			DigesterLoader digesterLoader = DigesterLoader.newLoader(new XmlRulesModule(mappingXml));
-			Digester digester = digesterLoader.newDigester();
-			InputSource xmlTemplateInputSource = new InputSource(new StringReader(xml));	
-            bulkOperationMetaData = digester.parse(xmlTemplateInputSource);
-		} catch (Exception e) {
-			 e.printStackTrace();
-			 logger.info(" Exception occured while parsing the xml"+e.getMessage());
-		 }
+		loader = DigesterLoader.newLoader(
+			new FromXmlRulesModule() {
+				@Override
+				protected void loadRules() {
+					try {
+						InputStream inputStream = new FileInputStream(mappingXml);
+						loadXMLRules(inputStream);
+					} catch (FileNotFoundException e) {
+						throw new RuntimeException("Could not find " + mappingXml);
+					}
+				}
+			});
 		
-		return bulkOperationMetaData;
+		knownDateFormats.add("dd-MM-yyyy");
+		knownDateFormats.add("dd/MM/yyyy");
+		knownDateFormats.add("MM-dd-yyyy");
+		knownDateFormats.add("MM/dd/yyyy");
+		knownDateFormats.add("yyyy-mm-dd");
+		knownDateFormats.add("yyyy/mm/dd");
+		knownDateFormats.add("MM/dd/yyyy HH:mm");
 	}
-
-
-	private RecordMapper migrateDyanmicBO(BulkOperationClass boClass, ContainerInterface oldContainer) 
+	
+	public static List<Long> getAllTemplateIds() 
 	throws Exception {
-		RecordMapper recMapper = new RecordMapper();
-		return migrateDyanmicBO(recMapper, boClass, oldContainer);
+		List<Long> templateIds = new ArrayList<Long>();
+		JDBCDAO jdbcDao = DaoUtil.getJdbcDao();
+		ResultSet rs = null;
+		
+		try {
+			rs = jdbcDao.getResultSet(GET_ALL_TEMPL_IDS_SQL, null, null);
+			while (rs.next()) {
+				templateIds.add(rs.getLong(1));
+			}
+			
+			return templateIds;
+		} finally {
+			DaoUtil.closeResultSet(rs);
+			DaoUtil.closeDao(jdbcDao);
+		}
 	}
 	
-	private RecordMapper migrateDyanmicBO(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) 
-			throws Exception {
+	
+	public MigrateBOTemplates() {
+		try {
+			jdbcDao = DaoUtil.getJdbcDao();
+		} catch (Exception e) {
+			throw new RuntimeException("Error initializing jdbc session", e);
+		}
+	}
+	
+	public void cleanup() {
+		DaoUtil.closeDao(jdbcDao);
+	}	
 			
-		boolean isMultiSelect = false;
-		if(boClass.getAttributeCollection().size() == 1) {
-			isMultiSelect = ((List<Attribute>)boClass.getAttributeCollection()).get(0).getName().equals(boClass.getClassName());	
+	public void migrate(Long templateId) 
+	throws Exception {
+		//
+		// 1. Get template identified by templateId
+		//
+		BulkOperationTemplate template = getTemplate(templateId);
+		logger.info("Migrating template: " + template.getOperationName());
+				
+		//
+		// 2. Get Old BulkOperation Object
+		//
+		BulkOperationMetaData oldMetadata = getOldBoObject(template.getXmlTemplate());
+		BulkOperationClass boClass = oldMetadata.getBulkOperationClass().iterator().next();
+		
+		//
+		// 3. Determine whether the template is for dynamic form or static entities
+		//
+		boolean isDynamicForms = boClass.getDynExtCategoryAssociationCollection().size() == 1;		
+		if (isDynamicForms) {
+			boClass = boClass.getDynExtCategoryAssociationCollection().iterator().next();
+		} else if (boClass.getType().equals("Category")) {
+			isDynamicForms = true;
 		}
 
-		if (oldContainer == null && !isMultiSelect) {
-			JDBCDAO jdbcDao = DynamicExtensionsUtility.getJDBCDAO();
-			BulkOperationClass containmentClass = ((List<BulkOperationClass>)boClass.getContainmentAssociationCollection()).get(0);
-			
-			String metadataName = boClass.getClassName();
-			String containerMetaDataName = containmentClass.getClassName();
-			if(containerMetaDataName.contains("->")) {
-				containerMetaDataName = containerMetaDataName.replace("->", "");
-			}
-			else if (containerMetaDataName.contains("-&gt")) {
-				containerMetaDataName = containerMetaDataName.replace("-&gt;", "");
-			}
-			Long oldId = getContainerId(jdbcDao, metadataName, containerMetaDataName);
-			oldContainer = getOldContainer(oldId);
-			
-			Long newId = getNewContainerId(jdbcDao, oldContainer.getId());
-			logger.info("Old container id -->"+oldContainer.getId());
-			logger.info("New container id -->"+newId);
-
-			recMapper.setFormName(newId.toString());
-			boClass = containmentClass; // As the First containment collection is the one which holds all collection, association and fields
-			jdbcDao.commit();
-			jdbcDao.closeSession();
+		RecordMapper recMapper = null;
+		if (isDynamicForms) {
+			recMapper = migrateDynamicBO(boClass);
+			List<RecordField> integratorFields = getRecordFields(
+					recMapper, boClass.getHookingInformation().getAttributeCollection(), null);
+			recMapper.setIntegratorCtxtFields(integratorFields);
 		} else {
-			// 
-			// Check For MultiSelect Records
-			//
-			if(boClass.getAttributeCollection().size() ==1 && isMultiSelect) {
-				Attribute attr = ((List<Attribute>)boClass.getAttributeCollection()).get(0);
-				//oldContainer = getAssociatedContainer(oldContainer, boClass.getClassName());
-				
-				System.err.println(oldContainer.getCaption());
-				String newName = getDynamicName(oldContainer.getControlCollection(), attr);
-				
-				recMapper.setName(newName);
-				recMapper.setColumnName(attr.getCsvColumnName());
-				colNames.add(attr.getCsvColumnName());
-				return recMapper;
-			}
+			recMapper = migrateStaticBO(boClass);
+		}
+	
+		if (boClass.getBatchSize() == null) {
+				boClass.setBatchSize(oldMetadata.getBatchSize());
+		}
 			
-			//
-			// This is of the type sub-form
-			//
+		if (boClass.getTemplateName() == null) {
+			boClass.setTemplateName(oldMetadata.getTemplateName());
+		}
+		
+		BulkOperation bulkOperation = new BulkOperation();	
+		bulkOperation.addRecordMapper(recMapper);
+		bulkOperation.setBatchSize(boClass.getBatchSize());
+		bulkOperation.setTemplateName(boClass.getTemplateName());
+				
+		String xml = toXml(bulkOperation);
+		StringBuilder csvHeader = new StringBuilder();
+		for (String colName : colNames) {
+			csvHeader.append(colName).append(",");
+		}
+		
+		if (csvHeader.length() > 0) {
+			csvHeader.delete(csvHeader.length() - 1, csvHeader.length());
+		}
+
+		//
+		// Update new template in database along with CSV file with header
+		//
+		updateTemplate(template.getTemplateName(), csvHeader.toString(), xml);
+	}
+
+	private BulkOperationMetaData getOldBoObject(String xml) {
+		try	{
+			Digester digester = loader.newDigester();
+			InputSource xmlTemplateInputSource = new InputSource(new StringReader(xml));	
+            BulkOperationMetaData bulkOperationMetaData = digester.parse(xmlTemplateInputSource);
+            return bulkOperationMetaData;
+		} catch (Exception e) {
+			 throw new RuntimeException("Error parsing input xml template", e);
+		}		
+	}
+
+	private RecordMapper migrateDynamicBO(BulkOperationClass boClass) 
+	throws Exception {		
+		ContainerInterface oldContainer = getOldContainer(boClass);
+		Long newContainerId = getNewContainerId(oldContainer.getId());
+		
+		RecordMapper recMapper = new RecordMapper();
+		recMapper.setFormName(newContainerId.toString());
+		
+		BulkOperationClass containmentClass = boClass.getContainmentAssociationCollection().iterator().next();
+		populateRecMapper(recMapper, containmentClass, oldContainer);
+		return recMapper;
+	}
+
+	
+	private RecordMapper migrateDynamicBO(BulkOperationClass boClass, ContainerInterface oldContainer) {
+		RecordMapper recMapper = new RecordMapper();
+		return migrateDynamicBO(recMapper, boClass, oldContainer);
+	}
+
+	private RecordMapper migrateDynamicBO(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) {
+		boolean isMultiSelect = 
+				boClass.getAttributeCollection().size() == 1 &&
+				boClass.getAttributeCollection().iterator().next().getName().equals(boClass.getClassName());
+		
+		if (isMultiSelect) {
+			Attribute attr = boClass.getAttributeCollection().iterator().next();
+			String newFieldName = getNewFieldName(oldContainer.getControlCollection(), attr);
+			
+			recMapper.setName(newFieldName);
+			recMapper.setColumnName(attr.getCsvColumnName());
+			colNames.add(attr.getCsvColumnName());
+		} else {
 			String newClassName = getNewClassName(boClass.getClassName());
-			logger.info("new class name -- >"+newClassName);
-			oldContainer = getAssociatedContainer(oldContainer, newClassName);
+			oldContainer = getSubFormContainer(oldContainer, newClassName);
 			recMapper.setName(newClassName);
 		}
 		
@@ -222,34 +252,92 @@ public class MigrateBOTemplates {
 		return recMapper;
 	}
 	
-	private void populateRecMapper(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) 
-	throws Exception {
-		// Set the List of RecordField
-				recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), oldContainer));
+	private void populateRecMapper(RecordMapper recMapper, BulkOperationClass boClass, ContainerInterface oldContainer) {
+		recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), oldContainer));
 				
 				
-				// Set association & collection
-				for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
-					ContainerInterface childContainer = null;
-					if ((childContainer = getChildContainer(oldContainer, containment.getClassName())) != null) {
-						populateRecMapper(recMapper, containment, childContainer);
-					} else {
-						recMapper.addCollection(migrateDyanmicBO(containment, oldContainer));
-					}
-				}
+		// Set association & collection
+		for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
+			ContainerInterface childContainer = null;
+			if ((childContainer = getChildContainer(oldContainer, containment.getClassName())) != null) {
+				populateRecMapper(recMapper, containment, childContainer);
+			} else {
+				recMapper.addCollection(migrateDynamicBO(containment, oldContainer));
+			}
+		}
 				
-				for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
-					recMapper.addCollection(migrateDyanmicBO(dynCategory, oldContainer));
-				}
-				
-				for (BulkOperationClass dybEntity : boClass.getDynExtEntityAssociationCollection()) {
-					recMapper.addCollection(migrateDyanmicBO(dybEntity, oldContainer));
-				}
-				
-				for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
-					recMapper.addCollection(migrateDyanmicBO(association, oldContainer));
-				}
+		for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
+			recMapper.addCollection(migrateDynamicBO(dynCategory, oldContainer));
+		}
+		
+		for (BulkOperationClass dybEntity : boClass.getDynExtEntityAssociationCollection()) {
+			recMapper.addCollection(migrateDynamicBO(dybEntity, oldContainer));
+		}
+		
+		for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
+			recMapper.addCollection(migrateDynamicBO(association, oldContainer));
+		}
 	}
+	
+	private ContainerInterface getOldContainer(BulkOperationClass boClass) 
+	throws Exception {
+		BulkOperationClass containmentClass = boClass.getContainmentAssociationCollection().iterator().next();
+		
+		String categoryName = boClass.getClassName();
+		String categoryEntityName = containmentClass.getClassName()
+				.replace("->", "").replace("-&gt;", "");
+		
+		LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
+		params.add(new ColumnValueBean(categoryName));
+		params.add(new ColumnValueBean(categoryEntityName));
+		
+		ResultSet resultSet = null;
+		Long containerId = null;
+		
+		try {
+			resultSet = jdbcDao.getResultSet(GET_OLD_CONTAINER_ID_SQL, params, null);
+			if (resultSet.next()) {
+				containerId = resultSet.getLong("identifier");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Error obtaining old container id", e);
+		} finally {
+			DaoUtil.closeResultSet(resultSet);
+		}
+
+		return getOldContainer(containerId);
+	}
+	
+	private ContainerInterface getOldContainer(Long containerId) 
+	throws Exception {
+		HibernateDAO dao = null;				
+		try {
+			dao = DaoUtil.getHibernateDao();
+			String objectType = edu.common.dynamicextensions.domain.userinterface.Container.class.getName();
+			return (ContainerInterface)dao.retrieveById(objectType, containerId); 
+		} finally {
+			DaoUtil.closeDao(dao);		
+		}	
+	}
+	
+	private Long getNewContainerId(Long id) 
+	throws Exception {
+		ResultSet resultSet = null;
+		Long containerId = null;
+		try {
+			LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
+			params.add(new ColumnValueBean(id));
+			resultSet = jdbcDao.getResultSet(GET_NEW_CONTAINER_ID_SQL, params, null);
+			if (resultSet.next()) {
+				containerId = resultSet.getLong("CONTAINER_ID");
+			}
+			return containerId;
+		} finally {
+			DaoUtil.closeResultSet(resultSet);
+		}
+	}
+
+	
 
 	
 	private RecordMapper migrateStaticBO(BulkOperationClass boClass) {
@@ -257,14 +345,20 @@ public class MigrateBOTemplates {
 		
 		recMapper.setClassName(boClass.getClassName());
 		recMapper.setName(boClass.getRoleName());
-		recMapper.setRelName(boClass.getParentRoleName());
+		if (boClass.getParentRoleName() != null) {
+			recMapper.setRelName(boClass.getParentRoleName());
+		}
 		
 		// Set the List of RecordField
 		recMapper.setFields(getRecordFields(recMapper, boClass.getAttributeCollection(), null));
 		
 		// Set association & collection
 		for (BulkOperationClass containment : boClass.getContainmentAssociationCollection()) {
-			recMapper.addCollection(migrateStaticBO(containment));
+			if(containment.getCardinality().equals("*")) {
+				recMapper.addCollection(migrateStaticBO(containment));
+			} else {
+				recMapper.addAssociation(migrateStaticBO(containment));
+			}
 		}
 		
 		for (BulkOperationClass dynCategory : boClass.getDynExtCategoryAssociationCollection()) {
@@ -276,7 +370,11 @@ public class MigrateBOTemplates {
 		}
 		
 		for (BulkOperationClass association : boClass.getReferenceAssociationCollection()) {
-			recMapper.addAssociation(migrateStaticBO(association));
+			if(association.getCardinality().equals("*")) {
+				recMapper.addCollection(migrateStaticBO(association));
+			} else {
+				recMapper.addAssociation(migrateStaticBO(association));
+			}
 		}
 		
 		return recMapper;
@@ -288,92 +386,66 @@ public class MigrateBOTemplates {
 		return(serializer.serialize());
 	}
 	
+	public BulkOperationTemplate getTemplate(Long templateId) 
+	throws Exception {
+		ResultSet resultSet = null;
+		BulkOperationTemplate template = null;
+		
+		try {
+			LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
+			params.add(new ColumnValueBean(templateId));
+			
+			resultSet = jdbcDao.getResultSet(GET_TEMPL_DETAILS_SQL, params, null); 
+			if (resultSet.next()) {
+				template = new BulkOperationTemplate();
+				template.setOperationName(resultSet.getString("OPERATION"));
+				template.setTemplateName(resultSet.getString("DROPDOWN_NAME"));
+				template.setCsvTemplate(DaoUtil.getString(resultSet.getClob("CSV_TEMPLATE")));
+				template.setXmlTemplate(DaoUtil.getString(resultSet.getClob("XML_TEMPALTE")));
+			}
+		} finally {
+			DaoUtil.closeResultSet(resultSet);
+		}
+		
+		return template;
+	}
+	
 	private void updateTemplate(String dropdownName, String csvFileData, String xmlFileData) 
 	throws Exception {
-		JDBCDAO jdbcDao = DynamicExtensionsUtility.getJDBCDAO();
 		LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
 		params.add(new ColumnValueBean(csvFileData));
 		params.add(new ColumnValueBean(xmlFileData));
 		params.add(new ColumnValueBean(dropdownName));
 		
-		DynamicExtensionsUtility.executeUpdateQuery(UPDATE_TEMPLATE, null, jdbcDao, params);
+		jdbcDao.executeUpdate(UPDATE_TEMPLATE, params);
 		jdbcDao.commit();
-		jdbcDao.closeSession();
-		logger.info(" Template is Updated");
+		logger.info("Template is Updated: " + dropdownName);
 	}
-	
-	private Long getContainerId(JDBCDAO jdbcDao, String metadataName, String containerMetaDataName) 
-	throws Exception {
-		LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
-		params.add(new ColumnValueBean(metadataName));
-		params.add(new ColumnValueBean(containerMetaDataName));
-		ResultSet resultSet = null;
-		Long containerId = null;
-		resultSet = jdbcDao.getResultSet(GET_OLD_CONTAINER_ID_SQL, params, null);
-
-		while (resultSet.next()) {
-			containerId = resultSet.getLong("identifier");
-		}
-		resultSet.close();
-		
-		return containerId;
-	}
-
-	private ContainerInterface getOldContainer(Long containerId) throws Exception {
-		HibernateDAO dao = null;		
-		ContainerInterface container = null;
-		
-		try {
-			dao = DynamicExtensionsUtility.getHibernateDAO();
-			String objectType = edu.common.dynamicextensions.domain.userinterface.Container.class.getName();
-			container = (ContainerInterface)dao.retrieveById(objectType, containerId); 
-		} catch (Exception e) {
-			logger.error("Error obtaining container: " + containerId, e);
-		} finally {
-			DynamicExtensionsUtility.closeDAO(dao);			
-		}
-		
-		return container;		
-	}
-
-
-	private Long getNewContainerId(JDBCDAO jdbcDao, Long id) throws Exception {
-		Long containerId = null;
-		LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
-		params.add(new ColumnValueBean(id));
-		ResultSet resultSet = null;
-		resultSet = jdbcDao.getResultSet(GET_NEW_CONTAINER_ID_SQL, params, null);
-
-		while (resultSet.next()) {
-			containerId = resultSet.getLong("CONTAINER_ID");
-		}
-		resultSet.close();
-		
-		return containerId;
-	}
-
 			
-	private List<RecordField> getRecordFields(RecordMapper recMapper, Collection<Attribute> attributeCollection, ContainerInterface oldContainer) {
+	private List<RecordField> getRecordFields(RecordMapper recMapper, Collection<Attribute> attributes, ContainerInterface oldContainer) {
 		List<RecordField> fields = new ArrayList<RecordField>();
-		logger.info(" getRecordFields :: attributeCollection size -->"+attributeCollection.size());
-		
-		for (Attribute attr : attributeCollection) {
+				
+		for (Attribute attr : attributes) {
 			RecordField recField = new RecordField();
+			
 			if (oldContainer != null) {
-				logger.info(" getRecordFields :: old Container -->"+oldContainer.getId());
-				String newName = getDynamicName(oldContainer.getControlCollection(), attr );
-				if (newName == null) {
+				String newName = getNewFieldName(oldContainer.getControlCollection(), attr);
+				if (newName == null) { 
 					continue;
 				}
-				recField.setName(getDynamicName(oldContainer.getControlCollection(), attr ));
+				recField.setName(newName);
 			} else {
 				recField.setName(attr.getName());
 			}
+			
 			recField.setColumnName(attr.getCsvColumnName());
-
+			String format = attr.getFormat();
 			if (attr.getDataType() != null && attr.getDataType().contains("Date")) {
-				recField.setDateFormat(attr.getFormat());
-			}
+				recField.setDateFormat(format);
+			}else if (format != null && !format.isEmpty() && knownDateFormats.contains(format)) {
+				recField.setDateFormat(format);
+			} 
+			
 			if (attr.getUpdateBasedOn()) {
 				recMapper.addIdentifyingField(recField.getName());
 			}
@@ -386,26 +458,27 @@ public class MigrateBOTemplates {
 	}
 	
 	
-	private ContainerInterface getAssociatedContainer(ContainerInterface oldContainer, String newClassName) {
-		ContainerInterface newContainer = null;
+	private ContainerInterface getSubFormContainer(ContainerInterface oldContainer, String newClassName) {
+		ContainerInterface subFormContainer = null;
+		
 		for (ControlInterface ctrl : oldContainer.getControlCollection()) {
 			if (ctrl instanceof AbstractContainmentControlInterface) {
 				AbstractContainmentControlInterface containment = (AbstractContainmentControlInterface) ctrl;
 				String associationName = getAssociationName(containment.getBaseAbstractAttribute());
 
 				if (associationName.equals(newClassName)) {
-					newContainer = containment.getContainer();
+					subFormContainer = containment.getContainer();
 					break;
 				}
 			}
 		}
 		
-		return newContainer;
+		return subFormContainer;
 	}
 	
 	private ContainerInterface getChildContainer(ContainerInterface oldContainer, String oldClassName) {
 		oldClassName = oldClassName.replaceAll("&gt;", "").replaceAll("-", "").replaceAll(">", "");
-		System.err.println("Probing child container collection with " + oldClassName);
+		logger.info("Probing child container collection with " + oldClassName);
 		for (ContainerInterface childContainer : oldContainer.getChildContainerCollection()) {
 			if (childContainer.getAbstractEntity().getName().equals(oldClassName)) {
 				return childContainer;
@@ -415,25 +488,28 @@ public class MigrateBOTemplates {
 	}
 
 
-	private String getDynamicName(Collection<ControlInterface> ctrlCollection, Attribute attr) {
-		String newAttrName = null;
-		
+	private String getNewFieldName(Collection<ControlInterface> ctrlCollection, Attribute attr) {
+		String newFieldName = null;
+		String oldAttrName = null;
 		for (ControlInterface oldCtrl : ctrlCollection) {
-			if (!(oldCtrl instanceof AbstractContainmentControlInterface)) {
-				if (oldCtrl.getAttibuteMetadataInterface() != null && oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
-					newAttrName = attr.getName();
-					int idx = newAttrName.lastIndexOf(" Category Attribute");
-					if (idx != -1) {
-						newAttrName = newAttrName.substring(0, idx);
-					}
-					newAttrName = newAttrName + oldCtrl.getId();
+			if (oldCtrl instanceof AbstractContainmentControlInterface) {
+				continue;
+			}
+			
+			if (oldCtrl.getAttibuteMetadataInterface() != null && 
+				oldCtrl.getAttibuteMetadataInterface().getName().contains(attr.getName())) {
+				
+				oldAttrName = getNameByRemovingCatSuffix(oldCtrl.getAttibuteMetadataInterface().getName());
+				newFieldName = getNameByRemovingCatSuffix(attr.getName());
+
+				if (oldAttrName.equals(newFieldName)) {
+					newFieldName = newFieldName + oldCtrl.getId();
 					break;
 				}
 			}
 		}
-		logger.info(" getDynamicName :: newAttrName -->"+newAttrName);
-
-		return newAttrName;
+		
+		return newFieldName;
 	}
 
 	
@@ -471,17 +547,25 @@ public class MigrateBOTemplates {
 			.append(nameParts[numParts - (startIdx - 1)]).toString();		
 	}
 	
+	private String getNameByRemovingCatSuffix(String attrName) {
+		int idx = attrName.lastIndexOf(" Category Attribute");
+		if (idx != -1) {
+			attrName = attrName.substring(0, idx);
+		}
+		return attrName;
+	}
 	
-	private static List<String> colNames = new ArrayList<String>();
 	
-	private static Logger logger = Logger.getLogger(MigrateBOTemplates.class);
-
+	private static final String GET_ALL_TEMPL_IDS_SQL = 
+			"SELECT IDENTIFIER FROM CATISSUE_BULK_OPERATION";	
 	
-	private static final String GET_ALL_TEMPL_DETAILS_SQL = 
+	private static final String GET_TEMPL_DETAILS_SQL = 
 			"SELECT " +
 			"		DROPDOWN_NAME, OPERATION, XML_TEMPALTE, CSV_TEMPLATE " +
 			"FROM " +
-			"		CATISSUE_BULK_OPERATION ";
+			"		CATISSUE_BULK_OPERATION " +
+			"WHERE " +
+			"       IDENTIFIER = ?";
 	
 	private static final String UPDATE_TEMPLATE = 
 			"UPDATE " +

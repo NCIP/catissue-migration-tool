@@ -15,6 +15,15 @@ import edu.wustl.common.util.logger.LoggerConfig;
  * Bulk client API.
  * @author kalpana_thakur
  */
+
+/*
+ * Command line utility to upload the csv data for BO is not used anymore.
+ * The following classes are responsible for the above functionality :
+ * 1. BulkOperationCommand.java
+ * 2. BulkOperationService.java
+ * 3. BulkOperationServiceImpl.java
+ * 
+ */
 public class BulkOperationCommand
 {
 	/**

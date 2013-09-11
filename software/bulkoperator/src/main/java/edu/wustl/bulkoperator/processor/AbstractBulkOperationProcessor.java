@@ -110,21 +110,51 @@ public abstract class AbstractBulkOperationProcessor implements IBulkOperationPr
 						} while (columnNames[idx].equals(columnNames[++idx]));
 						break;
 					}
-					
-					else if(collection.getCollections().size() > 0) {
-						if(attrIdx.get(collection.getName()) != null) {
-							continue;
-						}
-						List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
-						attrIdx.put(collection.getName(), mapList);
-						Map<String, Object> collectionMap = new HashMap<String, Object>();
-						mapList.add(collectionMap);
-						idx = analyzePropIdx(collection, idx, columnNames, collectionMap);
-					}
 				}	
+				//
+				// if found is false, the leaf node may be in the underlying collection or association
+				//
+				
+				if (found) {
+					continue;
+				}
+				
+				//
+				// 1. Check in the association
+				//
+				for (RecordMapper assoc : mapper.getAssociations()) {
+						Map<String, Object> assocAttrIdx = new HashMap<String, Object>();
+						int newIdx = analyzePropIdx(assoc, idx, columnNames, assocAttrIdx);
+						if(idx != newIdx) {
+							attrIdx.put(assoc.getName(), assocAttrIdx);
+							idx = newIdx;
+							found = true;
+							break;
+						}
+				}	
+				
+				if (found) {
+					continue;
+				}
+				
+				//
+				// 2. Check in the collection
+				//
+				for (RecordMapper collection : mapper.getCollections()) {
+					Map<String, Object> collectionMap = new HashMap<String, Object>();
+					int newIdx = analyzePropIdx(collection, idx, columnNames, collectionMap);
+					
+					if (idx != newIdx) {
+						List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
+						mapList.add(collectionMap);
+						attrIdx.put(collection.getName(), mapList);
+						idx = newIdx;
+						found = true;
+						break;
+					}
+				}
 			}
 		}
-		
 		return idx;
 	}
 }

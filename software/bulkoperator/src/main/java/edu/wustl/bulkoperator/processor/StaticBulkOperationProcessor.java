@@ -63,8 +63,9 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 		return klass.newInstance();
 	}
 	
-	private void setObjectProps(Object object, RecordMapper recordMapper, CsvReader csvReader, Map<String, Object> propIdxs) 
+	private boolean setObjectProps(Object object, RecordMapper recordMapper, CsvReader csvReader, Map<String, Object> propIdxs) 
 	throws Exception {
+		boolean isPropSet = false;
 		for (RecordField field : recordMapper.getFields()) {
 			String propName = field.getName();
 			Integer idx = (Integer)propIdxs.get(propName); 
@@ -73,7 +74,8 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				if (field.getDateFormat() != null) {
 					value = field.getDate((String)value);
 				} 
-				if (value != null) {
+				if (value != null && !value.toString().isEmpty()) {
+					isPropSet = true;
 					BeanUtils.setProperty(object, propName, value);
 				}
 			}	
@@ -90,12 +92,14 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 				refObj = createObject(association);
 			}
 			
-			setObjectProps(refObj, association, csvReader, assocPropIdxs);
-			if (association.getRelName() != null) {
-				BeanUtils.setProperty(refObj, association.getRelName(), object);
+			boolean isRefObjPropSet = setObjectProps(refObj, association, csvReader, assocPropIdxs);
+			if (isRefObjPropSet) {
+				if (association.getRelName() != null) {
+					BeanUtils.setProperty(refObj, association.getRelName(), object);
+				} 
+
+				BeanUtils.setProperty(object, association.getName(), refObj);
 			}
-			
-			BeanUtils.setProperty(object, association.getName(), refObj);
 		}
 			
 		for (RecordMapper collection : recordMapper.getCollections()) {
@@ -107,13 +111,15 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			Set<Object> elements = new HashSet<Object>();
 			for (Map<String, Object> collectionPropIdxs : collectionPropIdxsList) { 
 				Object element = createObject(collection);
-				setObjectProps(element, collection, csvReader, collectionPropIdxs);
-				elements.add(element);
-				if(collection.getRelName() != null) {
-					BeanUtils.setProperty(element, collection.getRelName(), object);
+				boolean isEltPropSet = setObjectProps(element, collection, csvReader, collectionPropIdxs);
+				if (isEltPropSet) {
+					elements.add(element);
+					if(collection.getRelName() != null || !collection.getRelName().isEmpty()) {
+						BeanUtils.setProperty(element, collection.getRelName(), object);
+					}
 				}
 			}
-			
+		
 		
 			Collection oldElements = (Collection)PropertyUtils.getProperty(object, collection.getName());
 			if (oldElements != null) {
@@ -125,6 +131,7 @@ public class StaticBulkOperationProcessor extends AbstractBulkOperationProcessor
 			
 			BeanUtils.setProperty(object, collection.getName(), oldElements);
 		}		
+		return isPropSet;
 	}
 	
 	private Long getId(Object object) {

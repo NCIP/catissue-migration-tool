@@ -7,7 +7,7 @@ import java.io.InputStream;
 import org.apache.commons.digester3.xmlrules.FromXmlRulesModule;
 
 
-public class XmlRulesModule extends FromXmlRulesModule{
+public class XmlRulesModule extends FromXmlRulesModule {
 
 	private String rulesFile;
 	public XmlRulesModule(String rulesFile) {
