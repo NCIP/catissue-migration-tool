@@ -25,6 +25,8 @@ import edu.common.dynamicextensions.domaininterface.CategoryAssociationInterface
 import edu.common.dynamicextensions.domaininterface.userinterface.AbstractContainmentControlInterface;
 import edu.common.dynamicextensions.domaininterface.userinterface.ContainerInterface;
 import edu.common.dynamicextensions.domaininterface.userinterface.ControlInterface;
+import edu.common.dynamicextensions.napi.VersionedContainer;
+import edu.common.dynamicextensions.napi.impl.VersionedContainerImpl;
 import edu.wustl.bulkoperator.metadata.BulkOperation;
 import edu.wustl.bulkoperator.metadata.BulkOperationTemplate;
 import edu.wustl.bulkoperator.metadata.RecordField;
@@ -323,15 +325,16 @@ public class MigrateBOTemplates {
 	private Long getNewContainerId(Long id) 
 	throws Exception {
 		ResultSet resultSet = null;
-		Long containerId = null;
+		Long formId = null;
 		try {
 			LinkedList<ColumnValueBean> params = new LinkedList<ColumnValueBean>();
 			params.add(new ColumnValueBean(id));
 			resultSet = jdbcDao.getResultSet(GET_NEW_CONTAINER_ID_SQL, params, null);
 			if (resultSet.next()) {
-				containerId = resultSet.getLong("CONTAINER_ID");
+				formId = resultSet.getLong("CONTAINER_ID");
 			}
-			return containerId;
+			VersionedContainer vc = new VersionedContainerImpl();
+			return vc.getContainerId(formId);
 		} finally {
 			DaoUtil.closeResultSet(resultSet);
 		}
