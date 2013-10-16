@@ -216,10 +216,10 @@ public class MigrateBOTemplates {
 	private RecordMapper migrateDynamicBO(BulkOperationClass boClass) 
 	throws Exception {		
 		ContainerInterface oldContainer = getOldContainer(boClass);
-		Long newContainerId = getNewContainerId(oldContainer.getId());
+		String newContainerName = getNewContainerName(oldContainer.getId());
 		
 		RecordMapper recMapper = new RecordMapper();
-		recMapper.setFormName(newContainerId.toString());
+		recMapper.setFormName(newContainerName);
 		
 		BulkOperationClass containmentClass = boClass.getContainmentAssociationCollection().iterator().next();
 		populateRecMapper(recMapper, containmentClass, oldContainer);
@@ -322,7 +322,7 @@ public class MigrateBOTemplates {
 		}	
 	}
 	
-	private Long getNewContainerId(Long id) 
+	private String getNewContainerName(Long id) 
 	throws Exception {
 		ResultSet resultSet = null;
 		Long formId = null;
@@ -334,7 +334,7 @@ public class MigrateBOTemplates {
 				formId = resultSet.getLong("CONTAINER_ID");
 			}
 			VersionedContainer vc = new VersionedContainerImpl();
-			return vc.getContainerId(formId);
+			return vc.getContainerName(formId);
 		} finally {
 			DaoUtil.closeResultSet(resultSet);
 		}
