@@ -70,7 +70,7 @@ public class BOTemplateGenerator {
 	
 	private RecordMapper getRecordMapper(Container c) {
 		RecordMapper recMapper = new RecordMapper();
-		recMapper.setFormName(c.getId().toString());
+		recMapper.setFormName(c.getName());
 				
 		for (Control ctrl : c.getControls()) {
 			if (ctrl instanceof Label) {

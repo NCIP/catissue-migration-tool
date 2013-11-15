@@ -165,12 +165,13 @@ public class BulkOperationDao {
 	}
 	
 	
-	public void uploadTemplate(BulkOperationTemplate boTemplate) {
+	public void uploadTemplate(BulkOperationTemplate boTemplate, String dbType) {
 		try {
+			
 			if(doesTemplateExists(boTemplate.getTemplateName())) {
 				updateTemplate(boTemplate);
 			} else {
-				insertTemplate(boTemplate);
+				insertTemplate(boTemplate, dbType);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Error occured in persisting the template",e);
@@ -178,7 +179,7 @@ public class BulkOperationDao {
 	}
 
 	
-	private void insertTemplate(BulkOperationTemplate template) 
+	private void insertTemplate(BulkOperationTemplate template, String dbType) 
 	throws Exception {
 		List<ColumnValueBean> params = new ArrayList<ColumnValueBean>();
 
@@ -187,13 +188,18 @@ public class BulkOperationDao {
 			params.add(new ColumnValueBean(template.getTemplateName()));
 			params.add(new ColumnValueBean(template.getCsvTemplate()));
 			params.add(new ColumnValueBean(template.getXmlTemplate()));
-
-			if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+			
+			if (dbType == null) {
+				if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+					jdbcDao.executeUpdate(INSERT_TEMPLATE_ORA_SQL, params);
+				} else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+					jdbcDao.executeUpdate(INSERT_TEMPLATE_MYSQL_SQL, params);
+				}
+			} else if (BulkOperationConstants.ORACLE_DATABASE.equalsIgnoreCase(dbType)) {
 				jdbcDao.executeUpdate(INSERT_TEMPLATE_ORA_SQL, params);
-			} else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(BulkOperationUtility.getDatabaseType())) {
+			} else if (BulkOperationConstants.MYSQL_DATABASE.equalsIgnoreCase(dbType)) {
 				jdbcDao.executeUpdate(INSERT_TEMPLATE_MYSQL_SQL, params);
 			}
-			
 			logger.info("Template is Inserted: " + template.getTemplateName());
 		} catch (Exception e) {
 			throw new RuntimeException("Error inserting bulk operation template", e);
