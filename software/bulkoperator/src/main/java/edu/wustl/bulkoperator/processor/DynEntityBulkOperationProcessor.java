@@ -56,12 +56,15 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=bulkOperationClass.getHookingInformation();
-			getinformationForHookingData(csvReader ,hookingInformationFromTag);
-			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getEntityGroupName());
-			hookingInformationFromTag.setEntityName(bulkOperationClass.getClassName());
+			//getinformationForHookingData(csvReader ,hookingInformationFromTag);
+			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
+			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
+
+			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
+			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
+			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
 			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
-			recordEntryId=bulkOprAppService.insertDEObject(bulkOperationClass.getEntityGroupName(),
-					bulkOperationClass.getClassName(), dynExtObject, hookingInformationFromTag);
+			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{
@@ -141,10 +144,18 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 	protected void setValueToObject(Object mainObj,
 			BulkOperationClass mainMigrationClass,CsvReader csvReader,
 			String columnSuffix, boolean validate, Attribute attribute) throws BulkOperationException {
-		if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()
-				+ columnSuffix))) {
-			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
-					+ columnSuffix);
+		
+		String csvDataValue=null;
+		if(csvReader.getColumn(attribute.getCsvColumnName()+ columnSuffix)!=null)
+		{
+			csvDataValue=csvReader.getColumn(attribute.getCsvColumnName()+ columnSuffix);
+		}
+		if(Validator.isEmpty(csvDataValue) && attribute.getDefaultValue()!=null)
+		{
+			csvDataValue=attribute.getDefaultValue();
+		}
+		
+		if (!Validator.isEmpty(csvDataValue)) {
 			Map<String, Object> categoryDataValueMap = (Map<String, Object>) mainObj;
 
 			if (csvDataValue == null || "".equals(csvDataValue)) {

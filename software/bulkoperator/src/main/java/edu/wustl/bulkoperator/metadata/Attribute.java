@@ -32,6 +32,7 @@ public class Attribute
 	private String belongsTo="";
 	private Long id;
 	private String format;
+	private String defaultValue;
 
 	private Collection<AttributeDiscriminator> discriminatorCollection = new ArrayList<AttributeDiscriminator>();
 
@@ -141,20 +142,20 @@ public class Attribute
 					if (value.indexOf(":") > -1)
 					{
 						String DATE_FORMAT_WITH_TIME = ApplicationProperties
-								.getValue("timestamp.pattern.slash");
+								.getValue("bulk.date.valid.format.withtime");
 						sdf = new SimpleDateFormat(DATE_FORMAT_WITH_TIME);
 						sdf.setLenient(false);
 						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("timestamp.pattern.slash");
+						format=ApplicationProperties.getValue("bulk.date.valid.format.withtime");
 					}
 					else
 					{
 						String DATE_FORMAT = ApplicationProperties
-								.getValue("date.pattern.slash");
+								.getValue("bulk.date.valid.format");
 						sdf = new SimpleDateFormat(DATE_FORMAT);
 						sdf.setLenient(false);
 						testDate = sdf.parse(value);
-						format=ApplicationProperties.getValue("date.pattern.slash");
+						format=ApplicationProperties.getValue("bulk.date.valid.format");
 					}
 				}
 				catch (ParseException parseExp)
@@ -192,5 +193,13 @@ public class Attribute
 		}
 		return valueObject;
 	}
+	public String getDefaultValue()
+	{
+		return defaultValue;
+	}
 
+	public void setDefaultValue(String defaultValue)
+	{
+		this.defaultValue = defaultValue;
+	}
 }

@@ -49,14 +49,6 @@
        </xs:appinfo></xs:annotation>
       </xs:attribute>
 	  
-	   <xs:attribute name="entityGroupName" type="xs:string" >
-       <xs:annotation><xs:appinfo>
-		<xs:javadoc language="en"> 
-			 It is used to identify the entityGroupname in case of de entity data migration.              
-		</xs:javadoc>
-       </xs:appinfo></xs:annotation>
-      </xs:attribute>
-      
     </xs:complexType>
   </xs:element>
 
@@ -119,7 +111,13 @@
 		</xs:javadoc>
        </xs:appinfo></xs:annotation>
       </xs:attribute>
-	  
+      <xs:attribute name="defaultValue" type="xs:string"  >
+      <xs:annotation><xs:appinfo>
+		<xs:javadoc language="en"> 
+			 This is used to specify the default value.So if user doesn't specify the value of the attribute,default value will be taken.               
+		</xs:javadoc>
+       </xs:appinfo></xs:annotation>
+      </xs:attribute>	  
     </xs:complexType>
   </xs:element>
   <xs:element name="hookingInformation">

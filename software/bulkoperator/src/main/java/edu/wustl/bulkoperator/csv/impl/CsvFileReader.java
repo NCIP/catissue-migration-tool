@@ -76,7 +76,7 @@ public class CsvFileReader implements CsvReader {
                 
         Integer columnIdx = columnNameIdxMap.get(columnName.trim());
         if (columnIdx == null) {
-            throw new CsvException("Invalid column name: " + columnName);
+        	return null;
         }
 
         return    getColumn(columnIdx);

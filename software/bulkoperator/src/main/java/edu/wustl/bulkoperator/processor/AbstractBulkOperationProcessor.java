@@ -15,7 +15,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,7 +28,6 @@ import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.DateValue;
-import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -38,17 +36,17 @@ import edu.wustl.common.util.global.Validator;
 import edu.wustl.common.util.logger.Logger;
 
 public abstract class AbstractBulkOperationProcessor {
-
+	
 	private static final Logger logger = Logger
 			.getCommonLogger(AbstractBulkOperationProcessor.class);
-
+	
 	protected BulkOperationClass bulkOperationClass = null;
 	protected AppServiceInformationObject serviceInformationObject = null;
 	private static CustomDateConverter converter=new CustomDateConverter();
 	static {
 		  ConvertUtils.register(converter, java.util.Date.class);
 	};
-
+	
 	public AbstractBulkOperationProcessor(
 			BulkOperationClass bulkOperationClass,
 			AppServiceInformationObject serviceInformationObject) {
@@ -72,7 +70,7 @@ public abstract class AbstractBulkOperationProcessor {
 			throws BulkOperationException;
 
 	/**
-	 *
+	 * 
 	 * @param mainObj
 	 * @param migrationClass
 	 * @param columnSuffix
@@ -105,7 +103,7 @@ public abstract class AbstractBulkOperationProcessor {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param csvData
@@ -137,7 +135,7 @@ public abstract class AbstractBulkOperationProcessor {
 					int maxNoOfRecords = containmentMigrationClass
 							.getMaxNoOfRecords().intValue();
 					for (int i = 1; i <= maxNoOfRecords; i++) {
-
+						
 						if (validate||BulkOperationUtility
 								.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
 										containmentMigrationClass,columnSuffix+ "#" + i, csvReader))
@@ -148,7 +146,7 @@ public abstract class AbstractBulkOperationProcessor {
 							containmentObject = containmentMigrationClass
 									.getClassDiscriminator(csvReader,
 											columnSuffix + "#" + i);// getNewInstance();
-						}
+						}			
 							if (containmentObject == null) {
 								if (BulkOperationConstants.JAVA_LANG_STRING_DATATYPE
 										.equals(containmentMigrationClass
@@ -159,7 +157,7 @@ public abstract class AbstractBulkOperationProcessor {
 											.getNewInstance();
 								}
 							}
-
+							
 							processObject(containmentObject,
 									containmentMigrationClass, csvReader,
 									columnSuffix + "#" + i, validate,
@@ -181,11 +179,11 @@ public abstract class AbstractBulkOperationProcessor {
 						}
 					}
 					String roleName = containmentMigrationClass.getRoleName();
-
+					
 					BeanUtils.setProperty(mainObj,roleName,containmentObjectCollection);
 				} else if (cardinality != null && cardinality.equals("1")
 						&& !cardinality.equals("")) {
-
+					
 					if ( validate||BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainmentForStatic(csvRowNumber,
 							containmentMigrationClass,columnSuffix, csvReader)) {
 						Object containmentObject = mainMigrationClass
@@ -208,9 +206,13 @@ public abstract class AbstractBulkOperationProcessor {
 								columnSuffix, validate, csvRowNumber);
 						String roleName = containmentMigrationClass
 								.getRoleName();
-
+						
 						BeanUtils.setProperty(mainObj,roleName,containmentObject);
-
+						
+						String parentRoleName = containmentMigrationClass.getParentRoleName();
+						if (!Validator.isEmpty(parentRoleName)) {
+							BeanUtils.setProperty(containmentObject,parentRoleName,mainObj);
+						}
 					}
 				}
 			}
@@ -226,7 +228,7 @@ public abstract class AbstractBulkOperationProcessor {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param csvData
@@ -299,9 +301,9 @@ public abstract class AbstractBulkOperationProcessor {
 						}
 					}
 					String roleName = associationMigrationClass.getRoleName();
-
+					
 					BeanUtils.setProperty(mainObj, roleName,associationObjectCollection);
-
+					
 				} else if (cardinality != null && cardinality.equals("1")
 						&& !cardinality.equals("")) {
 					List<String> attributeList = BulkOperationUtility
@@ -328,8 +330,13 @@ public abstract class AbstractBulkOperationProcessor {
 								columnSuffix, validate, csvRowNumber);
 						String roleName = associationMigrationClass
 								.getRoleName();
-
+						
 						BeanUtils.setProperty(mainObj, roleName,associatedObject);
+						String parentRoleName = associationMigrationClass
+						.getParentRoleName();
+						if (!Validator.isEmpty(parentRoleName)) {
+							BeanUtils.setProperty(associatedObject,parentRoleName,mainObj);
+						}
 					}
 				}
 			}
@@ -345,7 +352,7 @@ public abstract class AbstractBulkOperationProcessor {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param mainObj
 	 * @param mainMigrationClass
 	 * @param csvData2
@@ -363,7 +370,11 @@ public abstract class AbstractBulkOperationProcessor {
 			while (attributeItertor.hasNext()) {
 				Attribute attribute = attributeItertor.next();
 
-				if (!Arrays.asList(csvReader.getColumnNames()).contains(attribute.getCsvColumnName() + columnSuffix)) {
+				if (validate
+						&& !Arrays.asList(csvReader.getColumnNames()).contains(
+								attribute.getCsvColumnName() + columnSuffix)
+						&& attribute.getUpdateBasedOn())
+				{
 					BulkOperationUtility.throwExceptionForColumnNameNotFound(
 							mainMigrationClass, validate, attribute);
 				} else if(!validate)
@@ -373,7 +384,7 @@ public abstract class AbstractBulkOperationProcessor {
 						if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()
 								+ columnSuffix))) {
 							String csvDataValue =csvReader.getColumn(attribute.getCsvColumnName()+ columnSuffix);
-
+							
 							Object attributeValue = attribute
 									.getValueOfDataType(csvDataValue, validate,
 											attribute.getCsvColumnName()
@@ -418,14 +429,20 @@ public abstract class AbstractBulkOperationProcessor {
 	protected void setValueToObject(Object mainObj,
 			BulkOperationClass mainMigrationClass,CsvReader csvReader,
 			String columnSuffix, boolean validate, Attribute attribute) throws BulkOperationException {
-		if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()
-				+ columnSuffix))) {
-			String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName()
-					+ columnSuffix);
-
+		String csvDataValue=null;
+		if(csvReader.getColumn(attribute.getCsvColumnName()+ columnSuffix)!=null)
+		{
+			csvDataValue=csvReader.getColumn(attribute.getCsvColumnName()+ columnSuffix);
+		}
+		if(Validator.isEmpty(csvDataValue) && attribute.getDefaultValue()!=null)
+		{
+			csvDataValue=attribute.getDefaultValue();
+		}
+		
+		if (!Validator.isEmpty(csvDataValue)) {
 			try {
-
-				if(attribute.getFormat()!=null && !attribute.getFormat().equals(""))
+				 
+				if(attribute.getFormat()!=null)
 				{
 					DateValue value = new DateValue(csvDataValue, attribute.getFormat());
 					BeanUtils.copyProperty(mainObj, attribute.getName(),value);
@@ -434,7 +451,7 @@ public abstract class AbstractBulkOperationProcessor {
 				{
 					BeanUtils.copyProperty(mainObj, attribute.getName(),csvDataValue);
 				}
-
+				
 			} catch (IllegalAccessException exp) {
 				logger.error(exp.getMessage(), exp);
 				ErrorKey errorkey = ErrorKey.getErrorKey("bulk.operation.issues");
@@ -446,29 +463,4 @@ public abstract class AbstractBulkOperationProcessor {
 			}
 		}
 	}
-	protected void getinformationForHookingData(CsvReader csvReader,
-			HookingInformation hookingInformation)
-			throws ClassNotFoundException, BulkOperationException {
-		Iterator<Attribute> attributeItertor = hookingInformation
-				.getAttributeCollection().iterator();
-		Map<String, Object> map = new HashMap<String, Object>();
-		while (attributeItertor.hasNext()) {
-			Attribute attribute = attributeItertor.next();
-
-			if (!Validator.isEmpty(csvReader.getColumn(attribute.getCsvColumnName()))) {
-				String csvDataValue = csvReader.getColumn(attribute.getCsvColumnName());
-				map.put(attribute.getName(), csvDataValue);
-				if(attribute.getFormat()!=null && !attribute.getFormat().equals(""))
-				{
-					attribute.setDataType("java.util.Date");
-					Object attributeValue = attribute.getValueOfDataType(csvDataValue, false,
-						attribute.getCsvColumnName(), attribute.getDataType());
-					map.put(attribute.getName(), attributeValue);
-				}
-
-			}
-		}
-		hookingInformation.setDataHookingInformation(map);
-	}
-
 }

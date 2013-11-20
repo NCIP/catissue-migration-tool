@@ -583,13 +583,7 @@ public class BulkOperationUtility
 		while (attributeItertor.hasNext())
 		{
 			Attribute attribute = attributeItertor.next();
-			if (csvReader.getColumn(attribute.getCsvColumnName() + suffix) == null)
-			{
-
-				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
-
-			}
-			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader))
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader) || attribute.getDefaultValue()!=null)
 			{
 				hasValue = true;
 				break;
@@ -658,14 +652,8 @@ public class BulkOperationUtility
 				.iterator();
 		while (attributeItertor.hasNext())
 		{
-			Attribute attribute = attributeItertor.next();
-			if (csvReader.getColumn(attribute.getCsvColumnName() + suffix) == null)
-			{
-
-				throwExceptionForColumnNameNotFound(bulkOperationClass, false, attribute);
-
-			}
-			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader))
+			Attribute attribute = attributeItertor.next();			
+			if (checkIfColumnHasAValue(index, attribute.getCsvColumnName() + suffix, csvReader) || attribute.getDefaultValue()!=null)
 			{
 				hasValue = true;
 				break;
