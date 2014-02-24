@@ -13,6 +13,7 @@ package edu.wustl.bulkoperator.appservice;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.common.exception.ErrorKey;
@@ -70,7 +71,7 @@ public abstract class AbstractBulkOperationAppService
 		return insertObject(obj);
 	}
 
-	public abstract Long insertDEObject(final String entityGroupName,final String entityName,final Map<String, Object> dataValue,final Object hookInformationObject) throws Exception;
+	public abstract Long insertDEObject(final String entityName,final Map<String, Object> dataValue,final HookingInformation hookInformationObject) throws Exception;
 
 
 	public Object search(Object obj) throws Exception
@@ -99,6 +100,4 @@ public abstract class AbstractBulkOperationAppService
 
 	abstract protected Long hookStaticDynExtObject(Object hookingInformationObject) throws Exception;
 
-	abstract public Long insertData(final String categoryName,final Map<String, Object> dataValue,Object hookInformationObject)
-			throws Exception;
 }

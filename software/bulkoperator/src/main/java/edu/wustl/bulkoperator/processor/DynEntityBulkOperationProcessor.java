@@ -19,7 +19,6 @@ import java.util.Map;
 import edu.wustl.bulkoperator.appservice.AbstractBulkOperationAppService;
 import edu.wustl.bulkoperator.appservice.AppServiceInformationObject;
 import edu.wustl.bulkoperator.csv.CsvReader;
-import edu.wustl.bulkoperator.csv.impl.CsvFileReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.HookingInformation;
@@ -56,15 +55,18 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 			processObject(dynExtObject, bulkOperationClass, csvReader, "", false, csvRowCounter);
 
 			HookingInformation hookingInformationFromTag=bulkOperationClass.getHookingInformation();
-			//getinformationForHookingData(csvReader ,hookingInformationFromTag);
-			BulkOperationClass bulkEntityClass= bulkOperationClass.getContainmentAssociationCollection().iterator().next();
-			Long recordId = bulkOprAppService.insertDEObject(bulkOperationClass.getClassName(), bulkEntityClass.getClassName(), dynExtObject);
-
-			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
-			hookingInformationFromTag.setEntityName(bulkEntityClass.getClassName());
-			hookingInformationFromTag.setDynamicExtensionObjectId(recordId);
+			getinformationForHookingData(csvReader ,hookingInformationFromTag);
+			String entityClassName = null;
+			if (bulkOperationClass.getContainmentAssociationCollection().size() > 0) {
+				entityClassName = bulkOperationClass.getContainmentAssociationCollection().iterator().next().getClassName();
+			}
+			entityClassName = bulkOperationClass.getClassName();
+		
 			hookingInformationFromTag.setSessionDataBean(sessionDataBean);
-			recordEntryId = bulkOprAppService.hookStaticDEObject(hookingInformationFromTag);
+			hookingInformationFromTag.setEntityGroupName(bulkOperationClass.getClassName());
+			hookingInformationFromTag.setEntityName(entityClassName);
+			
+			recordEntryId = bulkOprAppService.insertDEObject(entityClassName, dynExtObject, hookingInformationFromTag);
 		}
 		catch (BulkOperationException bulkOprExp)
 		{

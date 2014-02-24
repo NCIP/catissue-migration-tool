@@ -126,4 +126,19 @@ public class HookingInformation
 	public void addAttribute(Attribute attribute) {
 	    this.attributeCollection.add(attribute);
 	}
+	
+	public void setEntityType() {
+		String entityType;
+		
+		if (dataHookingInformation.get("collectionProtocol") != null ) {
+			entityType = "Participant";
+		} else if (dataHookingInformation.get("specimenId") != null || 
+				   dataHookingInformation.get("specimenLabel") != null || 
+				   dataHookingInformation.get("specimenBarcode") != null) {
+			entityType = "Specimen";
+		} else {
+			entityType = "SpecimenCollectionGroup";
+		}
+		dataHookingInformation.put("entityType", entityType);
+	}
 }

@@ -28,6 +28,7 @@ import edu.wustl.bulkoperator.csv.CsvReader;
 import edu.wustl.bulkoperator.metadata.Attribute;
 import edu.wustl.bulkoperator.metadata.BulkOperationClass;
 import edu.wustl.bulkoperator.metadata.DateValue;
+import edu.wustl.bulkoperator.metadata.HookingInformation;
 import edu.wustl.bulkoperator.util.BulkOperationConstants;
 import edu.wustl.bulkoperator.util.BulkOperationException;
 import edu.wustl.bulkoperator.util.BulkOperationUtility;
@@ -463,4 +464,15 @@ public abstract class AbstractBulkOperationProcessor {
 			}
 		}
 	}
+	
+	protected void getinformationForHookingData(CsvReader csvReader, HookingInformation hookingInformation) {
+		for (Attribute attr : hookingInformation.getAttributeCollection()) {
+			if (!Validator.isEmpty(csvReader.getColumn(attr.getCsvColumnName()))) {
+				String csvDataValue = csvReader.getColumn(attr.getCsvColumnName());
+				hookingInformation.getDataHookingInformation().put(attr.getName(), csvDataValue);
+			}
+		}
+		hookingInformation.setEntityType();
+	}
+
 }
