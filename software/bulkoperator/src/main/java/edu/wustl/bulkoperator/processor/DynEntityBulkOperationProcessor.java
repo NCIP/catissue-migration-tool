@@ -92,7 +92,6 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 	 *
 	 * @param mainObj
 	 * @param bulkOperationClass
-	 * @param csvData
 	 * @param columnSuffix
 	 * @param validate
 	 * @throws BulkOperationException
@@ -114,18 +113,18 @@ public class DynEntityBulkOperationProcessor extends AbstractBulkOperationProces
 				{
 					List<Map<Long, Object>> list = new ArrayList<Map<Long, Object>>();
 
-					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
-					for (int i = 1; i <= maxNoOfRecords; i++)
-					{
-						if (BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
-										columnSuffix + "#" + i,csvReader))
-						{
-							Object obj = new HashMap<Long, Object>();
+//					int maxNoOfRecords = containmentObjectCollection.getMaxNoOfRecords().intValue();
+					for (int i = 1; ; i++) {
+						if (!BulkOperationUtility.checkIfAtLeastOneColumnHasAValueForInnerContainment(csvRowNumber,containmentObjectCollection,
+										columnSuffix + "#" + i,csvReader)) {
+                            break;
+                        } else {
+                            Object obj = new HashMap<Long, Object>();
 							processObject(obj, containmentObjectCollection, csvReader, columnSuffix
-									+ "#" + i, validate, csvRowNumber);
-							list.add((Map<Long, Object>) obj);
-						}
-						categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
+                                    + "#" + i, validate, csvRowNumber);
+                            list.add((Map<Long, Object>) obj);
+                        }
+                    	categoryDataValueMap.put(containmentObjectCollection.getClassName(), list);
 					}
 				}
 			}

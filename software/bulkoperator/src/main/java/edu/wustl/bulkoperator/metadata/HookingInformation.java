@@ -133,7 +133,7 @@ public class HookingInformation
 		if (dataHookingInformation.get("collectionProtocol") != null ) {
 			entityType = "Participant";
 		} else if (dataHookingInformation.get("specimenId") != null || 
-				   dataHookingInformation.get("specimenLabel") != null || 
+				   dataHookingInformation.get("specimenLabel") != null ||
 				   dataHookingInformation.get("specimenBarcode") != null) {
 			entityType = "Specimen";
 		} else {
