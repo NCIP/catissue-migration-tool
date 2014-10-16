@@ -136,9 +136,19 @@ public class HookingInformation
 				   dataHookingInformation.get("specimenLabel") != null ||
 				   dataHookingInformation.get("specimenBarcode") != null) {
 			entityType = "Specimen";
-		} else {
+		} else if (dataHookingInformation.get("specimenIdForEvent") != null || 
+				   dataHookingInformation.get("specimenLabelForEvent") != null ||
+				   dataHookingInformation.get("specimenBarcodeForEvent") != null) {
+			entityType = "SpecimenEvent";
+		} else if (dataHookingInformation.get("scgId") != null || 
+				   dataHookingInformation.get("scgName") != null ||
+				   dataHookingInformation.get("scgBarcode") != null) {
 			entityType = "SpecimenCollectionGroup";
+		} else {
+			throw new RuntimeException("Unrecognized integration fields");
 		}
+		
+		
 		dataHookingInformation.put("entityType", entityType);
 	}
 }

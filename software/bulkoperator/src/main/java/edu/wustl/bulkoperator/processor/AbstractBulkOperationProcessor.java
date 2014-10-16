@@ -465,11 +465,13 @@ public abstract class AbstractBulkOperationProcessor {
 		}
 	}
 	
-	protected void getinformationForHookingData(CsvReader csvReader, HookingInformation hookingInformation) {
+	protected void getinformationForHookingData(CsvReader csvReader, HookingInformation hookingInformation) {		
 		for (Attribute attr : hookingInformation.getAttributeCollection()) {
 			if (!Validator.isEmpty(csvReader.getColumn(attr.getCsvColumnName()))) {
 				String csvDataValue = csvReader.getColumn(attr.getCsvColumnName());
 				hookingInformation.getDataHookingInformation().put(attr.getName(), csvDataValue);
+			} else{
+				hookingInformation.getDataHookingInformation().remove(attr.getName());
 			}
 		}
 		hookingInformation.setEntityType();
