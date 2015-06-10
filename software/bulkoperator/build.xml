@@ -128,7 +128,7 @@
 	<target name="compile" depends="clean, resolve" description="java classes are compiled">
 		<mkdir dir="${temp.dir}" />
 		<echo message="Compling classes................" />
-		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.5" nowarn="on">
+		<javac destdir="${temp.dir}" includes="**/*.*" debug="on" includeAntRuntime="false" target="1.6" nowarn="on">
     		<src path="${src.dir}"/>
             <classpath>
        			<fileset dir="${basedir}/lib">

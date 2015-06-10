@@ -103,6 +103,7 @@ public class BOTemplateGenerator {
 			recField.setColumnName(ctxt.getKey());
 			recField.setName(ctxt.getValue());
 			integratorCtxtFields.add(recField);
+			csvColumnNames.add(ctxt.getKey());
 		}
 		return integratorCtxtFields;
 	}
