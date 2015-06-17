@@ -114,8 +114,9 @@ public class BOTemplateGenerator {
 		
 		String columnName = ctrl.getCaption().replace(" ", "_");
 		recField.setName(ctrl.getName());
-		recField.setColumnName(columnName);
-		csvColumnNames.add(columnName);
+		String udn=ctrl.getUserDefinedName();
+		recField.setColumnName(columnName+"("+udn+")");
+		csvColumnNames.add(columnName+"("+udn+")");
 		
 		if (ctrl instanceof DatePicker) {
 			DatePicker dateCtrl = (DatePicker) ctrl;
