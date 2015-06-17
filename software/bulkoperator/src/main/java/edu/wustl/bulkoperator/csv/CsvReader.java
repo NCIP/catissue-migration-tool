@@ -1,7 +1,6 @@
 package edu.wustl.bulkoperator.csv;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * 

@@ -4,7 +4,6 @@ package edu.wustl.bulkoperator.migration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.hibernate.proxy.HibernateProxy;
 

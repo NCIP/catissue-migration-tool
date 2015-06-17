@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import au.com.bytecode.opencsv.CSVReader;
 import edu.wustl.bulkoperator.csv.CsvException;
