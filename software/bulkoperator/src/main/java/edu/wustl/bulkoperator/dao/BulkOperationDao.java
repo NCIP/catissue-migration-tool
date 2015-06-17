@@ -41,7 +41,7 @@ public class BulkOperationDao {
 			"SELECT " +
 			"	DROPDOWN_NAME " +
 			"FROM" +
-			"	CATISSUE_BULK_OPERATION";
+			"	CATISSUE_BULK_OPERATION ORDER BY DROPDOWN_NAME ASC";
 	
 	private static final String GET_TEMPLATE_SQL= 
 			"SELECT " +
