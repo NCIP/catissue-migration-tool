@@ -94,7 +94,7 @@ function getCSVOutputReport()
 		<tr>	
 			<td width="21%" align="left" class="black_ar"><b><bean:message key="bulk.download.template" /></b></td>
             <td width="35%" align="left" valign="middle" class="black_new">
-			      <html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:65%" onmouseover="showTip(this.id)" onmouseout="hideTip(this.id)">
+			      <html:select property="dropdownName" styleId="dropdownName" styleClass="bulk_black_ar" style="width:80%" onmouseover="showTip(this.id)" onmouseout="hideTip(this.id)">
                         <logic:iterate id="element" name="<%=BulkOperationConstants.BULK_OPERATION_LIST%>">
 								<logic:equal name="dropdownName" value="${element.value}">
 								<option title="${element.name}" value="${element.value}" selected>
